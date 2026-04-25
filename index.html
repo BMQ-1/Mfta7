@@ -6,603 +6,1278 @@
 <meta name="description" content="مِفتاح - مدير كلمات المرور الآمن والمشفر محلياً">
 <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src 'none'; frame-ancestors 'none'; base-uri 'none'; form-action 'none'; object-src 'none';">
 <title>مِفتاح | مدير كلمات المرور</title>
-<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%230d9488' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><rect x='3' y='11' width='18' height='11' rx='2' ry='2'></rect><path d='M7 11V7a5 5 0 0 1 10 0v4'></path></svg>">
-
+<link rel="manifest" href="data:application/manifest+json;charset=utf-8,%7B%22name%22%3A%22%D9%85%D9%90%D9%81%D8%AA%D8%A7%D8%AD%22%2C%22short_name%22%3A%22%D9%85%D9%90%D9%81%D8%AA%D8%A7%D8%AD%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%230a0e17%22%2C%22theme_color%22%3A%220ea5e9%22%7D">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="مِفتاح">
+<meta name="theme-color" content="#0ea5e9">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&display=swap">
-
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&display=swap">
 <style>
 :root {
-  --bg: #0a0d14;
-  --surface: #11151c;
-  --surface2: #181d27;
-  --surface3: #1f2633;
-  --border: #2c3a52;
-  --border2: #384865;
-  --text: #e8eaf0;
-  --text2: #8892a4;
-  --text3: #5c677d;
-  --accent: #0d9488;
-  --accent2: #0f766e;
-  --accent-glow: rgba(13, 148, 136, 0.18);
-  --green: #10b981;
-  --green-glow: rgba(16, 185, 129, 0.15);
-  --red: #ef4444;
-  --red-glow: rgba(239, 68, 68, 0.15);
-  --yellow: #f59e0b;
-  --gold: #fbbf24;
-  --radius: 14px;
-  --radius-sm: 9px;
-  --font: 'Tajawal', system-ui, sans-serif;
-  --mono: ui-monospace, SFMono-Regular, Menlo, monospace;
-  --shadow: 0 4px 24px rgba(0,0,0,0.5);
+  --bg:       #080c14;
+  --bg2:      #0c1220;
+  --surface:  #0f1621;
+  --surface2: #141d2e;
+  --surface3: #1a2438;
+  --surface4: #1f2d45;
+  --border:   rgba(255,255,255,0.07);
+  --border2:  rgba(255,255,255,0.12);
+  --text:     #e8eef8;
+  --text2:    #7d8ea8;
+  --text3:    #4a5770;
+
+  --blue:     #0ea5e9;
+  --blue2:    #0284c7;
+  --blue-gl:  rgba(14,165,233,0.15);
+  --blue-gl2: rgba(14,165,233,0.08);
+  --cyan:     #22d3ee;
+  --green:    #10b981;
+  --green-gl: rgba(16,185,129,0.15);
+  --red:      #f43f5e;
+  --red-gl:   rgba(244,63,94,0.15);
+  --yellow:   #fbbf24;
+  --yellow-gl:rgba(251,191,36,0.15);
+  --gold:     #f59e0b;
+
+  --r:        16px;
+  --r-sm:     10px;
+  --r-xs:     7px;
+  --font:     'Tajawal', system-ui, sans-serif;
+  --mono:     'SF Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+  --shadow:   0 8px 32px rgba(0,0,0,0.6);
+  --shadow-lg:0 20px 60px rgba(0,0,0,0.8);
 }
 
-* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+.sr-only { position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0; }
 
-.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
+body {
+  font-family: var(--font);
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100dvh;
+  overflow-x: hidden;
+  display: flex;
+  flex-direction: column;
+  background-image:
+    radial-gradient(ellipse 70% 50% at 10% 90%, rgba(14,165,233,0.08) 0%, transparent 60%),
+    radial-gradient(ellipse 40% 40% at 90% 10%, rgba(34,211,238,0.05) 0%, transparent 55%),
+    radial-gradient(ellipse 60% 60% at 50% 50%, rgba(14,165,233,0.03) 0%, transparent 70%);
+}
 
-body { font-family: var(--font); background: var(--bg); color: var(--text); min-height: 100dvh; overflow-x: hidden; display: flex; flex-direction: column; }
-
-/* ─── SPLASH / LOCK SCREEN ─── */
+/* ═══════════════════════════════════════════════
+   LOCK SCREEN
+═══════════════════════════════════════════════ */
 #lock-screen {
   position: fixed; inset: 0; z-index: 9999;
-  background: var(--bg); display: flex; flex-direction: column; align-items: center; justify-content: center;
-  padding: 2rem 1.5rem; background-image: radial-gradient(ellipse 60% 40% at 20% 80%, var(--accent-glow) 0%, transparent 70%);
-  transition: opacity 0.35s ease, transform 0.35s cubic-bezier(0.16,1,0.3,1);
-  opacity: 1; transform: scale(1);
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  padding: 1.5rem;
+  transition: opacity 0.4s ease, transform 0.4s cubic-bezier(0.16,1,0.3,1), visibility 0s linear 0s;
 }
-#lock-screen.hiding { opacity: 0; transform: scale(0.97); pointer-events: none; }
+#lock-screen.hiding {
+  opacity: 0; transform: scale(0.96) translateY(-12px);
+  pointer-events: none; visibility: hidden;
+  transition: opacity 0.4s ease, transform 0.4s cubic-bezier(0.16,1,0.3,1), visibility 0s linear 0.4s;
+}
 
-.lock-logo-svg { width: 56px; height: 56px; stroke: var(--accent); margin-bottom: 0.8rem; animation: float 3s ease-in-out infinite; }
-@keyframes float { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
-.lock-title { font-size: 2.5rem; font-weight: 900; letter-spacing: -1px; color: var(--text); margin-bottom: 0.3rem; }
-.lock-sub { color: var(--text2); font-size: 1rem; font-weight: 500; margin-bottom: 2.5rem; }
+.lock-hero {
+  display: flex; flex-direction: column;
+  align-items: center; margin-bottom: 2.5rem;
+}
+.lock-icon-wrap {
+  width: 72px; height: 72px;
+  background: linear-gradient(135deg, rgba(14,165,233,0.2) 0%, rgba(34,211,238,0.1) 100%);
+  border: 1px solid rgba(14,165,233,0.3);
+  border-radius: 20px;
+  display: flex; align-items: center; justify-content: center;
+  margin-bottom: 1.2rem;
+  box-shadow: 0 0 40px rgba(14,165,233,0.15), inset 0 1px 0 rgba(255,255,255,0.08);
+  animation: lockFloat 4s ease-in-out infinite;
+}
+@keyframes lockFloat {
+  0%,100% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(-8px) rotate(-2deg); }
+}
+.lock-icon-wrap svg { width: 32px; height: 32px; stroke: var(--blue); }
+.lock-title {
+  font-size: 2.8rem; font-weight: 900; letter-spacing: -1.5px;
+  background: linear-gradient(135deg, var(--text) 0%, var(--blue) 100%);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  background-clip: text; margin-bottom: 0.3rem;
+}
+.lock-sub { color: var(--text2); font-size: 0.95rem; font-weight: 500; }
 
-.lock-card { width: 100%; max-width: 400px; background: var(--surface); border: 1px solid var(--border); border-radius: 20px; padding: 2rem; box-shadow: var(--shadow); }
-.lock-card h2 { font-size: 1.2rem; font-weight: 800; margin-bottom: 1.5rem; text-align: center; display: flex; align-items: center; justify-content: center; gap: 8px; }
+.lock-card {
+  width: 100%; max-width: 420px;
+  background: var(--surface);
+  border: 1px solid var(--border2);
+  border-radius: 22px;
+  padding: 2rem;
+  box-shadow: var(--shadow-lg), inset 0 1px 0 rgba(255,255,255,0.05);
+  position: relative; overflow: hidden;
+}
+.lock-card::before {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0; height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(14,165,233,0.4), transparent);
+}
 
-.auth-panels-wrap { display: grid; grid-template-areas: "panel"; }
-.auth-panel { grid-area: panel; opacity: 0; visibility: hidden; transform: translateY(10px); transition: opacity 0.25s ease, transform 0.25s ease, visibility 0s linear 0.25s; pointer-events: none; }
-.auth-panel.visible { opacity: 1; visibility: visible; transform: translateY(0); pointer-events: all; transition-delay: 0s; }
+.tabs-switch {
+  display: flex; background: var(--bg2); border-radius: var(--r-sm);
+  padding: 4px; margin-bottom: 1.75rem;
+  border: 1px solid var(--border);
+}
+.tabs-switch button {
+  flex: 1; padding: 0.6rem; border: none; background: transparent;
+  color: var(--text2); cursor: pointer; border-radius: var(--r-xs);
+  font-weight: 700; font-family: var(--font); font-size: 0.9rem;
+  transition: all 0.2s; position: relative;
+}
+.tabs-switch button.active {
+  background: var(--surface3); color: var(--text);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+}
+.tabs-switch button.active::after {
+  content: ''; position: absolute; bottom: -1px; left: 50%;
+  transform: translateX(-50%); width: 20px; height: 2px;
+  background: var(--blue); border-radius: 1px;
+}
 
-.field-label { font-size: 0.85rem; font-weight: 700; color: var(--text2); margin-bottom: 0.5rem; display: block; }
-.input-wrap { position: relative; margin-bottom: 1rem; }
-.input-wrap input { width: 100%; background: var(--bg); border: 1.5px solid var(--border); color: var(--text); padding: 0.85rem 3rem 0.85rem 1rem; border-radius: var(--radius-sm); font-size: 1rem; font-family: var(--font); outline: none; transition: border-color 0.2s; direction: ltr; text-align: left; }
-.input-wrap input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-glow); }
-.eye-btn { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; color: var(--text3); cursor: pointer; font-size: 1.2rem; padding: 4px; line-height: 1; }
-.eye-btn:hover { color: var(--text2); }
+.auth-panels-wrap { display: grid; grid-template-areas: "p"; }
+.auth-panel { grid-area: p; opacity: 0; visibility: hidden; transform: translateY(8px); transition: opacity 0.25s, transform 0.25s, visibility 0s linear 0.25s; pointer-events: none; }
+.auth-panel.visible { opacity: 1; visibility: visible; transform: none; pointer-events: all; transition-delay: 0s; }
 
-.strength-bar { height: 4px; border-radius: 2px; background: var(--surface3); margin-bottom: 0.5rem; overflow: hidden; }
-.strength-fill { height: 100%; width: 0%; transition: width 0.4s, background 0.4s; border-radius: 2px; }
-.strength-label { font-size: 0.78rem; color: var(--text3); margin-bottom: 1rem; text-align: left; direction: ltr; }
+.field-group { margin-bottom: 1rem; }
+.field-label { font-size: 0.82rem; font-weight: 700; color: var(--text2); margin-bottom: 0.45rem; display: block; letter-spacing: 0.3px; }
+.input-wrap { position: relative; }
+.input-wrap input {
+  width: 100%; background: var(--bg2); border: 1.5px solid var(--border2);
+  color: var(--text); padding: 0.85rem 3.2rem 0.85rem 1rem;
+  border-radius: var(--r-sm); font-size: max(1rem, 16px);
+  font-family: var(--font); outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  direction: ltr; text-align: left;
+}
+.input-wrap input:focus {
+  border-color: var(--blue);
+  box-shadow: 0 0 0 3px var(--blue-gl);
+}
+.eye-btn {
+  position: absolute; left: 4px; top: 50%; transform: translateY(-50%);
+  background: none; border: none; color: var(--text3); cursor: pointer;
+  width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;
+  border-radius: var(--r-xs); transition: color 0.15s, background 0.15s;
+}
+.eye-btn:hover { color: var(--text2); background: var(--surface3); }
 
-.btn { width: 100%; padding: 1rem; border: none; border-radius: var(--radius-sm); font-size: 1.05rem; font-weight: 800; font-family: var(--font); cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px; }
-.btn-primary { background: var(--accent); color: #fff; }
-.btn-primary:hover { background: var(--accent2); transform: translateY(-1px); box-shadow: 0 6px 20px var(--accent-glow); }
-.btn-primary:active { transform: translateY(0); }
-.btn-primary:disabled { background: var(--surface3); color: var(--text3); cursor: not-allowed; box-shadow: none; transform: none; }
-.btn-green { background: var(--green); color: #000; }
-.btn-green:hover { filter: brightness(1.1); transform: translateY(-1px); }
+.strength-track { height: 3px; border-radius: 2px; background: var(--surface3); margin: 6px 0 4px; overflow: hidden; }
+.strength-fill { height: 100%; width: 0; transition: width 0.4s cubic-bezier(0.16,1,0.3,1), background 0.4s; border-radius: 2px; }
+.strength-info { font-size: 0.75rem; color: var(--text3); margin-bottom: 0.8rem; }
 
-.lock-footer { margin-top: 1.5rem; text-align: center; font-size: 0.82rem; color: var(--text3); line-height: 1.7; }
-.lock-footer a { color: var(--accent); text-decoration: none; font-weight: 700; }
+.btn {
+  width: 100%; padding: 0.95rem 1.2rem; border: none; border-radius: var(--r-sm);
+  font-size: 1rem; font-weight: 800; font-family: var(--font);
+  cursor: pointer; transition: all 0.2s;
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  position: relative; overflow: hidden;
+}
+.btn::after {
+  content: ''; position: absolute; inset: 0;
+  background: rgba(255,255,255,0);
+  transition: background 0.15s;
+}
+.btn:hover::after { background: rgba(255,255,255,0.06); }
+.btn:active::after { background: rgba(0,0,0,0.1); }
 
-.tabs-switch { display: flex; background: var(--bg); border-radius: var(--radius-sm); padding: 4px; margin-bottom: 1.5rem; border: 1px solid var(--border); }
-.tabs-switch button { flex: 1; padding: 0.6rem; border: none; background: transparent; color: var(--text2); cursor: pointer; border-radius: 6px; font-weight: 700; font-family: var(--font); font-size: 0.92rem; transition: 0.2s; }
-.tabs-switch button.active { background: var(--surface3); color: var(--text); box-shadow: 0 2px 8px rgba(0,0,0,0.3); }
+.btn-primary {
+  background: linear-gradient(135deg, var(--blue) 0%, var(--blue2) 100%);
+  color: #fff;
+  box-shadow: 0 4px 16px rgba(14,165,233,0.3);
+}
+.btn-primary:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 24px rgba(14,165,233,0.4);
+}
+.btn-primary:active:not(:disabled) { transform: translateY(0); box-shadow: 0 2px 8px rgba(14,165,233,0.3); }
+.btn-primary:disabled { background: var(--surface3); color: var(--text3); box-shadow: none; cursor: not-allowed; }
 
-/* ─── MAIN APP ─── */
-#app { display: none; height: 100dvh; flex-direction: column; opacity: 0; transition: opacity 0.3s ease; }
-#app.visible { opacity: 1; pointer-events: all; }
+.btn-green {
+  background: linear-gradient(135deg, var(--green) 0%, #059669 100%);
+  color: #fff;
+  box-shadow: 0 4px 16px rgba(16,185,129,0.3);
+}
+.btn-green:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 8px 24px rgba(16,185,129,0.4); }
+.btn-ghost {
+  background: transparent; border: 1.5px solid var(--border2);
+  color: var(--text2);
+}
+.btn-ghost:hover { border-color: var(--border2); color: var(--text); background: var(--surface3); }
+.btn-danger {
+  background: var(--red-gl); border: 1.5px solid var(--red);
+  color: var(--red);
+}
+.btn-danger:hover { background: rgba(244,63,94,0.25); }
 
-.topbar { background: var(--surface); border-bottom: 1px solid var(--border); padding: 0.75rem 1rem; display: flex; align-items: center; gap: 10px; position: sticky; top: 0; z-index: 100; }
-.topbar-logo { display: flex; align-items: center; color: var(--accent); }
-.topbar-title { font-size: 1.2rem; font-weight: 900; flex-shrink: 0; color: var(--text); }
-.topbar-search { flex: 1; background: var(--bg); border: 1.5px solid var(--border); color: var(--text); padding: 0.55rem 0.9rem; border-radius: 50px; font-size: 0.92rem; font-family: var(--font); outline: none; min-width: 0; direction: rtl; transition: 0.2s; }
-.topbar-search:focus { border-color: var(--accent); }
-.topbar-btn { background: var(--accent); color: #fff; border: none; width: 38px; height: 38px; border-radius: 50%; cursor: pointer; flex-shrink: 0; display: flex; align-items: center; justify-content: center; transition: 0.2s; }
-.topbar-btn:hover { background: var(--accent2); transform: scale(1.05); }
+.lock-footer {
+  margin-top: 1.5rem; text-align: center;
+  font-size: 0.78rem; color: var(--text3); line-height: 1.8;
+}
+.lock-footer strong { color: var(--blue); }
 
-@keyframes pulse-ring { 0% { box-shadow: 0 0 0 0 var(--accent-glow); } 70% { box-shadow: 0 0 0 10px transparent; } 100% { box-shadow: 0 0 0 0 transparent; } }
-.topbar-btn.pulse { animation: pulse-ring 1.5s ease-out 3; }
+/* ═══════════════════════════════════════════════
+   MAIN APP
+═══════════════════════════════════════════════ */
+#app {
+  display: flex; flex: 1; flex-direction: column;
+  min-height: 0; height: 100dvh;
+  opacity: 0; visibility: hidden; pointer-events: none;
+  transition: opacity 0.35s ease, visibility 0s linear 0.35s;
+}
+#app.visible {
+  opacity: 1; visibility: visible; pointer-events: all;
+  transition: opacity 0.35s ease, visibility 0s linear 0s;
+}
 
-.cat-bar { background: var(--surface); border-bottom: 1px solid var(--border); padding: 0.6rem 1rem; display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none; }
+/* TOP BAR */
+.topbar {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  padding: 0.7rem 1rem;
+  display: flex; align-items: center; gap: 10px;
+  position: sticky; top: 0; z-index: 100;
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+  background: rgba(15,22,33,0.85);
+}
+.topbar-brand { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+.topbar-logo-wrap {
+  width: 32px; height: 32px; border-radius: 8px;
+  background: linear-gradient(135deg, rgba(14,165,233,0.25) 0%, rgba(34,211,238,0.1) 100%);
+  border: 1px solid rgba(14,165,233,0.25);
+  display: flex; align-items: center; justify-content: center;
+}
+.topbar-logo-wrap svg { width: 16px; height: 16px; stroke: var(--blue); }
+.topbar-title { font-size: 1.1rem; font-weight: 900; color: var(--text); }
+
+.search-wrap { flex: 1; position: relative; }
+.search-icon { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); color: var(--text3); pointer-events: none; }
+.topbar-search {
+  width: 100%; background: var(--surface2);
+  border: 1.5px solid var(--border);
+  color: var(--text); padding: 0.55rem 2.4rem 0.55rem 1rem;
+  border-radius: 50px; font-size: max(0.9rem, 16px);
+  font-family: var(--font); outline: none;
+  direction: rtl; transition: border-color 0.2s, box-shadow 0.2s;
+}
+.topbar-search:focus {
+  border-color: var(--blue);
+  box-shadow: 0 0 0 3px var(--blue-gl);
+  background: var(--surface3);
+}
+.topbar-search::placeholder { color: var(--text3); }
+
+.topbar-add {
+  width: 36px; height: 36px; flex-shrink: 0;
+  background: linear-gradient(135deg, var(--blue) 0%, var(--blue2) 100%);
+  border: none; border-radius: 10px;
+  color: #fff; font-size: 1.3rem; font-weight: 400;
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+  transition: all 0.2s;
+  box-shadow: 0 2px 10px rgba(14,165,233,0.35);
+}
+.topbar-add:hover { transform: scale(1.08) rotate(90deg); box-shadow: 0 4px 16px rgba(14,165,233,0.5); }
+.topbar-add:active { transform: scale(0.96) rotate(90deg); }
+@keyframes pulse-glow { 0%,100% { box-shadow: 0 2px 10px rgba(14,165,233,0.35); } 50% { box-shadow: 0 0 0 8px rgba(14,165,233,0.15), 0 2px 10px rgba(14,165,233,0.35); } }
+.topbar-add.pulse { animation: pulse-glow 1.5s ease 4; }
+
+/* CATEGORY BAR */
+.cat-bar-wrap {
+  background: rgba(15,22,33,0.7);
+  border-bottom: 1px solid var(--border);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+  position: relative;
+}
+.cat-bar-wrap::after {
+  content: ''; position: absolute; left: 0; top: 0; bottom: 0;
+  width: 32px; background: linear-gradient(to right, rgba(15,22,33,0.9), transparent);
+  pointer-events: none; z-index: 1;
+}
+.cat-bar {
+  padding: 0.6rem 1rem; display: flex; gap: 6px;
+  overflow-x: auto; scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
 .cat-bar::-webkit-scrollbar { display: none; }
-.cat-pill { flex-shrink: 0; padding: 5px 14px; border-radius: 50px; border: 1.5px solid var(--border); background: transparent; color: var(--text2); font-size: 0.82rem; font-weight: 700; font-family: var(--font); cursor: pointer; white-space: nowrap; transition: background 0.2s cubic-bezier(0.16,1,0.3,1), border-color 0.2s cubic-bezier(0.16,1,0.3,1), color 0.2s, transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1); }
-.cat-pill.active { background: var(--accent); border-color: var(--accent); color: #fff; transform: scale(1.04); }
-.cat-pill:hover:not(.active) { border-color: var(--accent); color: var(--text); }
+.cat-pill {
+  flex-shrink: 0; padding: 5px 14px; border-radius: 50px;
+  border: 1.5px solid var(--border); background: transparent;
+  color: var(--text2); font-size: 0.8rem; font-weight: 700;
+  font-family: var(--font); cursor: pointer; white-space: nowrap;
+  transition: all 0.2s cubic-bezier(0.34,1.56,0.64,1);
+}
+.cat-pill.active {
+  background: var(--blue-gl); border-color: var(--blue);
+  color: var(--blue); transform: scale(1.05);
+}
+.cat-pill:hover:not(.active) {
+  border-color: var(--border2); color: var(--text);
+  transform: scale(1.02);
+}
 .cat-pill:active { transform: scale(0.96); }
 
-/* View Stack Container */
-.main-content { flex: 1; position: relative; overflow: hidden; }
-.view-container { position: absolute; inset: 0; overflow-y: auto; padding: 1rem; padding-bottom: 100px; opacity: 0; visibility: hidden; pointer-events: none; transform: translateY(8px); transition: opacity 0.22s cubic-bezier(0.16,1,0.3,1), transform 0.22s cubic-bezier(0.16,1,0.3,1), visibility 0s linear 0.22s; }
-.view-container.visible { opacity: 1; visibility: visible; pointer-events: all; transform: translateY(0); transition: opacity 0.25s cubic-bezier(0.16,1,0.3,1), transform 0.25s cubic-bezier(0.16,1,0.3,1), visibility 0s linear 0s; }
+/* CONTENT AREA */
+.main-content { flex: 1; position: relative; overflow: hidden; min-height: 0; }
+.view-container {
+  position: absolute; inset: 0; overflow-y: auto;
+  padding: 1.25rem 1rem 110px;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+  opacity: 0; visibility: hidden; pointer-events: none;
+  transform: translateY(10px);
+  transition: opacity 0.25s cubic-bezier(0.16,1,0.3,1), transform 0.25s cubic-bezier(0.16,1,0.3,1), visibility 0s linear 0.25s;
+}
+.view-container.visible {
+  opacity: 1; visibility: visible; pointer-events: all; transform: none;
+  transition: opacity 0.3s cubic-bezier(0.16,1,0.3,1), transform 0.3s cubic-bezier(0.16,1,0.3,1), visibility 0s linear 0s;
+}
 
-/* STATS BAR */
-.stats-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 1rem; }
-.stat-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 0.75rem; text-align: center; animation: scaleIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) backwards; }
-.stat-card:nth-child(1) { animation-delay: 0.05s; } .stat-card:nth-child(2) { animation-delay: 0.1s; } .stat-card:nth-child(3) { animation-delay: 0.15s; }
-@keyframes scaleIn { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-.stat-num { font-size: 1.5rem; font-weight: 900; }
-.stat-lbl { font-size: 0.72rem; color: var(--text2); font-weight: 600; margin-top: 2px; }
+/* STATS */
+.stats-row { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; margin-bottom: 1.25rem; }
+.stat-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  padding: 0.85rem;
+  text-align: center;
+  position: relative; overflow: hidden;
+  animation: statIn 0.5s cubic-bezier(0.34,1.56,0.64,1) backwards;
+}
+.stat-card::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+  border-radius: 2px 2px 0 0;
+}
+.stat-card:nth-child(1)::before { background: var(--blue); animation-delay: 0.05s; }
+.stat-card:nth-child(2)::before { background: var(--green); animation-delay: 0.1s; }
+.stat-card:nth-child(3)::before { background: var(--red); animation-delay: 0.15s; }
+.stat-card:nth-child(1) { animation-delay: 0.05s; }
+.stat-card:nth-child(2) { animation-delay: 0.1s; }
+.stat-card:nth-child(3) { animation-delay: 0.15s; }
+@keyframes statIn { from { opacity: 0; transform: translateY(12px) scale(0.95); } to { opacity: 1; transform: none; } }
+.stat-num { font-size: clamp(1.3rem, 4vw, 1.7rem); font-weight: 900; line-height: 1; }
+.stat-lbl { font-size: 0.7rem; color: var(--text2); font-weight: 600; margin-top: 4px; }
 
-/* PASSWORD LIST */
-.section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.6rem; margin-top: 0.3rem; }
-.section-title { font-size: 0.85rem; font-weight: 700; color: var(--text2); }
+/* SECTION HEADER */
+.section-header {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-bottom: 0.75rem;
+}
+.section-title { font-size: 0.82rem; font-weight: 700; color: var(--text2); letter-spacing: 0.3px; }
+.sort-select {
+  background: var(--surface2); border: 1px solid var(--border);
+  color: var(--text2); padding: 4px 28px 4px 10px; font-size: 0.75rem;
+  border-radius: 50px; font-family: var(--font); outline: none; cursor: pointer;
+  -webkit-appearance: none; appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%237d8ea8' viewBox='0 0 16 16'%3E%3Cpath d='M4.646 6.646a.5.5 0 0 1 .708 0L8 9.293l2.646-2.647a.5.5 0 0 1 .708.708l-3 3a.5.5 0 0 1-.708 0l-3-3a.5.5 0 0 1 0-.708z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat; background-position: left 8px center;
+  transition: border-color 0.2s;
+}
+.sort-select:focus { border-color: var(--blue); }
 
-.entry-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 0.9rem 1rem; margin-bottom: 8px; cursor: pointer; display: flex; align-items: center; gap: 12px; transition: border-color 0.15s, background 0.15s, transform 0.1s, box-shadow 0.15s; }
-.entry-card:hover { border-color: var(--border2); background: var(--surface2); transform: translateY(-1px); box-shadow: 0 4px 16px rgba(0,0,0,0.3); }
-.entry-card:active { transform: scale(0.98); box-shadow: none; background: var(--surface3); }
+/* ENTRY CARDS */
+.entry-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--r); padding: 0.85rem 0.9rem;
+  margin-bottom: 8px; cursor: pointer;
+  display: flex; align-items: center; gap: 12px;
+  transition: border-color 0.2s, background 0.2s, transform 0.15s, box-shadow 0.2s;
+  animation: cardIn 0.35s cubic-bezier(0.16,1,0.3,1) backwards;
+  position: relative; overflow: hidden;
+}
+.entry-card::after {
+  content: ''; position: absolute; inset: 0;
+  background: linear-gradient(135deg, rgba(14,165,233,0) 0%, rgba(14,165,233,0) 100%);
+  opacity: 0; transition: opacity 0.25s;
+}
+.entry-card:hover {
+  border-color: rgba(14,165,233,0.3);
+  background: var(--surface2);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0,0,0,0.35), 0 0 0 1px rgba(14,165,233,0.1);
+}
+.entry-card:active { transform: scale(0.98); box-shadow: none; }
+@keyframes cardIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
 
-.entry-icon { width: 42px; height: 42px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.3rem; flex-shrink: 0; font-weight: 900; }
+.entry-icon {
+  width: 44px; height: 44px; border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.25rem; flex-shrink: 0; font-weight: 900;
+  position: relative;
+}
 .entry-body { flex: 1; min-width: 0; }
-.entry-title { font-weight: 800; font-size: 0.98rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--text); }
-.entry-user { font-size: 0.8rem; color: var(--text2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; direction: ltr; unicode-bidi: plaintext; text-align: left; }
-.entry-meta { display: flex; align-items: center; gap: 6px; margin-top: 4px; }
-.entry-badge { font-size: 0.68rem; font-weight: 700; padding: 2px 7px; border-radius: 50px; }
-.badge-excellent { background: rgba(251,191,36,0.15); color: var(--gold); }
-.badge-strong { background: rgba(16,185,129,0.15); color: var(--green); }
-.badge-medium { background: rgba(245,158,11,0.15); color: var(--yellow); }
-.badge-weak { background: rgba(239,68,68,0.15); color: var(--red); }
-.entry-age { font-size: 0.68rem; color: var(--text3); }
+.entry-title {
+  font-weight: 800; font-size: 0.95rem;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  color: var(--text); margin-bottom: 2px;
+}
+.entry-user {
+  font-size: 0.78rem; color: var(--text2);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  direction: ltr; unicode-bidi: plaintext; text-align: left;
+}
+.entry-meta { display: flex; align-items: center; gap: 6px; margin-top: 5px; }
+.entry-badge {
+  font-size: 0.65rem; font-weight: 700;
+  padding: 2px 8px; border-radius: 50px; letter-spacing: 0.3px;
+}
+.badge-excellent { background: rgba(251,191,36,0.12); color: var(--gold); border: 1px solid rgba(251,191,36,0.2); }
+.badge-strong    { background: rgba(16,185,129,0.12);  color: var(--green); border: 1px solid rgba(16,185,129,0.2); }
+.badge-medium    { background: rgba(251,191,36,0.12);  color: var(--yellow); border: 1px solid rgba(251,191,36,0.2); }
+.badge-weak      { background: rgba(244,63,94,0.12);   color: var(--red); border: 1px solid rgba(244,63,94,0.2); }
+.entry-age { font-size: 0.65rem; color: var(--text3); }
 
-.entry-actions { display: flex; gap: 6px; flex-shrink: 0; }
-.icon-btn { width: 34px; height: 34px; border-radius: 8px; border: 1px solid var(--border); background: var(--surface3); color: var(--text2); cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.2s; flex-shrink: 0; }
-.icon-btn:hover { background: var(--surface2); color: var(--text); border-color: var(--border2); }
+.icon-btn {
+  width: 38px; height: 38px; border-radius: 10px;
+  border: 1px solid var(--border); background: var(--surface3);
+  color: var(--text2); cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.2s; flex-shrink: 0;
+}
+.icon-btn:hover {
+  background: var(--surface4); color: var(--text);
+  border-color: var(--border2); transform: scale(1.08);
+}
+.icon-btn svg { width: 15px; height: 15px; }
 
-.empty-state { text-align: center; padding: 3rem 1rem; color: var(--text3); display: flex; flex-direction: column; align-items: center; justify-content: center; }
-.empty-state svg { animation: floatIn 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) backwards; animation-delay: 0.1s; }
-.empty-state p { font-size: 1rem; font-weight: 600; margin-bottom: 0.4rem; color: var(--text2); animation: fadeSlideUp 0.4s ease backwards; animation-delay: 0.2s; }
-.empty-state .btn { animation: fadeSlideUp 0.4s ease backwards; animation-delay: 0.3s; }
-
-@keyframes floatIn { from { opacity: 0; transform: scale(0.7) translateY(10px); } to { opacity: 1; transform: scale(1) translateY(0); } }
-@keyframes fadeSlideUp { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+/* EMPTY STATE */
+.empty-state {
+  text-align: center; padding: 4rem 1rem;
+  display: flex; flex-direction: column; align-items: center;
+}
+.empty-state svg { margin-bottom: 1.25rem; animation: emptyFloat 0.6s cubic-bezier(0.34,1.56,0.64,1) backwards 0.1s; }
+.empty-state p { font-size: 1rem; font-weight: 700; color: var(--text2); margin-bottom: 0.4rem; animation: fadeUp 0.4s ease backwards 0.2s; }
+.empty-state .btn { animation: fadeUp 0.4s ease backwards 0.3s; }
+@keyframes emptyFloat { from { opacity: 0; transform: scale(0.7) translateY(10px); } to { opacity: 1; transform: none; } }
+@keyframes fadeUp { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
 
 /* BOTTOM NAV */
-.bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: var(--surface); border-top: 1px solid var(--border); display: flex; z-index: 100; padding-bottom: env(safe-area-inset-bottom); }
-.bnav-btn { flex: 1; padding: 0.7rem 0.5rem; border: none; background: transparent; color: var(--text3); cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 4px; font-family: var(--font); position: relative; transition: color 0.2s; }
-.bnav-btn::after { content: ''; position: absolute; bottom: 4px; left: 50%; transform: translateX(-50%) scaleX(0); width: 18px; height: 3px; background: var(--accent); border-radius: 2px; transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); }
-.bnav-btn.active::after { transform: translateX(-50%) scaleX(1); }
-.bnav-btn svg { width: 22px; height: 22px; stroke: currentColor; transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); }
-.bnav-btn.active svg { transform: scale(1.15) translateY(-2px); color: var(--accent); }
-.bnav-btn .lbl { font-size: 0.68rem; font-weight: 700; transition: color 0.2s; }
-.bnav-btn.active .lbl { color: var(--accent); }
+.bottom-nav {
+  position: sticky; bottom: 0; left: 0; right: 0;
+  background: rgba(15,22,33,0.92);
+  border-top: 1px solid var(--border);
+  display: flex; z-index: 100;
+  padding-bottom: max(env(safe-area-inset-bottom, 0px), 8px);
+  flex-shrink: 0;
+  -webkit-backdrop-filter: blur(16px);
+  backdrop-filter: blur(16px);
+}
+.bnav-btn {
+  flex: 1; padding: 0.7rem 0.5rem; border: none; background: transparent;
+  color: var(--text3); cursor: pointer;
+  display: flex; flex-direction: column; align-items: center; gap: 3px;
+  font-family: var(--font); position: relative; transition: color 0.2s;
+}
+.bnav-btn svg { width: 21px; height: 21px; stroke: currentColor; transition: transform 0.3s cubic-bezier(0.34,1.56,0.64,1); }
+.bnav-btn .lbl { font-size: 0.65rem; font-weight: 700; transition: color 0.2s; }
+.bnav-btn.active svg { transform: scale(1.2) translateY(-2px); color: var(--blue); }
+.bnav-btn.active .lbl { color: var(--blue); }
+.bnav-btn.active::after {
+  content: ''; position: absolute; bottom: 4px; left: 50%;
+  transform: translateX(-50%); width: 4px; height: 4px;
+  background: var(--blue); border-radius: 50%;
+  box-shadow: 0 0 6px var(--blue);
+}
 .bnav-btn:hover:not(.active) { color: var(--text2); }
 
-/* ─── MODAL / SHEET ─── */
-.overlay { position: fixed; inset: 0; z-index: 500; background: rgba(0,0,0,0.6); backdrop-filter: blur(3px); display: flex; align-items: flex-end; opacity: 0; pointer-events: none; transition: opacity 0.25s; }
+/* ═══════════════════════════════════════════════
+   OVERLAYS & SHEETS
+═══════════════════════════════════════════════ */
+.overlay {
+  position: fixed; inset: 0; z-index: 500;
+  background: rgba(0,0,0,0.65);
+  -webkit-backdrop-filter: blur(4px);
+  backdrop-filter: blur(4px);
+  display: flex; align-items: flex-end;
+  opacity: 0; pointer-events: none;
+  transition: opacity 0.3s;
+}
 .overlay.show { opacity: 1; pointer-events: all; }
-.sheet { width: 100%; background: var(--surface); border-radius: 24px 24px 0 0; border-top: 1px solid var(--border); padding: 1.5rem 1.5rem 2rem; max-height: 92vh; overflow-y: auto; transform: translateY(100%); transition: transform 0.35s cubic-bezier(0.32, 0.72, 0, 1); }
-.overlay.show .sheet { transform: translateY(0); }
-.sheet-handle { width: 40px; height: 4px; background: var(--border2); border-radius: 2px; margin: 0 auto 1.5rem; }
-.sheet-title { font-size: 1.2rem; font-weight: 900; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 8px; }
+@supports not (backdrop-filter: blur(4px)) { .overlay { background: rgba(0,0,0,0.85); } }
 
+.sheet {
+  width: 100%; background: var(--surface);
+  border-radius: 24px 24px 0 0;
+  border-top: 1px solid var(--border2);
+  padding: 1.5rem 1.5rem 2rem;
+  max-height: 92dvh; overflow-y: auto;
+  transform: translateY(100%);
+  transition: transform 0.38s cubic-bezier(0.32,0.72,0,1);
+  will-change: transform;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  position: relative;
+}
+.sheet::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(14,165,233,0.3), transparent);
+}
+.overlay.show .sheet { transform: translateY(0); }
+.sheet-handle {
+  width: 36px; height: 4px; background: var(--surface4);
+  border-radius: 2px; margin: 0 auto 1.5rem;
+}
+.sheet-title {
+  font-size: 1.15rem; font-weight: 900; margin-bottom: 1.5rem;
+  display: flex; align-items: center; gap: 8px;
+}
+
+/* FORM ELEMENTS */
 .form-row { margin-bottom: 1rem; }
-.form-label { font-size: 0.85rem; font-weight: 700; color: var(--text2); margin-bottom: 0.4rem; display: flex; justify-content: space-between; align-items: center; }
-.form-input { width: 100%; background: var(--bg); border: 1.5px solid var(--border); color: var(--text); padding: 0.8rem 1rem; border-radius: var(--radius-sm); font-size: 0.95rem; font-family: var(--font); outline: none; transition: border-color 0.2s; }
-.form-input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-glow); }
+.form-label {
+  font-size: 0.82rem; font-weight: 700; color: var(--text2);
+  margin-bottom: 0.4rem; display: flex; justify-content: space-between;
+  align-items: center; letter-spacing: 0.3px;
+}
+.form-input {
+  width: 100%; background: var(--bg2);
+  border: 1.5px solid var(--border2);
+  color: var(--text); padding: 0.8rem 1rem;
+  border-radius: var(--r-sm); font-size: max(1rem, 16px);
+  font-family: var(--font); outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.form-input:focus { border-color: var(--blue); box-shadow: 0 0 0 3px var(--blue-gl); }
 .form-input.ltr { direction: ltr; text-align: left; }
-.form-select { 
-  width: 100%; background: var(--bg); border: 1.5px solid var(--border); color: var(--text); padding: 0.8rem 1rem; border-radius: var(--radius-sm); font-size: 0.95rem; font-family: var(--font); outline: none; cursor: pointer; 
+textarea.form-input { resize: none; line-height: 1.6; }
+
+.form-select {
+  width: 100%; background: var(--bg2); border: 1.5px solid var(--border2);
+  color: var(--text); padding: 0.8rem 1rem; border-radius: var(--r-sm);
+  font-size: max(1rem, 16px); font-family: var(--font); outline: none; cursor: pointer;
   -webkit-appearance: none; appearance: none;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%238892a4' viewBox='0 0 16 16'%3E%3Cpath d='M4.646 6.646a.5.5 0 0 1 .708 0L8 9.293l2.646-2.647a.5.5 0 0 1 .708.708l-3 3a.5.5 0 0 1-.708 0l-3-3a.5.5 0 0 1 0-.708z'/%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%237d8ea8' viewBox='0 0 16 16'%3E%3Cpath d='M4.646 6.646a.5.5 0 0 1 .708 0L8 9.293l2.646-2.647a.5.5 0 0 1 .708.708l-3 3a.5.5 0 0 1-.708 0l-3-3a.5.5 0 0 1 0-.708z'/%3E%3C/svg%3E");
   background-repeat: no-repeat; background-position: left 0.8rem center; padding-left: 2.2rem;
 }
-.form-select:focus { border-color: var(--accent); }
+.form-select:focus { border-color: var(--blue); }
 
 .password-field-wrap { position: relative; }
-.password-field-wrap .form-input { padding-left: 80px; }
-.pwd-actions { position: absolute; left: 6px; top: 50%; transform: translateY(-50%); display: flex; gap: 4px; }
-.pwd-actions button { background: var(--surface3); border: none; color: var(--text2); width: 30px; height: 30px; border-radius: 6px; cursor: pointer; font-size: 0.85rem; display: flex; align-items: center; justify-content: center; transition: 0.15s; }
-.pwd-actions button:hover { color: var(--text); background: var(--surface2); }
+.password-field-wrap .form-input { padding-left: 86px; }
+.pwd-actions {
+  position: absolute; left: 6px; top: 50%;
+  transform: translateY(-50%); display: flex; gap: 3px;
+}
+.pwd-action-btn {
+  background: var(--surface3); border: none; color: var(--text2);
+  width: 36px; height: 36px; border-radius: var(--r-xs); cursor: pointer;
+  font-size: 0.85rem; display: flex; align-items: center; justify-content: center;
+  transition: all 0.15s;
+}
+.pwd-action-btn:hover { color: var(--text); background: var(--surface4); transform: scale(1.08); }
+.pwd-action-btn svg { width: 17px; height: 17px; }
 
-/* Range Slider */
-input[type=range] { -webkit-appearance: none; appearance: none; height: 4px; background: linear-gradient(to right, var(--accent) var(--pct, 50%), var(--surface3) var(--pct, 50%)); border-radius: 2px; }
-input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 20px; height: 20px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 0 3px var(--accent-glow); cursor: pointer; transition: box-shadow 0.2s, transform 0.2s; }
-input[type=range]::-webkit-slider-thumb:hover { box-shadow: 0 0 0 6px var(--accent-glow); transform: scale(1.1); }
+input[type=range] {
+  -webkit-appearance: none; appearance: none;
+  height: 4px; width: 100%;
+  background: linear-gradient(to right, var(--blue) var(--pct, 50%), var(--surface3) var(--pct, 50%));
+  border-radius: 2px;
+}
+input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance: none; appearance: none;
+  width: 18px; height: 18px; border-radius: 50%;
+  background: var(--blue);
+  box-shadow: 0 0 0 3px var(--blue-gl), 0 2px 6px rgba(0,0,0,0.4);
+  cursor: pointer; transition: transform 0.2s, box-shadow 0.2s;
+}
+input[type=range]::-webkit-slider-thumb:hover {
+  transform: scale(1.2);
+  box-shadow: 0 0 0 6px var(--blue-gl), 0 2px 8px rgba(0,0,0,0.5);
+}
 
 .save-row { display: flex; gap: 8px; margin-top: 1.5rem; }
 .save-row .btn { flex: 1; }
-.btn-ghost { background: transparent; border: 1.5px solid var(--border); color: var(--text2); }
-.btn-ghost:hover { border-color: var(--border2); color: var(--text); }
 
-/* ─── ENTRY DETAIL SHEET ─── */
-.detail-header { display: flex; align-items: center; gap: 12px; margin-bottom: 1.5rem; }
-.detail-icon { width: 56px; height: 56px; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 1.8rem; }
+/* ═══════════════════════════════════════════════
+   DETAIL SHEET
+═══════════════════════════════════════════════ */
+.detail-header { display: flex; align-items: center; gap: 14px; margin-bottom: 1.5rem; }
+.detail-icon { width: 56px; height: 56px; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 1.8rem; flex-shrink: 0; }
 .detail-info h2 { font-size: 1.2rem; font-weight: 900; }
-.detail-info p { font-size: 0.85rem; color: var(--text2); }
+.detail-info p { font-size: 0.82rem; color: var(--text2); margin-top: 2px; }
 
-.detail-field { margin-bottom: 1rem; }
-.detail-field-label { font-size: 0.78rem; font-weight: 700; color: var(--text3); margin-bottom: 0.3rem; }
-.detail-field-val { background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 0.7rem 1rem; display: flex; align-items: center; justify-content: space-between; gap: 10px; }
-.detail-field-val span { font-family: var(--mono); font-size: 0.9rem; direction: ltr; text-align: left; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1; min-width: 0; transition: filter 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
-.detail-field-val span.blurred { filter: blur(6px); }
-.detail-field-val .mini-btns { display: flex; gap: 4px; flex-shrink: 0; }
-.mini-btn { background: var(--surface3); border: none; color: var(--text2); width: 28px; height: 28px; border-radius: 6px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.15s; }
-.mini-btn:hover { color: var(--text); background: var(--surface2); }
+.detail-field { margin-bottom: 0.9rem; }
+.detail-field-label { font-size: 0.72rem; font-weight: 700; color: var(--text3); margin-bottom: 0.3rem; letter-spacing: 0.5px; text-transform: uppercase; }
+.detail-field-val {
+  background: var(--bg2); border: 1px solid var(--border2);
+  border-radius: var(--r-sm); padding: 0.7rem 1rem;
+  display: flex; align-items: center; justify-content: space-between; gap: 10px;
+  transition: border-color 0.2s;
+}
+.detail-field-val:hover { border-color: var(--border2); }
+.detail-field-val span {
+  font-family: var(--mono); font-size: 0.9rem;
+  direction: ltr; text-align: left;
+  overflow: hidden; text-overflow: ellipsis;
+  white-space: nowrap; flex: 1; min-width: 0;
+}
+.mini-btns { display: flex; gap: 4px; flex-shrink: 0; }
+.mini-btn {
+  background: var(--surface3); border: none; color: var(--text2);
+  width: 30px; height: 30px; border-radius: var(--r-xs);
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+  transition: all 0.15s;
+}
+.mini-btn:hover { color: var(--text); background: var(--surface4); transform: scale(1.1); }
 .mini-btn svg { width: 14px; height: 14px; }
 
-.strength-detail { margin: 1rem 0; }
-.strength-row { display: flex; align-items: center; gap: 10px; margin-bottom: 0.5rem; }
-.strength-row .label { font-size: 0.85rem; font-weight: 700; color: var(--text2); }
-.strength-row .value { font-size: 0.85rem; font-weight: 700; }
-.strength-segments { display: flex; gap: 3px; height: 6px; }
-.strength-segment { flex: 1; border-radius: 3px; background: var(--surface3); }
+.strength-detail { margin: 0.75rem 0; }
+.strength-row { display: flex; align-items: center; gap: 10px; margin-bottom: 6px; }
+.strength-row .label { font-size: 0.82rem; font-weight: 700; color: var(--text2); }
+.strength-row .value { font-size: 0.82rem; font-weight: 800; }
+.strength-segments { display: flex; gap: 4px; height: 5px; }
+.strength-segment { flex: 1; border-radius: 3px; background: var(--surface3); transition: background 0.3s; }
 
-.detail-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 1.5rem; }
-.detail-actions .btn { font-size: 0.9rem; padding: 0.8rem; }
+.detail-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 1.25rem; }
+.detail-actions .btn { font-size: 0.88rem; padding: 0.75rem; }
 
-/* ─── GENERATOR VIEW ─── */
-.gen-result { background: var(--bg); border: 1.5px solid var(--accent); border-radius: var(--radius); padding: 1.2rem; font-family: var(--mono); font-size: 1.2rem; letter-spacing: 1px; text-align: center; margin-bottom: 1rem; word-break: break-all; color: var(--green); line-height: 1.6; min-height: 70px; display: flex; align-items: center; justify-content: center; }
-.gen-copy-row { display: flex; gap: 8px; margin-bottom: 1.5rem; }
-.gen-copy-row .btn { flex: 1; font-size: 0.92rem; padding: 0.9rem; }
+/* ═══════════════════════════════════════════════
+   GENERATOR VIEW
+═══════════════════════════════════════════════ */
+.gen-output-card {
+  background: var(--surface);
+  border: 1.5px solid rgba(14,165,233,0.25);
+  border-radius: var(--r);
+  padding: 1.25rem;
+  margin-bottom: 1rem;
+  position: relative; overflow: hidden;
+  box-shadow: 0 0 30px rgba(14,165,233,0.06), inset 0 1px 0 rgba(255,255,255,0.04);
+}
+.gen-output-card::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(14,165,233,0.4), transparent);
+}
+.gen-output-text {
+  font-family: var(--mono); font-size: 1.15rem; letter-spacing: 0.5px;
+  text-align: center; color: var(--cyan);
+  word-break: break-all; line-height: 1.6; min-height: 50px;
+  display: flex; align-items: center; justify-content: center;
+}
+.gen-entropy-badge {
+  display: none; margin-top: 0.6rem;
+  font-size: 0.72rem; font-weight: 700;
+  background: var(--surface3); padding: 3px 10px;
+  border-radius: 50px; text-align: center; font-family: var(--font);
+  width: fit-content; margin-left: auto; margin-right: auto;
+}
 
-.gen-section { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.2rem; margin-bottom: 1rem; }
-.gen-section-title { font-size: 0.9rem; font-weight: 800; color: var(--text2); margin-bottom: 1rem; }
-.type-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px; }
-.type-btn { background: var(--surface3); border: 1.5px solid var(--border); color: var(--text2); padding: 0.7rem; border-radius: var(--radius-sm); cursor: pointer; font-size: 0.82rem; font-weight: 700; font-family: var(--font); transition: 0.15s; text-align: center; }
-.type-btn.active { border-color: var(--accent); color: var(--accent); background: var(--accent-glow); }
+.gen-actions { display: flex; gap: 8px; margin-bottom: 1rem; }
+.gen-actions .btn { flex: 1; font-size: 0.88rem; padding: 0.85rem 0.5rem; }
+
+.gen-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--r); padding: 1.1rem; margin-bottom: 0.8rem;
+}
+.gen-card-title { font-size: 0.82rem; font-weight: 800; color: var(--text2); margin-bottom: 0.9rem; letter-spacing: 0.3px; }
+
+.type-grid { display: grid; grid-template-columns: repeat(2,1fr); gap: 6px; }
+.type-btn {
+  background: var(--surface3); border: 1.5px solid var(--border);
+  color: var(--text2); padding: 0.7rem 0.5rem; border-radius: var(--r-sm);
+  cursor: pointer; font-size: 0.8rem; font-weight: 700; font-family: var(--font);
+  transition: all 0.2s; text-align: center;
+  display: flex; align-items: center; justify-content: center; gap: 5px;
+}
+.type-btn.active { border-color: var(--blue); color: var(--blue); background: var(--blue-gl); }
 .type-btn:hover:not(.active) { border-color: var(--border2); color: var(--text); }
 
-.range-row { display: flex; align-items: center; gap: 10px; }
-.range-row label { font-size: 0.85rem; font-weight: 700; color: var(--text2); flex-shrink: 0; }
-.range-row span { font-size: 0.85rem; font-weight: 900; color: var(--accent); width: 28px; text-align: center; }
+.range-row { display: flex; align-items: center; gap: 10px; margin-bottom: 0.75rem; }
+.range-row label { font-size: 0.82rem; font-weight: 700; color: var(--text2); flex-shrink: 0; min-width: 80px; }
+.range-row input[type=range] { flex: 1; }
+.range-row .range-val { font-size: 0.85rem; font-weight: 900; color: var(--blue); width: 28px; text-align: center; flex-shrink: 0; }
 
-.checks-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px; }
-.check-row { display: flex; align-items: center; gap: 8px; padding: 0.6rem 0.8rem; background: var(--surface3); border: 1.5px solid var(--border); border-radius: var(--radius-sm); cursor: pointer; transition: 0.15s; }
-.check-row.on { border-color: var(--accent); background: var(--accent-glow); }
-.check-row input { accent-color: var(--accent); width: 16px; height: 16px; cursor: pointer; pointer-events: none; }
-.check-row label { font-size: 0.8rem; font-weight: 700; color: var(--text2); cursor: pointer; flex: 1; pointer-events: none; }
+.checks-grid { display: grid; grid-template-columns: repeat(2,1fr); gap: 6px; }
+.check-row {
+  display: flex; align-items: center; gap: 8px;
+  padding: 0.55rem 0.75rem; background: var(--surface3);
+  border: 1.5px solid var(--border); border-radius: var(--r-sm);
+  cursor: pointer; transition: all 0.2s;
+}
+.check-row.on { border-color: var(--blue); background: var(--blue-gl2); }
+.check-row input { accent-color: var(--blue); width: 15px; height: 15px; cursor: pointer; pointer-events: none; }
+.check-row label { font-size: 0.78rem; font-weight: 700; color: var(--text2); cursor: pointer; pointer-events: none; }
 .check-row.on label { color: var(--text); }
 
-/* ─── AUDIT VIEW ─── */
-.audit-section { margin-bottom: 1.5rem; }
-.audit-title { font-size: 1rem; font-weight: 800; margin-bottom: 0.8rem; display: flex; align-items: center; gap: 6px; }
-.audit-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; margin-bottom: 6px; }
-.audit-item { display: flex; align-items: center; gap: 10px; padding: 0.8rem 1rem; border-bottom: 1px solid var(--border); transition: background 0.15s; cursor: pointer; }
+/* ═══════════════════════════════════════════════
+   AUDIT VIEW
+═══════════════════════════════════════════════ */
+.score-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--r); padding: 1.5rem; text-align: center; margin-bottom: 1.5rem;
+  position: relative; overflow: hidden;
+}
+.score-number {
+  position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+  font-size: 1.6rem; font-weight: 900;
+}
+.score-label { font-size: 0.8rem; color: var(--text2); margin-top: 0.6rem; font-weight: 600; }
+
+.audit-section-wrap { margin-bottom: 1.25rem; }
+.audit-section-title {
+  font-size: 0.9rem; font-weight: 800; margin-bottom: 0.6rem;
+  display: flex; align-items: center; gap: 6px;
+}
+.audit-list {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--r); overflow: hidden;
+}
+.audit-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 0.85rem 1rem; border-bottom: 1px solid var(--border);
+  transition: background 0.15s; cursor: pointer;
+}
 .audit-item:last-child { border-bottom: none; }
 .audit-item:hover { background: var(--surface2); }
 .audit-item-icon { font-size: 1.1rem; flex-shrink: 0; }
 .audit-item-info { flex: 1; min-width: 0; }
-.audit-item-name { font-size: 0.9rem; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.audit-item-desc { font-size: 0.77rem; color: var(--text2); direction: ltr; text-align: right; }
-.audit-badge { font-size: 0.72rem; font-weight: 800; padding: 3px 9px; border-radius: 50px; flex-shrink: 0; }
-.score-circle { display: flex; flex-direction: column; align-items: center; justify-content: center; margin: 0 auto 1.5rem; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.5rem; text-align: center; position: relative; }
-.score-lbl { font-size: 0.85rem; color: var(--text2); font-weight: 600; margin-top: 10px; }
+.audit-item-name { font-size: 0.88rem; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.audit-item-user { font-size: 0.75rem; color: var(--text2); }
+.audit-badge { font-size: 0.68rem; font-weight: 800; padding: 3px 9px; border-radius: 50px; flex-shrink: 0; }
 
-/* ─── SETTINGS VIEW ─── */
-.settings-group { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; margin-bottom: 1rem; }
-.settings-item { display: flex; align-items: center; gap: 12px; padding: 1rem; border-bottom: 1px solid var(--border); cursor: pointer; transition: background 0.15s; }
+/* ═══════════════════════════════════════════════
+   SETTINGS VIEW
+═══════════════════════════════════════════════ */
+.settings-header { margin-bottom: 1.25rem; }
+.settings-header h2 { font-size: 1.1rem; font-weight: 900; margin-bottom: 0.2rem; }
+.settings-header p { font-size: 0.8rem; color: var(--text2); }
+
+.settings-group {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--r); overflow: hidden; margin-bottom: 0.9rem;
+}
+.settings-item {
+  display: flex; align-items: center; gap: 12px; padding: 1rem;
+  border-bottom: 1px solid var(--border);
+  cursor: pointer; transition: background 0.15s;
+}
 .settings-item:last-child { border-bottom: none; }
 .settings-item:hover { background: var(--surface2); }
-.settings-item-icon { font-size: 1.2rem; flex-shrink: 0; }
+.settings-icon {
+  width: 36px; height: 36px; border-radius: 10px; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  background: var(--blue-gl); color: var(--blue);
+}
+.settings-icon svg { width: 18px; height: 18px; stroke: currentColor; }
+.settings-icon.danger { background: var(--red-gl); color: var(--red); }
 .settings-item-info { flex: 1; }
-.settings-item-title { font-size: 0.95rem; font-weight: 700; }
-.settings-item-desc { font-size: 0.78rem; color: var(--text2); margin-top: 2px; }
+.settings-item-title { font-size: 0.92rem; font-weight: 700; }
+.settings-item-title.danger { color: var(--red); }
+.settings-item-desc { font-size: 0.75rem; color: var(--text2); margin-top: 2px; line-height: 1.4; }
 
-/* TOGGLE */
-.toggle-wrap { position: relative; width: 44px; height: 24px; flex-shrink: 0; }
+.toggle-wrap { position: relative; width: 42px; height: 23px; flex-shrink: 0; }
 .toggle-wrap input { opacity: 0; width: 0; height: 0; position: absolute; }
-.toggle-slider { position: absolute; inset: 0; background: var(--surface3); border-radius: 12px; cursor: pointer; transition: 0.2s; border: 1.5px solid var(--border); }
-.toggle-slider:before { content: ''; position: absolute; width: 16px; height: 16px; border-radius: 50%; background: var(--text2); left: 3px; top: 2px; transition: 0.2s; }
-input:checked + .toggle-slider { background: var(--accent); border-color: var(--accent); }
-input:checked + .toggle-slider:before { transform: translateX(20px); background: #fff; }
+.toggle-slider {
+  position: absolute; inset: 0;
+  background: var(--surface4); border-radius: 12px; cursor: pointer;
+  transition: 0.2s; border: 1.5px solid var(--border2);
+}
+.toggle-slider::before {
+  content: ''; position: absolute;
+  width: 15px; height: 15px; border-radius: 50%;
+  background: var(--text2); left: 3px; top: 2px;
+  transition: all 0.25s cubic-bezier(0.34,1.56,0.64,1);
+}
+input:checked + .toggle-slider { background: var(--blue); border-color: var(--blue); }
+input:checked + .toggle-slider::before { transform: translateX(19px); background: #fff; box-shadow: 0 2px 4px rgba(0,0,0,0.3); }
 
-/* ─── TOAST ─── */
-.toast { position: fixed; bottom: 80px; left: 50%; padding: 0.75rem 1.5rem; border-radius: 50px; font-size: 0.9rem; font-weight: 700; box-shadow: var(--shadow); white-space: nowrap; z-index: 9999; pointer-events: none; opacity: 0; transform: translateX(-50%) translateY(12px) scale(0.95); transition: opacity 0.2s ease-in, transform 0.2s ease-in; color: var(--text); background: var(--surface); border: 1px solid var(--border); }
-.toast.show { opacity: 1; transform: translateX(-50%) translateY(0) scale(1); transition: opacity 0.3s cubic-bezier(0.16,1,0.3,1), transform 0.3s cubic-bezier(0.34,1.56,0.64,1); }
-.toast.success { background: var(--green); color: #000; border-color: var(--green); }
-.toast.error { background: var(--red); color: #fff; border-color: var(--red); }
+.settings-footer {
+  text-align: center; padding: 0.75rem; margin-top: 0.5rem;
+  font-size: 0.75rem; color: var(--text3); line-height: 1.9;
+}
 
-/* Shake Animation */
-@keyframes shake { 0%,100% { transform: translateX(0); } 20% { transform: translateX(-6px); } 40% { transform: translateX(6px); } 60% { transform: translateX(-4px); } 80% { transform: translateX(4px); } }
+/* ═══════════════════════════════════════════════
+   TOAST
+═══════════════════════════════════════════════ */
+.toast {
+  position: fixed; bottom: calc(72px + env(safe-area-inset-bottom, 0px) + 10px);
+  left: 50%; padding: 0.7rem 1.4rem;
+  border-radius: 50px; font-size: 0.88rem; font-weight: 700;
+  box-shadow: 0 8px 28px rgba(0,0,0,0.5);
+  white-space: nowrap; z-index: 9999;
+  opacity: 0; transform: translateX(-50%) translateY(14px) scale(0.94);
+  transition: opacity 0.2s, transform 0.2s;
+  pointer-events: none;
+  color: var(--text); background: var(--surface3);
+  border: 1px solid var(--border2);
+}
+.toast.show {
+  opacity: 1; transform: translateX(-50%) translateY(0) scale(1);
+  transition: opacity 0.3s cubic-bezier(0.16,1,0.3,1), transform 0.35s cubic-bezier(0.34,1.56,0.64,1);
+}
+.toast.success { background: var(--green); color: #fff; border-color: transparent; box-shadow: 0 8px 24px rgba(16,185,129,0.4); }
+.toast.error { background: var(--red); color: #fff; border-color: transparent; box-shadow: 0 8px 24px rgba(244,63,94,0.4); }
+
+/* CLIPBOARD TOAST */
+#clipboard-toast {
+  position: fixed;
+  bottom: calc(72px + env(safe-area-inset-bottom, 0px) + 10px);
+  left: 50%; transform: translateX(-50%);
+  background: var(--surface2); border: 1px solid var(--border2);
+  padding: 0.75rem 1.1rem; border-radius: 14px;
+  font-size: 0.82rem; font-weight: 700; color: var(--text);
+  z-index: 9998; display: none; flex-direction: column; gap: 6px;
+  box-shadow: var(--shadow); width: 260px;
+}
+#clipboard-toast .cb-row { display: flex; justify-content: space-between; align-items: center; }
+#clipboard-toast .cb-track { height: 3px; background: var(--surface3); border-radius: 2px; overflow: hidden; }
+#clipboard-toast .cb-bar { height: 100%; width: 100%; background: var(--blue); transition: width 1s linear; border-radius: 2px; }
+
+/* WARN BANNER */
+.warn-banner {
+  background: rgba(251,191,36,0.08); color: var(--yellow);
+  padding: 0.65rem 0.85rem; border-radius: var(--r-sm);
+  margin: 0.75rem 0; font-size: 0.78rem; line-height: 1.5;
+  border: 1px solid rgba(251,191,36,0.15);
+}
+.dup-banner {
+  background: var(--red-gl); color: var(--red);
+  padding: 0.65rem 0.85rem; border-radius: var(--r-sm);
+  margin-bottom: 0.75rem; font-size: 0.8rem; font-weight: 700;
+  border: 1px solid rgba(244,63,94,0.2);
+}
+
+/* SHAKE */
+@keyframes shake { 0%,100%{transform:translateX(0)} 20%{transform:translateX(-5px)} 40%{transform:translateX(5px)} 60%{transform:translateX(-4px)} 80%{transform:translateX(4px)} }
 .input-shake { animation: shake 0.4s cubic-bezier(0.36,0.07,0.19,0.97); }
 
-/* COLORS */
-.color-blue { background: rgba(14, 165, 233, 0.15); color: #0ea5e9; }
-.color-green { background: rgba(16, 185, 129, 0.15); color: #10b981; }
-.color-red { background: rgba(239, 68, 68, 0.15); color: #ef4444; }
-.color-yellow { background: rgba(245, 158, 11, 0.15); color: #f59e0b; }
-.color-purple { background: rgba(168, 85, 247, 0.15); color: #a855f7; }
-.color-orange { background: rgba(249, 115, 22, 0.15); color: #f97316; }
+/* ENTRY ICON COLORS */
+.ic-blue   { background: rgba(14,165,233,0.15); }
+.ic-green  { background: rgba(16,185,129,0.15); }
+.ic-red    { background: rgba(244,63,94,0.15); }
+.ic-yellow { background: rgba(251,191,36,0.15); }
+.ic-purple { background: rgba(168,85,247,0.15); }
+.ic-orange { background: rgba(249,115,22,0.15); }
 
-/* Accessibility & OS Preferences */
+/* HIGHLIGHT SEARCH */
+mark { background: var(--blue-gl); color: var(--blue); padding: 0 2px; border-radius: 3px; font-style: normal; }
+
+/* ═══════════════════════════════════════════════
+   RESPONSIVE — TABLET
+═══════════════════════════════════════════════ */
+@media (min-width: 600px) and (max-width: 899px) {
+  body { align-items: center; justify-content: center; }
+  #lock-screen, #app {
+    max-width: 460px; width: 100%; height: 92dvh; max-height: 860px;
+    border-radius: 28px; border: 1px solid var(--border2);
+    box-shadow: var(--shadow-lg); position: relative; overflow: hidden;
+  }
+  #lock-screen { background: var(--bg); display: flex; flex-direction: column; align-items: center; justify-content: center; }
+  .overlay .sheet { max-width: 460px; margin: 0 auto; }
+  .bottom-nav { border-radius: 0 0 28px 28px; }
+}
+
+/* ═══════════════════════════════════════════════
+   RESPONSIVE — DESKTOP
+═══════════════════════════════════════════════ */
+@media (min-width: 900px) {
+  body { align-items: center; justify-content: center; min-height: 100dvh; padding: 1.5rem; }
+
+  #lock-screen { position: fixed; inset: 0; display: flex; align-items: center; justify-content: center; background: transparent; }
+  .lock-card { box-shadow: var(--shadow-lg), 0 0 0 1px rgba(255,255,255,0.04); }
+
+  #app {
+    display: flex !important; flex-direction: column !important;
+    width: 100%; max-width: 1000px;
+    height: min(90dvh, 820px);
+    border-radius: 24px;
+    border: 1px solid var(--border2);
+    box-shadow: var(--shadow-lg), 0 0 0 1px rgba(255,255,255,0.03);
+    overflow: hidden; position: relative; background: var(--bg);
+  }
+
+  .topbar { padding: 0.9rem 1.5rem; gap: 14px; flex-shrink: 0; }
+  .topbar-search { max-width: 320px; }
+
+  .cat-bar-wrap { display: none; }
+
+  /* Desktop nav becomes horizontal tab bar */
+  .bottom-nav {
+    order: -1; flex-direction: row;
+    border-top: none; border-bottom: 1px solid var(--border);
+    padding-bottom: 0; position: static; flex-shrink: 0;
+    background: rgba(15,22,33,0.9);
+  }
+  .bnav-btn {
+    flex: 1; flex-direction: row; justify-content: center;
+    gap: 7px; padding: 0.8rem 1rem;
+    font-size: 0.85rem; font-weight: 700; color: var(--text2);
+    border-radius: 0; border-bottom: 2px solid transparent;
+    transition: color 0.2s, border-color 0.2s, background 0.2s;
+  }
+  .bnav-btn::after { display: none; }
+  .bnav-btn.active { color: var(--blue); border-bottom-color: var(--blue); background: var(--blue-gl2); }
+  .bnav-btn.active svg { transform: none; color: var(--blue); }
+  .bnav-btn:hover:not(.active) { color: var(--text); background: var(--surface2); }
+  .bnav-btn svg { width: 16px; height: 16px; flex-shrink: 0; }
+  .bnav-btn .lbl { font-size: 0.85rem; }
+
+  .main-content { flex: 1; min-height: 0; position: relative; overflow: hidden; }
+  .view-container { position: absolute; inset: 0; padding: 1.5rem 2rem 2rem; overflow-y: auto; }
+
+  #entries-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(300px, 100%), 1fr));
+    gap: 8px;
+  }
+  #entries-list .entry-card { margin-bottom: 0; }
+
+  .overlay { align-items: center; justify-content: center; }
+  .sheet {
+    border-radius: 20px !important;
+    max-width: 520px; width: 100%; max-height: 88dvh;
+    transform: scale(0.93) !important;
+    opacity: 0;
+    transition: transform 0.32s cubic-bezier(0.16,1,0.3,1), opacity 0.28s ease !important;
+  }
+  .overlay.show .sheet { transform: scale(1) !important; opacity: 1; }
+  .sheet-handle { display: none; }
+
+  #view-generator { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; align-content: start; }
+  .gen-output-card { grid-column: 1 / -1; }
+  .gen-actions { grid-column: 1 / -1; }
+
+  .toast { bottom: 1.5rem; }
+  #clipboard-toast { bottom: 5rem; }
+
+  #view-settings { max-width: 560px; margin: 0 auto; }
+  #view-audit { max-width: 700px; margin: 0 auto; }
+
+  #view-passwords .cat-bar-inline-desk {
+    display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 1rem;
+  }
+}
+
+@media (min-width: 1300px) {
+  #app { max-width: 1100px; }
+  .view-container { padding: 2rem 2.5rem; }
+  #entries-list { grid-template-columns: repeat(auto-fill, minmax(min(330px, 100%), 1fr)); }
+}
+
 @media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; scroll-behavior: auto !important; }
+  *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
 }
 </style>
 </head>
 <body>
 
-<!-- LOCK SCREEN -->
+<!-- ═══════════════ LOCK SCREEN ═══════════════ -->
 <div id="lock-screen">
-  <svg class="lock-logo-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-    <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
-  </svg>
-  <h1 class="lock-title">مِفتاح</h1>
-  <p class="lock-sub">مدير كلمات المرور الآمن والمشفر</p>
+  <div class="lock-hero">
+    <div class="lock-icon-wrap">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+      </svg>
+    </div>
+    <h1 class="lock-title">مِفتاح</h1>
+    <p class="lock-sub">مدير كلمات المرور الآمن</p>
+  </div>
 
   <div class="lock-card">
     <div class="tabs-switch" id="auth-tabs">
-      <button class="active" onclick="setAuthTab('unlock')" id="tab-unlock">فتح القبو</button>
-      <button onclick="setAuthTab('create')" id="tab-create">إنشاء قبو</button>
+      <button class="active" onclick="setAuthTab('unlock')" id="tab-unlock">🔓 فتح القبو</button>
+      <button onclick="setAuthTab('create')" id="tab-create">✨ قبو جديد</button>
     </div>
 
     <div class="auth-panels-wrap">
       <!-- UNLOCK -->
       <div id="panel-unlock" class="auth-panel visible">
-        <div class="input-wrap">
+        <div class="field-group">
           <label class="field-label" for="unlock-pwd">المفتاح الرئيسي</label>
-          <input type="password" id="unlock-pwd" autocomplete="current-password" class="form-input ltr" placeholder="كلمة المرور الرئيسية...">
-          <button class="eye-btn" onclick="toggleEye('unlock-pwd',this)" aria-label="إظهار كلمة المرور">👁️</button>
+          <div class="input-wrap">
+            <input type="password" id="unlock-pwd" autocomplete="current-password" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="أدخل كلمة المرور الرئيسية...">
+            <button class="eye-btn" onclick="toggleEye('unlock-pwd',this)" aria-label="إظهار كلمة المرور">
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+            </button>
+          </div>
         </div>
-        <button class="btn btn-primary" id="btn-unlock" onclick="unlockVault()">🔓 فتح القبو</button>
-        <div style="margin-top:1rem; text-align:center; font-size:0.8rem; color:var(--text3);">
-          لا يوجد قبو محفوظ؟ <a href="#" style="color:var(--accent); font-weight:700;" onclick="setAuthTab('create'); return false;">أنشئ قبوًا جديداً</a>
+        <button class="btn btn-primary" id="btn-unlock" onclick="unlockVault()">فتح القبو</button>
+        <div style="margin-top:1rem; text-align:center; font-size:0.78rem; color:var(--text3);">
+          لا يوجد قبو؟ <a href="#" style="color:var(--blue); font-weight:700;" onclick="setAuthTab('create'); return false;">أنشئ قبواً جديداً</a>
         </div>
       </div>
 
       <!-- CREATE -->
       <div id="panel-create" class="auth-panel">
-        <div class="input-wrap">
+        <div class="field-group">
           <label class="field-label" for="create-pwd">المفتاح الرئيسي الجديد</label>
-          <input type="password" id="create-pwd" autocomplete="new-password" class="form-input ltr" placeholder="اختر مفتاحاً قوياً (8 أحرف أضعف الإيمان)..." oninput="evalStrength(this,'create-str-fill','create-str-lbl')">
-          <button class="eye-btn" onclick="toggleEye('create-pwd',this)" aria-label="إظهار كلمة المرور">👁️</button>
+          <div class="input-wrap">
+            <input type="password" id="create-pwd" autocomplete="new-password" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="اختر مفتاحاً قوياً..." oninput="evalStrength(this,'create-str-fill','create-str-lbl')">
+            <button class="eye-btn" onclick="toggleEye('create-pwd',this)" aria-label="إظهار">
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+            </button>
+          </div>
+          <div class="strength-track"><div class="strength-fill" id="create-str-fill"></div></div>
+          <div class="strength-info" id="create-str-lbl">قوة المفتاح: —</div>
         </div>
-        <div class="strength-bar"><div class="strength-fill" id="create-str-fill"></div></div>
-        <div class="strength-label" id="create-str-lbl">قوة المفتاح: —</div>
-        <div class="input-wrap">
+        <div class="field-group">
           <label class="field-label" for="create-confirm">تأكيد المفتاح</label>
-          <input type="password" id="create-confirm" autocomplete="new-password" class="form-input ltr" placeholder="أعد كتابة المفتاح للتأكيد...">
-          <button class="eye-btn" onclick="toggleEye('create-confirm',this)" aria-label="إظهار كلمة المرور">👁️</button>
+          <div class="input-wrap">
+            <input type="password" id="create-confirm" autocomplete="new-password" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="أعد كتابة المفتاح...">
+            <button class="eye-btn" onclick="toggleEye('create-confirm',this)" aria-label="إظهار">
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+            </button>
+          </div>
         </div>
-        <button class="btn btn-primary" id="btn-create" onclick="createVault()">✨ إنشاء القبو</button>
+        <button class="btn btn-primary" id="btn-create" onclick="createVault()">إنشاء القبو</button>
       </div>
     </div>
 
     <div class="lock-footer">
-      🔒 كل البيانات مشفرة محلياً <strong>AES-256-GCM</strong>
+      🔒 مشفر بالكامل محلياً •  <strong>AES-256-GCM</strong> • PBKDF2
     </div>
   </div>
 </div>
 
-<!-- MAIN APP -->
+<!-- ═══════════════ MAIN APP ═══════════════ -->
 <div id="app">
-  <div class="topbar">
-    <div class="topbar-logo">
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+  <header class="topbar">
+    <div class="topbar-brand">
+      <div class="topbar-logo-wrap">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+      </div>
+      <span class="topbar-title">مِفتاح</span>
     </div>
-    <div class="topbar-title">مِفتاح</div>
-    <label for="search-input" class="sr-only">بحث في كلمات المرور</label>
-    <input type="search" class="topbar-search" id="search-input" placeholder="🔍 بحث..." autocomplete="off">
-    <button class="topbar-btn" onclick="openAddSheet()" aria-label="إضافة كلمة مرور">+</button>
+    <div class="search-wrap">
+      <svg class="search-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <label for="search-input" class="sr-only">بحث</label>
+      <input type="search" class="topbar-search" id="search-input" placeholder="بحث..." autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+    </div>
+    <button class="topbar-add" onclick="openAddSheet()" aria-label="إضافة كلمة مرور" title="إضافة">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+    </button>
+  </header>
+
+  <div class="cat-bar-wrap" id="cat-bar-container">
+    <div class="cat-bar" id="cat-bar"></div>
   </div>
 
-  <div class="cat-bar" id="cat-bar"></div>
-
-  <div class="main-content" id="main-content">
-    <!-- PASSWORDS VIEW -->
+  <main class="main-content">
+    <!-- PASSWORDS -->
     <div id="view-passwords" class="view-container">
-      <div class="stats-row" id="stats-row"></div>
+      <div class="stats-row" id="stats-row" role="region" aria-label="إحصائيات"></div>
       <div class="section-header">
         <span class="section-title" id="list-label">كل كلمات المرور</span>
         <div style="display:flex; align-items:center; gap:8px;">
-          <label for="sort-select" class="sr-only">ترتيب العناصر</label>
-          <select class="form-select" id="sort-select" style="padding: 2px 28px 2px 8px; font-size:0.75rem; width:auto; border-radius:50px; background-position: left 0.4rem center;" onchange="setSort(this.value)">
+          <label for="sort-select" class="sr-only">ترتيب</label>
+          <select class="sort-select" id="sort-select" onchange="setSort(this.value)">
             <option value="newest">الأحدث</option>
-            <option value="az">أ-ي</option>
-            <option value="za">ي-أ</option>
+            <option value="az">أ–ي</option>
+            <option value="za">ي–أ</option>
             <option value="weak">الأضعف</option>
           </select>
-          <span class="section-title" id="list-count" style="font-size:0.75rem;"></span>
+          <span class="section-title" id="list-count" style="font-size:0.72rem; color:var(--text3);"></span>
         </div>
       </div>
-      <div id="entries-list"></div>
+      <div id="entries-list" aria-label="قائمة كلمات المرور" role="list"></div>
     </div>
 
-    <!-- GENERATOR VIEW -->
+    <!-- GENERATOR -->
     <div id="view-generator" class="view-container">
-      <div class="gen-result" id="gen-output" dir="ltr">اضغط توليد</div>
-      <div class="gen-copy-row">
+      <div class="gen-output-card">
+        <div class="gen-output-text" id="gen-output" dir="auto">اضغط توليد</div>
+        <div class="gen-entropy-badge" id="gen-entropy-badge"></div>
+      </div>
+
+      <div class="gen-actions">
         <button class="btn btn-primary" onclick="generatePassword()">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 3 21 3 21 8"></polyline><line x1="4" y1="20" x2="21" y2="3"></line><polyline points="21 16 21 21 16 21"></polyline><line x1="15" y1="15" x2="21" y2="21"></line><line x1="4" y1="4" x2="9" y2="9"></line></svg>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 3 21 3 21 8"/><line x1="4" y1="20" x2="21" y2="3"/><polyline points="21 16 21 21 16 21"/><line x1="15" y1="15" x2="21" y2="21"/><line x1="4" y1="4" x2="9" y2="9"/></svg>
           توليد
         </button>
-        <button class="btn btn-green" onclick="copyGenerated(this)">📋 نسخ</button>
+        <button class="btn btn-green" onclick="copyGenerated(this)">نسخ</button>
+        <button class="btn btn-ghost" onclick="useGeneratedPassword()">حفظ</button>
       </div>
-      <div class="gen-section">
-        <div class="gen-section-title">نوع كلمة المرور</div>
+
+      <div class="gen-card" style="padding: 0.85rem 1rem;">
+        <div class="form-label" style="margin-bottom: 0.4rem;"><label for="gen-update-existing">تحديث حساب موجود</label></div>
+        <select class="form-select" id="gen-update-existing" onchange="updateExistingFromGen(this)"></select>
+      </div>
+
+      <div class="gen-card">
+        <div class="gen-card-title">النوع</div>
         <div class="type-grid">
-          <button class="type-btn active" onclick="setGenType('random',this)">🔀 عشوائي</button>
-          <button class="type-btn" onclick="setGenType('passphrase',this)">📖 عبارة مرور</button>
-          <button class="type-btn" onclick="setGenType('pin',this)">🔢 رمز PIN</button>
-          <button class="type-btn" onclick="setGenType('memorable',this)">🧠 سهل الحفظ</button>
+          <button class="type-btn active" onclick="setGenType('random',this)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px;"><polyline points="16 3 21 3 21 8"/><line x1="4" y1="20" x2="21" y2="3"/><polyline points="21 16 21 21 16 21"/><line x1="15" y1="15" x2="21" y2="21"/><line x1="4" y1="4" x2="9" y2="9"/></svg>
+            عشوائي
+          </button>
+          <button class="type-btn" onclick="setGenType('passphrase',this)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px;"><path d="M4 6h16M4 12h16M4 18h7"/></svg>
+            عبارة مرور
+          </button>
+          <button class="type-btn" onclick="setGenType('pin',this)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px;"><rect x="3" y="3" width="4" height="4" rx="1"/><rect x="10" y="3" width="4" height="4" rx="1"/><rect x="17" y="3" width="4" height="4" rx="1"/></svg>
+            رمز PIN
+          </button>
+          <button class="type-btn" onclick="setGenType('memorable',this)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px;"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+            سهل الحفظ
+          </button>
         </div>
-        
-        <div id="gen-memorable-warn" style="display:none; font-size:0.75rem; color:var(--yellow); margin-top:0.8rem; background:rgba(245, 158, 11, 0.1); padding:8px; border-radius:6px; line-height:1.5;">
-          ⚠️ <strong>مستوى الأمان: متوسط (للاستخدام اليومي)</strong><br>
-          يُنصح باستخدام نوع "عبارة مرور" أو "عشوائي" للحسابات شديدة الحساسية.
+        <div class="warn-banner" id="gen-memorable-warn" style="display:none;">
+          ⚠️ <strong>أمان متوسط</strong> — يُنصح بـ"عشوائي" أو "عبارة مرور" للحسابات الحساسة.
         </div>
       </div>
-      
-      <div class="gen-section" id="gen-random-opts">
-        <div class="gen-section-title">الطول</div>
+
+      <div class="gen-card" id="gen-random-opts">
+        <div class="gen-card-title">الطول والخيارات</div>
         <div class="range-row" style="margin-bottom:1rem;">
-          <label for="gen-len">الحروف</label>
+          <label for="gen-len">الطول</label>
           <input type="range" id="gen-len" min="8" max="64" value="20" oninput="updateRangePct(this); document.getElementById('gen-len-val').textContent=this.value; generatePassword();">
-          <span id="gen-len-val">20</span>
+          <span class="range-val" id="gen-len-val">20</span>
         </div>
-        <div class="gen-section-title" style="margin-bottom:0.6rem;">الخيارات</div>
         <div class="checks-grid">
-          <div class="check-row on" onclick="toggleCheck(this)"><input type="checkbox" id="opt-upper" checked tabindex="-1"><label>A-Z أحرف كبيرة</label></div>
-          <div class="check-row on" onclick="toggleCheck(this)"><input type="checkbox" id="opt-lower" checked tabindex="-1"><label>a-z أحرف صغيرة</label></div>
-          <div class="check-row on" onclick="toggleCheck(this)"><input type="checkbox" id="opt-nums" checked tabindex="-1"><label>0-9 أرقام</label></div>
-          <div class="check-row on" onclick="toggleCheck(this)"><input type="checkbox" id="opt-syms" checked tabindex="-1"><label>!@#$ رموز</label></div>
+          <div class="check-row on" onclick="toggleCheck(this)"><input type="checkbox" id="opt-upper" checked tabindex="-1"><label>A–Z كبيرة</label></div>
+          <div class="check-row on" onclick="toggleCheck(this)"><input type="checkbox" id="opt-lower" checked tabindex="-1"><label>a–z صغيرة</label></div>
+          <div class="check-row on" onclick="toggleCheck(this)"><input type="checkbox" id="opt-nums" checked tabindex="-1"><label>0–9 أرقام</label></div>
+          <div class="check-row on" onclick="toggleCheck(this)"><input type="checkbox" id="opt-syms" checked tabindex="-1"><label>!@# رموز</label></div>
         </div>
       </div>
-      <div class="gen-section" id="gen-pin-opts" style="display:none;">
+
+      <div class="gen-card" id="gen-pin-opts" style="display:none;">
+        <div class="gen-card-title">طول الرمز</div>
         <div class="range-row">
-          <label for="gen-pin-len">عدد الأرقام</label>
+          <label for="gen-pin-len">الأرقام</label>
           <input type="range" id="gen-pin-len" min="4" max="12" value="6" oninput="updateRangePct(this); document.getElementById('gen-pin-val').textContent=this.value; generatePassword();">
-          <span id="gen-pin-val">6</span>
+          <span class="range-val" id="gen-pin-val">6</span>
         </div>
       </div>
-      <div class="gen-section" id="gen-phrase-opts" style="display:none;">
+
+      <div class="gen-card" id="gen-phrase-opts" style="display:none;">
+        <div class="gen-card-title">عدد الكلمات</div>
         <div class="range-row">
-          <label for="gen-words">عدد الكلمات</label>
+          <label for="gen-words">الكلمات</label>
           <input type="range" id="gen-words" min="3" max="8" value="5" oninput="updateRangePct(this); document.getElementById('gen-words-val').textContent=this.value; generatePassword();">
-          <span id="gen-words-val">5</span>
+          <span class="range-val" id="gen-words-val">5</span>
         </div>
-        <div style="font-size:0.75rem; color:var(--text3); margin-top:0.8rem;">يعتمد على قائمة آمنة لتكوين عبارة قوية.</div>
+        <div style="font-size:0.73rem; color:var(--text3); margin-top:0.5rem;">قائمة كلمات آمنة لتوليد عبارة قوية وسهلة الحفظ.</div>
       </div>
     </div>
 
-    <!-- AUDIT VIEW -->
+    <!-- AUDIT -->
     <div id="view-audit" class="view-container">
       <div id="audit-content"></div>
     </div>
 
-    <!-- SETTINGS VIEW -->
+    <!-- SETTINGS -->
     <div id="view-settings" class="view-container">
-      <div style="margin-bottom:1rem;">
-        <div style="font-size:1.1rem; font-weight:900; margin-bottom:0.3rem;">الإعدادات</div>
-        <div style="font-size:0.82rem; color:var(--text2);">جميع البيانات مشفرة محلياً فقط</div>
+      <div class="settings-header">
+        <h2>الإعدادات</h2>
+        <p>جميع البيانات مشفرة ومحفوظة محلياً فقط</p>
       </div>
 
       <div class="settings-group">
         <div class="settings-item" onclick="exportVault()">
-          <div class="settings-item-icon">📤</div>
-          <div class="settings-item-info">
-            <div class="settings-item-title">تصدير القبو</div>
-            <div class="settings-item-desc">تنزيل نسخة احتياطية مشفرة (.miftah)</div>
-          </div>
+          <div class="settings-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg></div>
+          <div class="settings-item-info"><div class="settings-item-title">تصدير القبو</div><div class="settings-item-desc">نسخة احتياطية مشفرة (.miftah)</div></div>
         </div>
         <div class="settings-item" onclick="document.getElementById('import-file').click()">
-          <div class="settings-item-icon">📥</div>
-          <div class="settings-item-info">
-            <div class="settings-item-title">استيراد قبو</div>
-            <div class="settings-item-desc">استيراد نسخة احتياطية مشفرة</div>
-          </div>
-          <input type="file" id="import-file" aria-label="استيراد ملف النسخ الاحتياطي" accept=".miftah,.json" style="display:none" onchange="importVault(this)">
+          <div class="settings-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></div>
+          <div class="settings-item-info"><div class="settings-item-title">استيراد قبو</div><div class="settings-item-desc">استيراد .miftah أو CSV</div></div>
+          <input type="file" id="import-file" aria-label="استيراد ملف" accept=".miftah,.json,.csv" style="display:none" onchange="importVault(this)">
         </div>
       </div>
 
       <div class="settings-group">
         <div class="settings-item" onclick="document.getElementById('toggle-autolock').click()">
-          <div class="settings-item-icon">⏱️</div>
+          <div class="settings-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
           <div class="settings-item-info">
             <div class="settings-item-title">قفل تلقائي</div>
-            <div class="settings-item-desc" onclick="event.stopPropagation()">
-               بعد <label for="autolock-time" class="sr-only">وقت القفل التلقائي</label>
-               <select id="autolock-time" class="form-select" style="display:inline-block; width:auto; padding:2px 24px 2px 8px; font-size:0.75rem; background-position: left 0.4rem center; margin:0 4px;" onchange="savePref()">
-                <option value="1">1 دقيقة</option>
-                <option value="5">5 دقائق</option>
-                <option value="15">15 دقيقة</option>
-                <option value="30">30 دقيقة</option>
-                <option value="60">60 دقيقة</option>
-               </select> من الخمول
-            </div>
+            <div class="settings-item-desc" onclick="event.stopPropagation()">بعد <label for="autolock-time" class="sr-only">المدة</label><select id="autolock-time" class="sort-select" style="display:inline-block;width:auto;padding:2px 22px 2px 8px;font-size:0.73rem;margin:0 4px;" onchange="savePref()"><option value="1">1 دقيقة</option><option value="5">5 دقائق</option><option value="15">15 دقيقة</option><option value="30">30 دقيقة</option><option value="60">60 دقيقة</option></select>من الخمول</div>
           </div>
-          <label class="toggle-wrap" onclick="event.stopPropagation()">
-            <input type="checkbox" id="toggle-autolock" checked onchange="savePref()">
-            <span class="toggle-slider"></span>
-          </label>
+          <label class="toggle-wrap" onclick="event.stopPropagation()"><input type="checkbox" id="toggle-autolock" checked onchange="savePref()"><span class="toggle-slider"></span></label>
         </div>
         <div class="settings-item" onclick="document.getElementById('toggle-clipboard').click()">
-          <div class="settings-item-icon">📋</div>
-          <div class="settings-item-info">
-            <div class="settings-item-title">مسح الحافظة</div>
-            <div class="settings-item-desc">حذف كلمة المرور من الحافظة بعد 30 ثانية</div>
-          </div>
-          <label class="toggle-wrap" onclick="event.stopPropagation()">
-            <input type="checkbox" id="toggle-clipboard" checked onchange="savePref()">
-            <span class="toggle-slider"></span>
-          </label>
+          <div class="settings-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/></svg></div>
+          <div class="settings-item-info"><div class="settings-item-title">مسح الحافظة تلقائياً</div><div class="settings-item-desc">حذف كلمة المرور من الحافظة بعد 30 ثانية</div></div>
+          <label class="toggle-wrap" onclick="event.stopPropagation()"><input type="checkbox" id="toggle-clipboard" checked onchange="savePref()"><span class="toggle-slider"></span></label>
         </div>
       </div>
 
       <div class="settings-group">
         <div class="settings-item" onclick="changePassword()">
-          <div class="settings-item-icon">🔑</div>
-          <div class="settings-item-info">
-            <div class="settings-item-title">تغيير المفتاح الرئيسي</div>
-            <div class="settings-item-desc">تحديث كلمة مرور القبو الرئيسية</div>
-          </div>
+          <div class="settings-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 18v3c0 .6.4 1 1 1h4v-3h3v-3h2l1.4-1.4a6.5 6.5 0 1 0-4-4Z"/><circle cx="16.5" cy="7.5" r=".5"/></svg></div>
+          <div class="settings-item-info"><div class="settings-item-title">تغيير المفتاح الرئيسي</div><div class="settings-item-desc">تحديث كلمة مرور القبو</div></div>
         </div>
         <div class="settings-item" onclick="lockApp()">
-          <div class="settings-item-icon">🔒</div>
-          <div class="settings-item-info">
-            <div class="settings-item-title">قفل القبو الآن</div>
-            <div class="settings-item-desc">العودة لشاشة القفل</div>
-          </div>
+          <div class="settings-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div>
+          <div class="settings-item-info"><div class="settings-item-title">قفل القبو الآن</div><div class="settings-item-desc">العودة لشاشة القفل</div></div>
+        </div>
+        <div class="settings-item" onclick="exportCSV()">
+          <div class="settings-icon danger"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div>
+          <div class="settings-item-info"><div class="settings-item-title danger">تصدير CSV (غير مشفر)</div><div class="settings-item-desc">تصدير كلمات المرور كنص مكشوف</div></div>
         </div>
         <div class="settings-item" onclick="confirmDeleteVault()">
-          <div class="settings-item-icon">🗑️</div>
-          <div class="settings-item-info">
-            <div class="settings-item-title" style="color:var(--red);">حذف القبو نهائياً</div>
-            <div class="settings-item-desc">تفريغ جهازك من كل كلمات المرور</div>
-          </div>
+          <div class="settings-icon danger"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></div>
+          <div class="settings-item-info"><div class="settings-item-title danger">حذف القبو نهائياً</div><div class="settings-item-desc">مسح كل البيانات من هذا الجهاز</div></div>
         </div>
       </div>
 
-      <div style="text-align:center; padding:1rem; font-size:0.78rem; color:var(--text3); line-height:1.7;">
-        <a href="https://github.com/miftah-app/miftah" target="_blank" rel="noopener noreferrer" style="color:var(--text3); text-decoration:none;">مِفتاح v2.4 • مفتوح المصدر</a><br>
-        🔒 AES-256-GCM • PBKDF2 • 600,000 دورة<br>
+      <div class="settings-footer">
+        مِفتاح v2.7 • 🔒 AES-256-GCM • PBKDF2 • 600,000 دورة<br>
         لا خوادم • لا تتبع • خصوصيتك ملكك
       </div>
     </div>
-  </div>
+  </main>
 
-  <!-- BOTTOM NAV -->
   <nav class="bottom-nav">
-    <button class="bnav-btn active" id="bnav-passwords" aria-label="كلمات المرور" onclick="switchView('passwords')">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"></path></svg>
+    <button class="bnav-btn active" id="bnav-passwords" onclick="switchView('passwords')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg>
       <span class="lbl">القبو</span>
     </button>
-    <button class="bnav-btn" id="bnav-generator" aria-label="مولد كلمات المرور" onclick="switchView('generator')">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 3 21 3 21 8"></polyline><line x1="4" y1="20" x2="21" y2="3"></line><polyline points="21 16 21 21 16 21"></polyline><line x1="15" y1="15" x2="21" y2="21"></line><line x1="4" y1="4" x2="9" y2="9"></line></svg>
+    <button class="bnav-btn" id="bnav-generator" onclick="switchView('generator')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 3 21 3 21 8"/><line x1="4" y1="20" x2="21" y2="3"/><polyline points="21 16 21 21 16 21"/><line x1="15" y1="15" x2="21" y2="21"/><line x1="4" y1="4" x2="9" y2="9"/></svg>
       <span class="lbl">مُولد</span>
     </button>
-    <button class="bnav-btn" id="bnav-audit" aria-label="فحص الأمان" onclick="switchView('audit')">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+    <button class="bnav-btn" id="bnav-audit" onclick="switchView('audit')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
       <span class="lbl">فحص</span>
     </button>
-    <button class="bnav-btn" id="bnav-settings" aria-label="الإعدادات" onclick="switchView('settings')">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+    <button class="bnav-btn" id="bnav-settings" onclick="switchView('settings')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
       <span class="lbl">إعدادات</span>
     </button>
   </nav>
 </div>
 
-<!-- ADD/EDIT SHEET -->
+<!-- ═══════════ ADD / EDIT SHEET ═══════════ -->
 <div class="overlay" id="add-sheet" onclick="closeSheet('add-sheet',event)">
   <div class="sheet">
     <div class="sheet-handle"></div>
-    <div class="sheet-title" id="add-sheet-title">➕ إضافة كلمة مرور</div>
+    <div class="sheet-title" id="add-sheet-title">إضافة كلمة مرور</div>
 
     <div class="form-row">
       <div class="form-label"><label for="f-title">الاسم / الخدمة *</label></div>
-      <input type="text" class="form-input" id="f-title" placeholder="مثال: Gmail, Twitter..." autocomplete="off">
+      <input type="text" class="form-input" id="f-title" placeholder="Gmail, Twitter...">
     </div>
     <div class="form-row">
       <div class="form-label"><label for="f-username">اسم المستخدم / البريد *</label></div>
-      <input type="text" class="form-input ltr" id="f-username" placeholder="user@example.com" autocomplete="off">
+      <input type="text" class="form-input ltr" id="f-username" placeholder="user@example.com" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
     </div>
     <div class="form-row">
       <div class="form-label">
         <label for="f-password">كلمة المرور *</label>
-        <span id="pwd-strength-lbl" style="font-size:0.75rem;"></span>
+        <span id="pwd-strength-lbl" style="font-size:0.73rem; font-weight:700;"></span>
       </div>
       <div class="password-field-wrap">
-        <input type="password" class="form-input ltr" id="f-password" placeholder="كلمة المرور..." oninput="liveStrength()" autocomplete="new-password">
+        <input type="password" class="form-input ltr" id="f-password" placeholder="كلمة المرور..." oninput="liveStrength()" autocomplete="new-password" autocorrect="off" autocapitalize="off" spellcheck="false">
         <div class="pwd-actions">
-          <button onclick="toggleEye('f-password',this)" aria-label="إظهار كلمة المرور">👁️</button>
-          <button onclick="genForField()" aria-label="توليد تلقائي للكلمة">🎲</button>
+          <button class="pwd-action-btn" onclick="toggleEye('f-password',this)" aria-label="إظهار">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+          </button>
+          <button class="pwd-action-btn" onclick="genForField()" aria-label="توليد">🎲</button>
         </div>
       </div>
-      <div class="strength-bar" style="margin-top:6px;"><div class="strength-fill" id="f-str-fill"></div></div>
+      <div class="strength-track" style="margin-top:6px;"><div class="strength-fill" id="f-str-fill"></div></div>
     </div>
     <div class="form-row">
       <div class="form-label"><label for="f-url">الرابط (اختياري)</label></div>
@@ -622,16 +1297,16 @@ input:checked + .toggle-slider:before { transform: translateX(20px); background:
     </div>
     <div class="form-row">
       <div class="form-label"><label for="f-notes">ملاحظات (اختياري)</label></div>
-      <textarea class="form-input" id="f-notes" rows="2" placeholder="أي معلومات إضافية..." style="resize:none;"></textarea>
+      <textarea class="form-input" id="f-notes" rows="2" placeholder="معلومات إضافية..."></textarea>
     </div>
     <div class="save-row">
-      <button class="btn btn-ghost" onclick="closeSheet('add-sheet')">إلغاء</button>
+      <button class="btn btn-ghost" onclick="closeSheet('add-sheet',{target:document.getElementById('add-sheet')})">إلغاء</button>
       <button class="btn btn-primary" onclick="saveEntry()">💾 حفظ</button>
     </div>
   </div>
 </div>
 
-<!-- DETAIL SHEET -->
+<!-- ═══════════ DETAIL SHEET ═══════════ -->
 <div class="overlay" id="detail-sheet" onclick="closeSheet('detail-sheet',event)">
   <div class="sheet">
     <div class="sheet-handle"></div>
@@ -642,188 +1317,203 @@ input:checked + .toggle-slider:before { transform: translateX(20px); background:
         <p id="d-cat"></p>
       </div>
     </div>
+
     <div class="detail-field">
       <div class="detail-field-label">اسم المستخدم / البريد</div>
       <div class="detail-field-val">
-        <span id="d-username" style="direction:ltr;"></span>
-        <div class="mini-btns"><button class="mini-btn" onclick="copyField('d-username','اسم المستخدم', this)" aria-label="نسخ اسم المستخدم"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg></button></div>
-      </div>
-    </div>
-    <div class="detail-field">
-      <div class="detail-field-label">كلمة المرور</div>
-      <div class="detail-field-val">
-        <span id="d-password" class="blurred">••••••••••••</span>
+        <span id="d-username" style="outline:none; border-bottom:1px dashed transparent; transition:0.2s;" contenteditable="true" onfocus="this.style.borderBottomColor='var(--blue)'" onblur="inlineEditSaveUsername(this)"></span>
         <div class="mini-btns">
-          <button class="mini-btn" onclick="revealPassword()" id="d-reveal-btn" aria-label="إظهار كلمة المرور">👁️</button>
-          <button class="mini-btn" onclick="copyField('d-password','كلمة المرور', this)" aria-label="نسخ كلمة المرور"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg></button>
+          <button class="mini-btn" onclick="copyField('d-username','اسم المستخدم',this)" aria-label="نسخ">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+          </button>
         </div>
       </div>
     </div>
+
+    <div class="detail-field">
+      <div class="detail-field-label">كلمة المرور</div>
+      <div class="detail-field-val">
+        <input type="password" id="d-password" readonly style="background:transparent;border:none;color:inherit;font-family:var(--mono);font-size:0.9rem;outline:none;border-bottom:1px dashed transparent;transition:0.2s;width:100%;direction:ltr;" value="••••••••••••" onfocus="inlineEditFocusPassword(this)" onblur="inlineEditSavePassword(this)">
+        <div class="mini-btns">
+          <button class="mini-btn" onclick="revealPassword()" id="d-reveal-btn" aria-label="إظهار">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+          </button>
+          <button class="mini-btn" onclick="copyField('d-password','كلمة المرور',this)" aria-label="نسخ">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+
     <div class="strength-detail" id="d-strength-section">
       <div class="strength-row">
-        <span class="label">قوة المرور:</span>
+        <span class="label">القوة:</span>
         <span class="value" id="d-strength-val"></span>
       </div>
       <div class="strength-segments" id="d-strength-segs"></div>
     </div>
+
+    <div class="dup-banner" id="d-duplicate-warn" style="display:none;">
+      <span id="d-duplicate-warn-text"></span>
+    </div>
+
     <div class="detail-field" id="d-url-field" style="display:none">
       <div class="detail-field-label">الرابط</div>
       <div class="detail-field-val">
-        <span id="d-url" style="direction:ltr; color:var(--accent);"></span>
+        <span id="d-url" style="direction:ltr; color:var(--blue);"></span>
         <div class="mini-btns">
-          <button class="mini-btn" onclick="openUrl()" aria-label="فتح الرابط">🔗</button>
-          <button class="mini-btn" onclick="copyField('d-url','الرابط', this)" aria-label="نسخ الرابط"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg></button>
+          <button class="mini-btn" onclick="openUrl()" aria-label="فتح">🔗</button>
+          <button class="mini-btn" onclick="copyField('d-url','الرابط',this)" aria-label="نسخ"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button>
         </div>
       </div>
     </div>
+
     <div class="detail-field" id="d-notes-field" style="display:none">
       <div class="detail-field-label">ملاحظات</div>
       <div class="detail-field-val" style="display:block; padding:0.7rem 1rem;">
         <span id="d-notes" style="font-family:inherit; word-break:break-word; white-space:pre-wrap; direction:rtl; text-align:right;"></span>
       </div>
     </div>
-    <div style="font-size:0.75rem; color:var(--text3); margin:0.5rem 0 1rem; text-align:left;">
-      تم الإضافة: <span id="d-date"></span>
+
+    <div style="font-size:0.72rem; color:var(--text3); margin:0.75rem 0 1rem; line-height:1.7;">
+      أُضيف: <span id="d-date"></span> &nbsp;·&nbsp; آخر تحديث: <span id="d-updated"></span>
     </div>
     <div class="detail-actions">
       <button class="btn btn-ghost" onclick="editCurrentEntry()">✏️ تعديل</button>
-      <button class="btn" style="background:var(--red-glow);border:1.5px solid var(--red);color:var(--red);" onclick="triggerDelete()">🗑️ حذف</button>
+      <button class="btn btn-danger" onclick="triggerDelete()">🗑️ حذف</button>
     </div>
   </div>
 </div>
 
-<!-- CHANGE PASSWORD SHEET -->
+<!-- ═══════════ CHANGE PASSWORD SHEET ═══════════ -->
 <div class="overlay" id="change-pwd-sheet" onclick="closeSheet('change-pwd-sheet',event)">
   <div class="sheet">
     <div class="sheet-handle"></div>
     <div class="sheet-title">🔑 تغيير المفتاح الرئيسي</div>
     <div class="form-row">
       <div class="form-label"><label for="chg-old">المفتاح الحالي</label></div>
-      <div class="input-wrap" style="margin-bottom:0">
-        <input type="password" class="form-input ltr" id="chg-old" autocomplete="current-password" placeholder="المفتاح الحالي للتأكيد...">
-        <button class="eye-btn" onclick="toggleEye('chg-old',this)" aria-label="إظهار كلمة المرور">👁️</button>
+      <div class="input-wrap">
+        <input type="password" class="form-input ltr" id="chg-old" autocomplete="current-password" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="المفتاح الحالي للتأكيد...">
+        <button class="eye-btn" onclick="toggleEye('chg-old',this)" aria-label="إظهار"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
       </div>
     </div>
     <div class="form-row">
       <div class="form-label"><label for="chg-new">المفتاح الجديد</label></div>
-      <div class="input-wrap" style="margin-bottom:0">
-        <input type="password" class="form-input ltr" id="chg-new" autocomplete="new-password" placeholder="المفتاح الجديد..." oninput="evalStrength(this,'chg-str-fill','chg-str-lbl')">
-        <button class="eye-btn" onclick="toggleEye('chg-new',this)" aria-label="إظهار كلمة المرور">👁️</button>
+      <div class="input-wrap">
+        <input type="password" class="form-input ltr" id="chg-new" autocomplete="new-password" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="المفتاح الجديد..." oninput="evalStrength(this,'chg-str-fill','chg-str-lbl')">
+        <button class="eye-btn" onclick="toggleEye('chg-new',this)" aria-label="إظهار"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
       </div>
-      <div class="strength-bar" style="margin-top:6px;"><div class="strength-fill" id="chg-str-fill"></div></div>
-      <div class="strength-label" id="chg-str-lbl">قوة المفتاح: —</div>
+      <div class="strength-track" style="margin-top:6px;"><div class="strength-fill" id="chg-str-fill"></div></div>
+      <div class="strength-info" id="chg-str-lbl">قوة المفتاح: —</div>
     </div>
     <div class="form-row">
       <div class="form-label"><label for="chg-confirm">تأكيد المفتاح الجديد</label></div>
-      <div class="input-wrap" style="margin-bottom:0">
-        <input type="password" class="form-input ltr" id="chg-confirm" autocomplete="new-password" placeholder="تأكيد...">
-        <button class="eye-btn" onclick="toggleEye('chg-confirm',this)" aria-label="إظهار كلمة المرور">👁️</button>
+      <div class="input-wrap">
+        <input type="password" class="form-input ltr" id="chg-confirm" autocomplete="new-password" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="تأكيد...">
+        <button class="eye-btn" onclick="toggleEye('chg-confirm',this)" aria-label="إظهار"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
       </div>
     </div>
     <div class="save-row">
-      <button class="btn btn-ghost" onclick="closeSheet('change-pwd-sheet')">إلغاء</button>
-      <button class="btn btn-primary" id="btn-do-change" onclick="doChangePassword()">🔑 تغيير</button>
+      <button class="btn btn-ghost" onclick="closeSheet('change-pwd-sheet',{target:document.getElementById('change-pwd-sheet')})">إلغاء</button>
+      <button class="btn btn-primary" id="btn-do-change" onclick="doChangePassword()">تغيير</button>
     </div>
   </div>
 </div>
 
-<!-- CONFIRM DESTRUCTIVE ACTION SHEET -->
+<!-- ═══════════ CONFIRM SHEET ═══════════ -->
 <div class="overlay" id="confirm-sheet" onclick="closeSheet('confirm-sheet',event)">
   <div class="sheet">
     <div class="sheet-handle"></div>
     <div class="sheet-title" id="confirm-title" style="color:var(--red);">⚠️ تأكيد الإجراء</div>
-    <p id="confirm-msg" style="margin-bottom: 1.5rem; color: var(--text2); font-size:0.9rem; line-height:1.6;"></p>
+    <p id="confirm-msg" style="margin-bottom:1.5rem; color:var(--text2); font-size:0.88rem; line-height:1.7;"></p>
     <div class="form-row">
-      <div class="form-label"><label for="confirm-input">اكتب <strong id="confirm-keyword" style="color:var(--text); background:var(--surface3); padding:2px 6px; border-radius:4px; user-select:all;"></strong> للتأكيد</label></div>
-      <input type="text" class="form-input" id="confirm-input" placeholder="اكتب هنا..." autocomplete="off">
+      <div class="form-label">اكتب <strong id="confirm-keyword" style="color:var(--text); background:var(--surface3); padding:2px 8px; border-radius:4px; user-select:all;"></strong> للتأكيد</div>
+      <input type="text" class="form-input" id="confirm-input" placeholder="اكتب هنا..." autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
     </div>
     <div class="save-row">
-      <button class="btn btn-ghost" onclick="closeSheet('confirm-sheet')">إلغاء</button>
-      <button class="btn" style="background:var(--red-glow); color:var(--red); border:1.5px solid var(--red);" id="btn-confirm-action" disabled>🗑️ تأكيد</button>
+      <button class="btn btn-ghost" onclick="closeSheet('confirm-sheet',{target:document.getElementById('confirm-sheet')})">إلغاء</button>
+      <button class="btn btn-danger" id="btn-confirm-action" disabled>تأكيد</button>
     </div>
   </div>
 </div>
 
-<div class="toast" id="toast" aria-live="polite"></div>
+<div class="toast" id="toast" aria-live="assertive"></div>
+
+<div id="clipboard-toast">
+  <div class="cb-row">
+    <span>سيتم مسح الحافظة</span>
+    <span style="color:var(--text2);"><span id="cb-time">30</span>ث</span>
+  </div>
+  <div class="cb-track"><div class="cb-bar" id="cb-bar"></div></div>
+</div>
 
 <script>
 'use strict';
-// ─── CRYPTO HELPERS ───────────────────────────────────────────────────────────
-const ENC = new TextEncoder();
-const DEC = new TextDecoder();
+const SVG_EYE = `<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>`;
+const SVG_EYE_OFF = `<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>`;
+
+// ─── CRYPTO ───────────────────────────────────────────────────────────────────
+const ENC = new TextEncoder(), DEC = new TextDecoder();
 const PBKDF2_ITER = 600000;
-const SALT_STORE_KEY = 'miftah_salt';
-const DATA_STORE_KEY = 'miftah_vault';
-const PREFS_KEY = 'miftah_prefs';
-const MAGIC = 'MIFTAH_v2';
+const SALT_KEY = 'miftah_salt', DATA_KEY = 'miftah_vault', MAGIC = 'MIFTAH_v2';
 
-function ab2b64(buf) { return btoa(String.fromCharCode(...new Uint8Array(buf))); }
-function b642ab(b64) { return Uint8Array.from(atob(b64), c => c.charCodeAt(0)).buffer; }
-function randBytes(n) { return crypto.getRandomValues(new Uint8Array(n)); }
+const ab2b64 = buf => { const b = new Uint8Array(buf); let s = ''; for (let i=0;i<b.length;i++) s += String.fromCharCode(b[i]); return btoa(s); };
+const b642ab = b64 => Uint8Array.from(atob(b64), c => c.charCodeAt(0)).buffer;
+const rand = n => crypto.getRandomValues(new Uint8Array(n));
 
-async function deriveKey(password, salt) {
-  const raw = await crypto.subtle.importKey('raw', ENC.encode(password), 'PBKDF2', false, ['deriveKey']);
-  return crypto.subtle.deriveKey(
-    { name: 'PBKDF2', salt, iterations: PBKDF2_ITER, hash: 'SHA-256' },
-    raw, { name: 'AES-GCM', length: 256 }, false,['encrypt', 'decrypt']
-  );
+async function deriveKey(pwd, salt) {
+  const raw = await crypto.subtle.importKey('raw', ENC.encode(pwd), 'PBKDF2', false, ['deriveKey']);
+  return crypto.subtle.deriveKey({ name:'PBKDF2', salt, iterations:PBKDF2_ITER, hash:'SHA-256' }, raw, { name:'AES-GCM', length:256 }, false, ['encrypt','decrypt']);
+}
+async function encrypt(key, data) {
+  const iv = rand(12);
+  const ct = await crypto.subtle.encrypt({ name:'AES-GCM', iv }, key, ENC.encode(JSON.stringify(data)));
+  return { iv: ab2b64(iv), ct: ab2b64(ct) };
+}
+async function decrypt(key, p) {
+  const d = await crypto.subtle.decrypt({ name:'AES-GCM', iv: b642ab(p.iv) }, key, b642ab(p.ct));
+  return JSON.parse(DEC.decode(d));
 }
 
-async function encryptData(key, data) {
-  const iv = randBytes(12);
-  const enc = await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, key, ENC.encode(JSON.stringify(data)));
-  return { iv: ab2b64(iv), ct: ab2b64(enc) };
-}
-
-async function decryptData(key, payload) {
-  const dec = await crypto.subtle.decrypt({ name: 'AES-GCM', iv: b642ab(payload.iv) }, key, b642ab(payload.ct));
-  return JSON.parse(DEC.decode(dec));
-}
-
-// ─── STATE ───────────────────────────────────────────────────────────────────
-let masterKey = null;
-let vaultData = { entries:[], magic: MAGIC };
-let currentView = 'passwords';
-let currentFilter = 'الكل';
-let currentSort = 'newest';
-let editingId = null;
-let currentDetailId = null;
-let genType = 'random';
-let autoLockTimer = null;
-let prefs = { autolock: true, autolockMinutes: 5, clearClipboard: true };
-let failedAttempts = 0;
+// ─── STATE ────────────────────────────────────────────────────────────────────
+let masterKey = null, vaultData = { entries:[], prefs:{}, magic:MAGIC };
+let currentView = 'passwords', currentFilter = 'الكل', currentSort = 'newest';
+let editingId = null, currentDetailId = null, genType = 'random';
+let autoLockTimer = null, prefs = { autolock:true, autolockMinutes:5, clearClipboard:true };
+let failedAttempts = 0, revealedPassword = null, lastGeneratedPwd = '';
 
 // ─── INIT ─────────────────────────────────────────────────────────────────────
-window.addEventListener('DOMContentLoaded', async () => {
-  loadPrefs();
-  document.querySelectorAll('input[type=range]').forEach(el => {
-    el.addEventListener('input', () => updateRangePct(el));
-    updateRangePct(el);
-  });
-  
-  const hasVault = !!localStorage.getItem(DATA_STORE_KEY);
-  if (hasVault) {
-    setAuthTab('unlock');
-  } else {
-    setAuthTab('create');
-  }
+window.addEventListener('DOMContentLoaded', () => {
+  document.querySelectorAll('input[type=range]').forEach(el => { updateRangePct(el); el.addEventListener('input', () => updateRangePct(el)); });
+  setupSwipeToDismiss();
+  document.getElementById('unlock-pwd').addEventListener('keydown', e => { if (e.key==='Enter') unlockVault(); });
+  document.getElementById('create-pwd').addEventListener('keydown', e => { if (e.key==='Enter') document.getElementById('create-confirm').focus(); });
+  document.getElementById('create-confirm').addEventListener('keydown', e => { if (e.key==='Enter') createVault(); });
+  ['f-title','f-username','f-password','f-url'].forEach(id => document.getElementById(id).addEventListener('keydown', e => { if (e.key==='Enter') saveEntry(); }));
+  const hasVault = !!localStorage.getItem(DATA_KEY);
+  setAuthTab(hasVault ? 'unlock' : 'create');
   generatePassword();
+  if (window.visualViewport) {
+    window.visualViewport.addEventListener('resize', () => {
+      const offset = window.innerHeight - window.visualViewport.height;
+      document.querySelectorAll('.overlay.show').forEach(o => o.style.bottom = offset + 'px');
+    });
+  }
 });
+window.addEventListener('resize', () => { if (masterKey && currentView==='passwords') renderCatBar(); });
+document.addEventListener('keydown', e => { if (e.key==='Escape') closeAllSheets(); });
 
-document.addEventListener('keydown', e => { if (e.key === 'Escape') closeAllSheets(); });
-
-function updateRangePct(input) {
-  const min = input.min || 0, max = input.max || 100;
-  const pct = ((input.value - min) / (max - min)) * 100;
-  input.style.setProperty('--pct', pct + '%');
+function updateRangePct(el) {
+  const pct = ((el.value - el.min) / (el.max - el.min)) * 100;
+  el.style.setProperty('--pct', pct + '%');
 }
 
 // ─── AUTH ─────────────────────────────────────────────────────────────────────
 function setAuthTab(tab) {
-  document.getElementById('panel-unlock').classList.toggle('visible', tab === 'unlock');
-  document.getElementById('panel-create').classList.toggle('visible', tab === 'create');
-  document.getElementById('tab-unlock').classList.toggle('active', tab === 'unlock');
-  document.getElementById('tab-create').classList.toggle('active', tab === 'create');
+  ['unlock','create'].forEach(t => {
+    document.getElementById(`panel-${t}`).classList.toggle('visible', t===tab);
+    document.getElementById(`tab-${t}`).classList.toggle('active', t===tab);
+  });
 }
 
 async function unlockVault() {
@@ -832,23 +1522,23 @@ async function unlockVault() {
   const btn = document.getElementById('btn-unlock');
   btn.disabled = true; btn.textContent = '⏳ جاري الفتح...';
   try {
-    const saltB64 = localStorage.getItem(SALT_STORE_KEY);
-    if (!saltB64) { showToast('لا يوجد قبو محفوظ', 'error'); return; }
+    const saltB64 = localStorage.getItem(SALT_KEY);
+    if (!saltB64) { showToast('لا يوجد قبو محفوظ', 'error'); btn.disabled=false; btn.textContent='فتح القبو'; return; }
     const key = await deriveKey(pwd, b642ab(saltB64));
-    const stored = JSON.parse(localStorage.getItem(DATA_STORE_KEY));
-    const data = await decryptData(key, stored);
+    const data = await decrypt(key, JSON.parse(localStorage.getItem(DATA_KEY)));
     if (data.magic !== MAGIC) throw new Error('invalid');
-    
-    masterKey = key;
-    vaultData = data;
+    masterKey = key; vaultData = data;
+    if (vaultData.prefs) { prefs = { ...prefs, ...vaultData.prefs }; applyPrefsToUI(); }
     failedAttempts = 0;
     openApp();
   } catch(e) {
     failedAttempts++;
-    const waitSec = Math.min(Math.pow(2, failedAttempts - 1), 60);
-    showToast('❌ مفتاح خاطئ أو القبو تالف', 'error');
-    btn.textContent = `⏳ انتظر ${waitSec} ثانية...`;
-    setTimeout(() => { btn.disabled = false; btn.textContent = '🔓 فتح القبو'; }, waitSec * 1000);
+    const wait = Math.min(1000 * Math.pow(2, failedAttempts-1), 30000);
+    showToast('❌ مفتاح خاطئ', 'error');
+    let rem = Math.round(wait/1000);
+    btn.textContent = `⏳ انتظر ${rem}ث`;
+    const iv = setInterval(() => { rem--; if (rem>0) btn.textContent=`⏳ انتظر ${rem}ث`; }, 1000);
+    setTimeout(() => { clearInterval(iv); btn.disabled=false; btn.textContent='فتح القبو'; }, wait);
   }
 }
 
@@ -861,240 +1551,235 @@ async function createVault() {
   const btn = document.getElementById('btn-create');
   btn.disabled = true; btn.textContent = '⏳ جاري الإنشاء...';
   try {
-    const salt = randBytes(32);
+    const salt = rand(32);
     masterKey = await deriveKey(pwd, salt);
-    vaultData = { entries:[], magic: MAGIC };
-    localStorage.setItem(SALT_STORE_KEY, ab2b64(salt));
+    vaultData = { entries:[], prefs:prefs, magic:MAGIC };
+    localStorage.setItem(SALT_KEY, ab2b64(salt));
     await saveVault();
-    openApp();
+    applyPrefsToUI(); openApp();
   } catch(e) {
-    showToast('خطأ في إنشاء القبو', 'error');
-    btn.disabled = false; btn.textContent = '✨ إنشاء القبو';
+    showToast('خطأ في الإنشاء', 'error');
+    btn.disabled=false; btn.textContent='إنشاء القبو';
   }
 }
 
 function openApp() {
-  const lock = document.getElementById('lock-screen');
-  lock.classList.add('hiding');
-  
+  document.getElementById('lock-screen').classList.add('hiding');
   setTimeout(() => {
-    lock.style.display = 'none';
-    lock.classList.remove('hiding');
     const app = document.getElementById('app');
-    app.style.display = 'flex';
-    void app.offsetWidth; // Force reflow
     app.classList.add('visible');
-    
     document.getElementById('unlock-pwd').value = '';
     document.getElementById('create-pwd').value = '';
     document.getElementById('create-confirm').value = '';
-    
     if (!vaultData.entries.length) {
-      const btn = document.querySelector('.topbar-btn');
+      const btn = document.querySelector('.topbar-add');
       btn.classList.add('pulse');
-      btn.addEventListener('click', () => btn.classList.remove('pulse'), { once: true });
+      btn.addEventListener('click', () => btn.classList.remove('pulse'), { once:true });
     }
-    
-    renderAll();
-    startAutoLock();
-    resetAutoLock();
-  }, 350);
+    renderAll(); startAutoLock(); resetAutoLock();
+  }, 400);
 }
 
 function lockApp() {
-  masterKey = null;
-  vaultData = { entries:[], magic: MAGIC };
-  clearTimeout(autoLockTimer);
+  masterKey = null; vaultData = { entries:[], prefs:{}, magic:MAGIC };
+  clearTimeout(autoLockTimer); clearInterval(cbInterval); clearTimeout(cbTimeout);
+  document.getElementById('clipboard-toast').style.display = 'none';
   closeAllSheets();
-  
   const app = document.getElementById('app');
   app.classList.remove('visible');
-  
+  stopAutoLock();
   setTimeout(() => {
-    app.style.display = 'none';
     const lock = document.getElementById('lock-screen');
-    lock.style.display = 'flex';
-    
+    lock.classList.remove('hiding');
     document.getElementById('unlock-pwd').value = '';
-    document.getElementById('btn-unlock').disabled = false;
-    document.getElementById('btn-unlock').textContent = '🔓 فتح القبو';
-    
+    const btn = document.getElementById('btn-unlock');
+    btn.disabled = false; btn.textContent = 'فتح القبو';
     currentView = 'passwords';
     ['passwords','generator','audit','settings'].forEach(v => {
-      document.getElementById(`view-${v}`).classList.toggle('visible', v === 'passwords');
-      document.getElementById(`bnav-${v}`).classList.toggle('active', v === 'passwords');
+      document.getElementById(`view-${v}`).classList.toggle('visible', v==='passwords');
+      document.getElementById(`bnav-${v}`).classList.toggle('active', v==='passwords');
     });
     document.getElementById('search-input').style.display = '';
-    document.getElementById('cat-bar').style.display = '';
-  }, 300);
+    document.getElementById('cat-bar-container').style.display = '';
+  }, 350);
 }
 
 // ─── AUTO LOCK ────────────────────────────────────────────────────────────────
-function startAutoLock() { ['touchstart','click','keypress','mousemove'].forEach(e => document.addEventListener(e, resetAutoLock, {passive:true})); }
+const boundReset = () => resetAutoLock();
+function startAutoLock() { ['touchstart','click','keypress','mousemove'].forEach(e => document.addEventListener(e, boundReset, {passive:true})); }
+function stopAutoLock() { ['touchstart','click','keypress','mousemove'].forEach(e => document.removeEventListener(e, boundReset)); }
 function resetAutoLock() {
   if (!prefs.autolock) return;
   clearTimeout(autoLockTimer);
-  autoLockTimer = setTimeout(lockApp, (prefs.autolockMinutes || 5) * 60 * 1000);
+  autoLockTimer = setTimeout(lockApp, (prefs.autolockMinutes||5) * 60000);
 }
-document.addEventListener('visibilitychange', () => { if (document.hidden && masterKey) lockApp(); });
+let visTimer;
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden && masterKey) visTimer = setTimeout(lockApp, 3000);
+  else clearTimeout(visTimer);
+});
 
-// ─── SAVE VAULT ───────────────────────────────────────────────────────────────
+// ─── VAULT ────────────────────────────────────────────────────────────────────
 async function saveVault() {
   if (!masterKey) return;
-  const enc = await encryptData(masterKey, vaultData);
-  localStorage.setItem(DATA_STORE_KEY, JSON.stringify(enc));
+  localStorage.setItem(DATA_KEY, JSON.stringify(await encrypt(masterKey, vaultData)));
 }
 
 // ─── RENDER ───────────────────────────────────────────────────────────────────
-const CATEGORIES =['الكل','عام','عمل','بنوك','شبكات','بريد','ترفيه','أخرى'];
+const CATS = ['الكل','عام','عمل','بنوك','شبكات','بريد','ترفيه','أخرى'];
 const CAT_ICONS = { الكل:'🌐', عام:'🌐', عمل:'💼', بنوك:'🏦', شبكات:'📱', بريد:'📧', ترفيه:'🎮', أخرى:'📁' };
 
 function renderAll() { renderStats(); renderCatBar(); renderEntries(); }
 
 function renderStats() {
   if (!vaultData.entries) return;
-  const entries = vaultData.entries;
-  const weak = entries.filter(e => getStrength(e.password).level < 2).length;
-  const strong = entries.filter(e => getStrength(e.password).level >= 3).length;
-  document.getElementById('stats-row').innerHTML = `
-    <div class="stat-card"><div class="stat-num">${entries.length}</div><div class="stat-lbl">إجمالي</div></div>
-    <div class="stat-card"><div class="stat-num" style="color:var(--green)">${strong}</div><div class="stat-lbl">قوية</div></div>
-    <div class="stat-card"><div class="stat-num" style="color:var(--red)">${weak}</div><div class="stat-lbl">ضعيفة</div></div>
-  `;
+  const e = vaultData.entries;
+  const weak = e.filter(x => getStrength(x.password).level < 2).length;
+  const strong = e.filter(x => getStrength(x.password).level >= 3).length;
+  const row = document.getElementById('stats-row');
+  const first = !row.dataset.rendered;
+  row.dataset.rendered = '1';
+  row.innerHTML = [
+    { n:e.length, l:'إجمالي', c:'var(--blue)', d: first?'':'' },
+    { n:strong, l:'قوية', c:'var(--green)', d: first?'':'' },
+    { n:weak, l:'ضعيفة', c:'var(--red)', d: first?'':'' }
+  ].map((s,i) => `<div class="stat-card" style="${first?`animation-delay:${0.05+i*0.05}s`:'animation:none'}"><div class="stat-num" style="color:${s.c}">${s.n}</div><div class="stat-lbl">${s.l}</div></div>`).join('');
 }
 
 function renderCatBar() {
-  document.getElementById('cat-bar').innerHTML = CATEGORIES.map(c => `
-    <button class="cat-pill ${c === currentFilter ? 'active' : ''}" data-cat="${esc(c)}">${CAT_ICONS[c]} ${esc(c)}</button>
-  `).join('');
+  const isDesktop = window.innerWidth >= 900;
+  const html = CATS.map(c => {
+    const count = c==='الكل' ? (vaultData.entries||[]).length : (vaultData.entries||[]).filter(e=>e.category===c).length;
+    return `<button class="cat-pill ${c===currentFilter?'active':''}" onclick="setFilter('${esc(c)}')">${CAT_ICONS[c]} ${esc(c)}${count>0?' ('+count+')':''}</button>`;
+  }).join('');
+  document.getElementById('cat-bar').innerHTML = html;
+  if (isDesktop) {
+    let bar = document.getElementById('cat-bar-inline-desk');
+    if (!bar) {
+      bar = document.createElement('div');
+      bar.id = 'cat-bar-inline-desk';
+      bar.className = 'cat-bar-inline-desk';
+      const vp = document.getElementById('view-passwords');
+      vp.insertBefore(bar, vp.querySelector('.section-header'));
+    }
+    bar.innerHTML = html;
+  } else {
+    const b = document.getElementById('cat-bar-inline-desk');
+    if (b) b.remove();
+  }
 }
 
-// Event Delegation for Cat Bar
-document.getElementById('cat-bar').addEventListener('click', e => {
-  const pill = e.target.closest('.cat-pill');
-  if (pill) setFilter(pill.dataset.cat);
-});
-
-function getFilteredEntries() {
-  if (!vaultData.entries) return[];
-  const q = document.getElementById('search-input').value.trim().toLowerCase();
+function getFiltered(q='') {
+  if (!vaultData.entries) return [];
   let list = vaultData.entries.filter(e => {
-    const catMatch = currentFilter === 'الكل' || e.category === currentFilter;
-    const search = !q || e.title.toLowerCase().includes(q) || e.username.toLowerCase().includes(q) || (e.url||'').toLowerCase().includes(q);
-    return catMatch && search;
+    const cat = currentFilter==='الكل' || e.category===currentFilter;
+    const srch = !q || e.title.toLowerCase().includes(q) || e.username.toLowerCase().includes(q) || (e.url||'').toLowerCase().includes(q);
+    return cat && srch;
   });
-  
-  if (currentSort === 'newest') list.sort((a,b) => b.createdAt - a.createdAt);
-  else if (currentSort === 'az') list.sort((a,b) => a.title.localeCompare(b.title, 'ar'));
-  else if (currentSort === 'za') list.sort((a,b) => b.title.localeCompare(a.title, 'ar'));
-  else if (currentSort === 'weak') list.sort((a,b) => getStrength(a.password).bits - getStrength(b.password).bits);
-  
+  if (currentSort==='newest') list.sort((a,b) => b.createdAt - a.createdAt);
+  else if (currentSort==='az') list.sort((a,b) => a.title.localeCompare(b.title,'ar'));
+  else if (currentSort==='za') list.sort((a,b) => b.title.localeCompare(a.title,'ar'));
+  else if (currentSort==='weak') list.sort((a,b) => getStrength(a.password).bits - getStrength(b.password).bits);
   return list;
 }
 
 function renderEntries() {
-  const list = getFilteredEntries();
-  const container = document.getElementById('entries-list');
+  const q = document.getElementById('search-input').value.trim().toLowerCase();
+  const list = getFiltered(q);
+  const el = document.getElementById('entries-list');
   document.getElementById('list-count').textContent = `${list.length} عنصر`;
-
   if (!list.length) {
-    const emptyMsg = vaultData.entries && vaultData.entries.length ? 'لا توجد نتائج بحث' : 'قبوك فارغ حالياً';
-    container.innerHTML = `
-      <div class="empty-state">
-        <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom:1rem; opacity:0.8;"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
-        <p>${emptyMsg}</p>
-        ${(!vaultData.entries || !vaultData.entries.length) ? `<button class="btn btn-primary" onclick="openAddSheet()" style="margin-top:1rem; width:auto; padding:0.6rem 1.5rem; border-radius:50px;">➕ إضافة كلمة مرور</button>` : ''}
-      </div>`;
+    const msg = (vaultData.entries&&vaultData.entries.length) ? 'لا توجد نتائج' : 'القبو فارغ';
+    el.innerHTML = `<div class="empty-state">
+      <svg width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="var(--blue)" stroke-width="1.5" style="opacity:.6;margin-bottom:1rem;" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+      <p>${msg}</p>
+      ${(!vaultData.entries||!vaultData.entries.length)?`<button class="btn btn-primary" onclick="openAddSheet()" style="margin-top:1rem;width:auto;padding:0.65rem 1.5rem;border-radius:50px;">➕ إضافة كلمة مرور</button>`:''}
+    </div>`;
     return;
   }
-  container.innerHTML = list.map(e => entryCard(e)).join('');
+  el.innerHTML = list.map((e,i) => entryCard(e,i,q)).join('');
 }
 
-function entryCard(e) {
+function hilight(t, q) {
+  if (!q) return esc(t);
+  const rx = new RegExp(`(${q.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')})`, 'gi');
+  return t.split(rx).map((p,i) => i%2===1 ? `<mark>${esc(p)}</mark>` : esc(p)).join('');
+}
+
+function entryCard(e, idx, q) {
   const s = getStrength(e.password);
   const age = getAge(e.createdAt);
-  return `
-    <div class="entry-card" data-id="${esc(e.id)}">
-      <div class="entry-icon ${getColorClass(e.category)}">${getEntryIcon(e)}</div>
-      <div class="entry-body">
-        <div class="entry-title">${esc(e.title)}</div>
-        <div class="entry-user">${esc(e.username)}</div>
-        <div class="entry-meta">
-          <span class="entry-badge badge-${s.cls}">${s.label}</span>
-          <span class="entry-age">${age}</span>
-        </div>
-      </div>
-      <div class="entry-actions">
-        <button class="icon-btn copy-btn" data-id="${esc(e.id)}" aria-label="نسخ كلمة المرور" title="نسخ كلمة المرور">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px;"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
-        </button>
+  const delay = Math.min(idx*0.04, 0.22);
+  return `<div class="entry-card" role="listitem" data-id="${esc(e.id)}" style="animation-delay:${delay}s;">
+    <div class="entry-icon ${getIconColor(e.category)}">${getIcon(e)}</div>
+    <div class="entry-body">
+      <div class="entry-title">${hilight(e.title,q)}</div>
+      <div class="entry-user">${hilight(e.username,q)}</div>
+      <div class="entry-meta">
+        <span class="entry-badge badge-${s.cls}">${s.label}</span>
+        <span class="entry-age">${age}</span>
       </div>
     </div>
-  `;
+    <button class="icon-btn copy-btn" data-id="${esc(e.id)}" aria-label="نسخ كلمة المرور">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+    </button>
+  </div>`;
 }
 
-// Event Delegation for Entry Cards
 document.getElementById('entries-list').addEventListener('click', e => {
   const copyBtn = e.target.closest('.copy-btn');
-  if (copyBtn) {
-    quickCopy(copyBtn.dataset.id, copyBtn);
-    e.stopPropagation();
-    return;
-  }
+  if (copyBtn) { quickCopy(copyBtn.dataset.id, copyBtn); e.stopPropagation(); return; }
   const card = e.target.closest('.entry-card');
   if (card) openDetail(card.dataset.id);
 });
 
-function getEntryIcon(e) { const i = { عمل:'💼', بنوك:'🏦', شبكات:'📱', بريد:'📧', ترفيه:'🎮', أخرى:'📁', عام:'🔑' }; return i[e.category] || e.title.charAt(0).toUpperCase(); }
-function getColorClass(cat) { const m = { عام:'color-blue', عمل:'color-purple', بنوك:'color-green', شبكات:'color-blue', بريد:'color-yellow', ترفيه:'color-red', أخرى:'color-orange' }; return m[cat] || 'color-blue'; }
+function getIcon(e) { return { عمل:'💼', بنوك:'🏦', شبكات:'📱', بريد:'📧', ترفيه:'🎮', أخرى:'📁', عام:'🔑' }[e.category] || e.title.charAt(0).toUpperCase(); }
+function getIconColor(cat) { return { عام:'ic-blue', عمل:'ic-purple', بنوك:'ic-green', شبكات:'ic-blue', بريد:'ic-yellow', ترفيه:'ic-red', أخرى:'ic-orange' }[cat] || 'ic-blue'; }
+
 function getAge(ts) {
   if (!ts) return '';
-  const days = Math.floor((Date.now() - ts) / 86400000);
-  if (days === 0) return 'اليوم'; if (days === 1) return 'أمس';
-  if (days < 30) return `${days} يوم`; if (days < 365) return `${Math.floor(days/30)} شهر`;
-  return `${Math.floor(days/365)} سنة`;
+  const d = Math.floor((Date.now()-ts)/86400000);
+  if (d===0) return 'اليوم'; if (d===1) return 'أمس'; if (d<11) return `${d} أيام`;
+  if (d<30) return `${d} يوماً`; const m = Math.floor(d/30);
+  if (m===1) return 'شهر'; if (m<12) return `${m} أشهر`;
+  const y = Math.floor(d/365); return y===1 ? 'سنة' : `${y} سنوات`;
 }
 
 // ─── STRENGTH ─────────────────────────────────────────────────────────────────
 function getStrength(pwd) {
-  if (!pwd) return { bits: 0, level: 0, label: 'فارغة', cls: 'weak' };
+  if (!pwd) return { bits:0, level:0, label:'فارغة', cls:'weak' };
   let pool = 0;
-  if (/[a-z]/.test(pwd)) pool += 26;
-  if (/[A-Z]/.test(pwd)) pool += 26;
-  if (/[0-9]/.test(pwd)) pool += 10;
-  if (/[^a-zA-Z0-9]/.test(pwd)) pool += 32;
-  const bits = pool > 0 ? pwd.length * Math.log2(pool) : 0;
-  if (bits < 28) return { bits, level: 0, label: 'ضعيفة جداً', cls: 'weak' };
-  if (bits < 45) return { bits, level: 1, label: 'ضعيفة', cls: 'weak' };
-  if (bits < 65) return { bits, level: 2, label: 'متوسطة', cls: 'medium' };
-  if (bits < 90) return { bits, level: 3, label: 'قوية', cls: 'strong' };
-  return { bits, level: 4, label: 'ممتازة', cls: 'excellent' };
+  if (/[a-z]/.test(pwd)) pool+=26; if (/[A-Z]/.test(pwd)) pool+=26;
+  if (/[0-9]/.test(pwd)) pool+=10; if (/[^a-zA-Z0-9]/.test(pwd)) pool+=32;
+  const bits = pool>0 ? pwd.length*Math.log2(pool) : 0;
+  if (bits<28) return {bits,level:0,label:'ضعيفة جداً',cls:'weak'};
+  if (bits<45) return {bits,level:1,label:'ضعيفة',cls:'weak'};
+  if (bits<65) return {bits,level:2,label:'متوسطة',cls:'medium'};
+  if (bits<90) return {bits,level:3,label:'قوية',cls:'strong'};
+  return {bits,level:4,label:'ممتازة',cls:'excellent'};
 }
-
-const STR_COLORS =['var(--red)','var(--red)','var(--yellow)','var(--green)','var(--gold)'];
+const STR_COLORS = ['var(--red)','var(--red)','var(--yellow)','var(--green)','var(--gold)'];
+const STR_PCTS = [10,30,55,78,100];
 
 function evalStrength(input, fillId, lblId) {
   const s = getStrength(input.value);
-  const pct = Math.min(s.bits / 100 * 100, 100);
-  document.getElementById(fillId).style.width = pct + '%';
-  document.getElementById(fillId).style.background = STR_COLORS[s.level];
+  const f = document.getElementById(fillId);
+  f.style.width = STR_PCTS[s.level]+'%'; f.style.background = STR_COLORS[s.level];
   document.getElementById(lblId).textContent = `قوة المفتاح: ${s.label} (${Math.round(s.bits)} بت)`;
 }
-
 function liveStrength() {
-  const pwd = document.getElementById('f-password').value;
-  const s = getStrength(pwd);
-  const pct = Math.min(s.bits / 100 * 100, 100);
-  document.getElementById('f-str-fill').style.width = pct + '%';
-  document.getElementById('f-str-fill').style.background = STR_COLORS[s.level];
-  document.getElementById('pwd-strength-lbl').textContent = s.label;
-  document.getElementById('pwd-strength-lbl').style.color = STR_COLORS[s.level];
+  const s = getStrength(document.getElementById('f-password').value);
+  const f = document.getElementById('f-str-fill');
+  f.style.width = STR_PCTS[s.level]+'%'; f.style.background = STR_COLORS[s.level];
+  const lbl = document.getElementById('pwd-strength-lbl');
+  lbl.textContent = s.label; lbl.style.color = STR_COLORS[s.level];
 }
 
-// ─── ADD / EDIT ENTRY ─────────────────────────────────────────────────────────
+// ─── ADD / EDIT ───────────────────────────────────────────────────────────────
 function openAddSheet() {
   editingId = null;
-  document.getElementById('add-sheet-title').textContent = '➕ إضافة كلمة مرور';['f-title','f-username','f-password','f-url','f-notes'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('add-sheet-title').textContent = 'إضافة كلمة مرور';
+  ['f-title','f-username','f-password','f-url','f-notes'].forEach(id => document.getElementById(id).value='');
   document.getElementById('f-category').value = 'عام';
   document.getElementById('f-str-fill').style.width = '0%';
   document.getElementById('pwd-strength-lbl').textContent = '';
@@ -1102,527 +1787,543 @@ function openAddSheet() {
 }
 
 function openEditSheet(id) {
-  const e = vaultData.entries.find(x => x.id === id);
-  if (!e) return;
+  const e = vaultData.entries.find(x => x.id===id); if (!e) return;
   editingId = id;
-  document.getElementById('add-sheet-title').textContent = '✏️ تعديل كلمة المرور';
+  document.getElementById('add-sheet-title').textContent = 'تعديل كلمة المرور';
   document.getElementById('f-title').value = e.title;
   document.getElementById('f-username').value = e.username;
   document.getElementById('f-password').value = e.password;
-  document.getElementById('f-url').value = e.url || '';
-  document.getElementById('f-notes').value = e.notes || '';
-  document.getElementById('f-category').value = e.category || 'عام';
-  liveStrength();
-  openSheet('add-sheet');
+  document.getElementById('f-url').value = e.url||'';
+  document.getElementById('f-notes').value = e.notes||'';
+  document.getElementById('f-category').value = e.category||'عام';
+  liveStrength(); openSheet('add-sheet');
 }
 
 async function saveEntry() {
   const title = document.getElementById('f-title').value.trim();
   const username = document.getElementById('f-username').value.trim();
   const password = document.getElementById('f-password').value;
-  if (!title || !username || !password) { showToast('أكمل الحقول المطلوبة', 'error'); return; }
-
+  if (!title||!username||!password) { showToast('أكمل الحقول المطلوبة', 'error'); return; }
   if (editingId) {
-    const idx = vaultData.entries.findIndex(e => e.id === editingId);
-    if (idx > -1) {
-      vaultData.entries[idx] = { ...vaultData.entries[idx], title, username, password,
-        url: document.getElementById('f-url').value.trim(), notes: document.getElementById('f-notes').value.trim(),
-        category: document.getElementById('f-category').value, updatedAt: Date.now()
-      };
-    }
+    const idx = vaultData.entries.findIndex(e => e.id===editingId);
+    if (idx>-1) vaultData.entries[idx] = { ...vaultData.entries[idx], title, username, password, url:document.getElementById('f-url').value.trim(), notes:document.getElementById('f-notes').value.trim(), category:document.getElementById('f-category').value, updatedAt:Date.now() };
   } else {
-    vaultData.entries.unshift({
-      id: genId(), title, username, password,
-      url: document.getElementById('f-url').value.trim(), notes: document.getElementById('f-notes').value.trim(),
-      category: document.getElementById('f-category').value, createdAt: Date.now(), updatedAt: Date.now()
-    });
+    vaultData.entries.unshift({ id:genId(), title, username, password, url:document.getElementById('f-url').value.trim(), notes:document.getElementById('f-notes').value.trim(), category:document.getElementById('f-category').value, createdAt:Date.now(), updatedAt:Date.now() });
   }
   await saveVault();
-  closeSheet('add-sheet');
+  closeSheet('add-sheet', {target:document.getElementById('add-sheet')});
   renderAll();
-  showToast(editingId ? '✅ تم التعديل' : '✅ تمت الإضافة', 'success');
+  showToast(editingId?'✅ تم التعديل':'✅ تمت الإضافة', 'success');
   editingId = null;
 }
 
-// ─── DETAIL VIEW ──────────────────────────────────────────────────────────────
+// ─── INLINE EDIT ──────────────────────────────────────────────────────────────
+async function inlineEditSave(field, value) {
+  if (!currentDetailId) return;
+  const idx = vaultData.entries.findIndex(e => e.id===currentDetailId);
+  if (idx>-1 && vaultData.entries[idx][field]!==value) {
+    vaultData.entries[idx][field] = value;
+    vaultData.entries[idx].updatedAt = Date.now();
+    await saveVault(); renderAll();
+    showToast('✅ تم التحديث', 'success');
+    document.getElementById('d-updated').textContent = new Date(vaultData.entries[idx].updatedAt).toLocaleDateString('ar-SA');
+  }
+}
+function inlineEditSaveUsername(el) {
+  el.style.borderBottomColor='transparent';
+  const val=el.textContent.trim();
+  if (val.length>500) { showToast('الاسم طويل جداً','error'); return; }
+  inlineEditSave('username',val);
+}
+function inlineEditFocusPassword(el) {
+  clearTimeout(revealTimer);
+  el.removeAttribute('readonly'); el.type='text';
+  el.value=revealedPassword; el.style.borderBottomColor='var(--blue)';
+}
+function inlineEditSavePassword(el) {
+  const newText=el.value.trim();
+  el.value=''; el.type='password'; el.readOnly=true;
+  el.style.borderBottomColor='transparent';
+  requestAnimationFrame(() => { el.value='••••••••••••'; });
+  if (newText && newText!==revealedPassword) {
+    if (newText.length>2000) { showToast('كلمة المرور طويلة','error'); return; }
+    revealedPassword=newText; inlineEditSave('password',newText);
+    const s=getStrength(newText);
+    document.getElementById('d-strength-val').textContent=`${s.label} (${Math.round(s.bits)} بت)`;
+    document.getElementById('d-strength-val').style.color=STR_COLORS[s.level];
+    document.getElementById('d-strength-segs').innerHTML=[0,1,2,3,4].map(i=>`<div class="strength-segment" style="background:${i<=s.level?STR_COLORS[s.level]:'var(--surface3)'}"></div>`).join('');
+    const dup=vaultData.entries.filter(x=>x.password===newText&&x.id!==currentDetailId);
+    const w=document.getElementById('d-duplicate-warn');
+    if (dup.length>0) { w.style.display='block'; document.getElementById('d-duplicate-warn-text').textContent=`⚠️ مستخدمة في ${dup.length} حساب آخر!`; } else w.style.display='none';
+  }
+  document.getElementById('d-reveal-btn').innerHTML=SVG_EYE;
+}
+
+// ─── DETAIL ───────────────────────────────────────────────────────────────────
 let revealTimer;
 function openDetail(id) {
-  const e = vaultData.entries.find(x => x.id === id);
-  if (!e) return;
-  currentDetailId = id;
-  document.getElementById('d-icon').textContent = getEntryIcon(e);
-  document.getElementById('d-icon').className = `detail-icon ${getColorClass(e.category)}`;
-  document.getElementById('d-title').textContent = e.title;
-  document.getElementById('d-cat').textContent = `${CAT_ICONS[e.category] || '📁'} ${e.category}`;
-  document.getElementById('d-username').textContent = e.username;
-  
-  // SECURITY NOTE: data-real is readable in DevTools Elements panel.
-  // This is an inherent limitation of browser-based password managers.
-  // The blur/dot logic prevents casual shoulder-surfing only.
-  // Real security relies on the AES-256-GCM encrypted localStorage store.
-  const pwdSpan = document.getElementById('d-password');
-  pwdSpan.textContent = '••••••••••••';
-  pwdSpan.setAttribute('data-real', e.password);
-  pwdSpan.classList.add('blurred');
-  document.getElementById('d-reveal-btn').textContent = '👁️';
-  document.getElementById('d-reveal-btn').setAttribute('aria-label', 'إظهار كلمة المرور');
+  const e = vaultData.entries.find(x=>x.id===id); if(!e) return;
+  currentDetailId=id;
+  document.getElementById('d-icon').textContent=getIcon(e);
+  document.getElementById('d-icon').className=`detail-icon ${getIconColor(e.category)}`;
+  document.getElementById('d-title').textContent=e.title;
+  document.getElementById('d-cat').textContent=`${CAT_ICONS[e.category]||'📁'} ${e.category}`;
+  document.getElementById('d-username').textContent=e.username;
+  const pi=document.getElementById('d-password');
+  pi.value=''; pi.type='password'; pi.value='••••••••••••';
+  revealedPassword=e.password;
+  document.getElementById('d-reveal-btn').innerHTML=SVG_EYE;
   clearTimeout(revealTimer);
-
-  const s = getStrength(e.password);
-  document.getElementById('d-strength-val').textContent = `${s.label} (${Math.round(s.bits)} بت)`;
-  document.getElementById('d-strength-val').style.color = STR_COLORS[s.level];
-  document.getElementById('d-strength-segs').innerHTML =[0,1,2,3,4].map(i => `<div class="strength-segment" style="background:${i <= s.level ? STR_COLORS[s.level] : 'var(--surface3)'}"></div>`).join('');
-
-  if (e.url) { document.getElementById('d-url-field').style.display = ''; document.getElementById('d-url').textContent = e.url; } 
-  else document.getElementById('d-url-field').style.display = 'none';
-
-  if (e.notes) { document.getElementById('d-notes-field').style.display = ''; document.getElementById('d-notes').textContent = e.notes; } 
-  else document.getElementById('d-notes-field').style.display = 'none';
-
-  document.getElementById('d-date').textContent = new Date(e.createdAt).toLocaleDateString('ar-SA');
+  const s=getStrength(e.password);
+  document.getElementById('d-strength-val').textContent=`${s.label} (${Math.round(s.bits)} بت)`;
+  document.getElementById('d-strength-val').style.color=STR_COLORS[s.level];
+  document.getElementById('d-strength-segs').innerHTML=[0,1,2,3,4].map(i=>`<div class="strength-segment" style="background:${i<=s.level?STR_COLORS[s.level]:'var(--surface3)'}"></div>`).join('');
+  const dup=vaultData.entries.filter(x=>x.password===e.password&&x.id!==e.id);
+  const w=document.getElementById('d-duplicate-warn');
+  if (dup.length>0) { w.style.display='block'; document.getElementById('d-duplicate-warn-text').textContent=`⚠️ مستخدمة في ${dup.length} حساب آخر!`; } else w.style.display='none';
+  const uf=document.getElementById('d-url-field');
+  if (e.url) { uf.style.display=''; document.getElementById('d-url').textContent=e.url; } else uf.style.display='none';
+  const nf=document.getElementById('d-notes-field');
+  if (e.notes) { nf.style.display=''; document.getElementById('d-notes').textContent=e.notes; } else nf.style.display='none';
+  document.getElementById('d-date').textContent=new Date(e.createdAt).toLocaleDateString('ar-SA');
+  document.getElementById('d-updated').textContent=e.updatedAt?new Date(e.updatedAt).toLocaleDateString('ar-SA'):'—';
   openSheet('detail-sheet');
 }
 
 function revealPassword() {
-  const span = document.getElementById('d-password');
-  const btn = document.getElementById('d-reveal-btn');
-  const isBlurred = span.classList.contains('blurred');
-  
-  if (isBlurred) {
-    span.textContent = span.getAttribute('data-real');
-    span.classList.remove('blurred');
-    btn.textContent = '🙈';
-    btn.setAttribute('aria-label', 'إخفاء كلمة المرور');
-    
+  const input=document.getElementById('d-password'), btn=document.getElementById('d-reveal-btn');
+  if (input.type==='password') {
+    input.type='text'; input.value=revealedPassword; btn.innerHTML=SVG_EYE_OFF;
     clearTimeout(revealTimer);
-    revealTimer = setTimeout(() => {
-      span.textContent = '••••••••••••';
-      span.classList.add('blurred');
-      btn.textContent = '👁️';
-      btn.setAttribute('aria-label', 'إظهار كلمة المرور');
-    }, 10000);
-  } else {
-    span.textContent = '••••••••••••';
-    span.classList.add('blurred');
-    btn.textContent = '👁️';
-    btn.setAttribute('aria-label', 'إظهار كلمة المرور');
-    clearTimeout(revealTimer);
-  }
+    revealTimer=setTimeout(()=>{ input.value=''; input.type='password'; input.value='••••••••••••'; btn.innerHTML=SVG_EYE; }, 15000);
+  } else { input.value=''; input.type='password'; input.value='••••••••••••'; btn.innerHTML=SVG_EYE; clearTimeout(revealTimer); }
 }
 
 function openUrl() {
-  let url = document.getElementById('d-url').textContent;
-  if (!url) return;
-  if (!url.startsWith('http://') && !url.startsWith('https://')) url = 'https://' + url;
-  window.open(url, '_blank', 'noopener,noreferrer');
+  const e=vaultData.entries.find(x=>x.id===currentDetailId);
+  const raw=(e?.url||'').trim(); if(!raw) return;
+  const safe=/^https?:\/\//i.test(raw)?raw:'https://'+raw;
+  if (!/^https?:\/\//i.test(safe)) { showToast('رابط غير آمن','error'); return; }
+  window.open(safe,'_blank','noopener,noreferrer');
 }
 
+let cbInterval, cbTimeout;
 function copyField(id, label, btn) {
-  const span = document.getElementById(id);
-  const text = span.hasAttribute('data-real') ? span.getAttribute('data-real') : span.textContent;
+  const text = id==='d-password' ? revealedPassword : document.getElementById(id).textContent;
   copyToClipboard(text, label, btn);
 }
-
-async function quickCopy(id, btn) {
-  const e = vaultData.entries.find(x => x.id === id);
-  if (!e) return;
-  copyToClipboard(e.password, 'كلمة المرور', btn);
+function quickCopy(id, btn) {
+  const e=vaultData.entries.find(x=>x.id===id); if(!e) return;
+  copyToClipboard(e.password,'كلمة المرور',btn);
+}
+async function copyToClipboard(text, label, btn=null) {
+  if (!text) return;
+  try {
+    if (navigator.clipboard?.writeText) await navigator.clipboard.writeText(text);
+    else throw new Error();
+  } catch {
+    const ta=document.createElement('textarea');
+    ta.value=text; ta.style.cssText='position:fixed;opacity:0'; document.body.appendChild(ta);
+    ta.select(); document.execCommand('copy'); document.body.removeChild(ta);
+  }
+  showToast(`📋 تم نسخ ${label}`, 'success');
+  if (btn) {
+    const orig=btn.innerHTML;
+    btn.innerHTML=`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width:${btn.classList.contains('icon-btn')?'15':'13'}px;height:${btn.classList.contains('icon-btn')?'15':'13'}px;"><polyline points="20 6 9 17 4 12"/></svg>`;
+    btn.style.color='var(--green)';
+    if (btn.classList.contains('icon-btn')) btn.style.borderColor='var(--green)';
+    setTimeout(()=>{ btn.innerHTML=orig; btn.style.color=''; btn.style.borderColor=''; }, 1500);
+  }
+  if (prefs.clearClipboard) {
+    clearInterval(cbInterval); clearTimeout(cbTimeout);
+    const ct=document.getElementById('clipboard-toast'), cbt=document.getElementById('cb-time'), cbb=document.getElementById('cb-bar');
+    ct.style.display='flex'; cbb.style.transition='none'; cbb.style.width='100%';
+    void cbb.offsetWidth;
+    let left=30; cbt.textContent=left;
+    cbb.style.transition='width 1s linear';
+    cbInterval=setInterval(()=>{ left--; cbt.textContent=left; cbb.style.width=`${(left/30)*100}%`; if(left<=0) clearInterval(cbInterval); },1000);
+    cbTimeout=setTimeout(()=>{ navigator.clipboard.writeText('').catch(()=>{}); ct.style.display='none'; showToast('🧹 تم مسح الحافظة'); },30000);
+  }
 }
 
-function copyToClipboard(text, label, btn = null) {
-  navigator.clipboard.writeText(text).then(() => {
-    showToast(`📋 تم نسخ ${label}`, 'success');
-    if (btn) {
-      const origHTML = btn.innerHTML;
-      btn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:${btn.classList.contains('icon-btn')?'16px':'14px'};height:${btn.classList.contains('icon-btn')?'16px':'14px'};"><polyline points="20 6 9 17 4 12"></polyline></svg>`;
-      btn.style.color = 'var(--green)';
-      if(btn.classList.contains('icon-btn')) btn.style.borderColor = 'var(--green)';
-      setTimeout(() => { btn.innerHTML = origHTML; btn.style.color = ''; btn.style.borderColor = ''; }, 1500);
-    }
-    if (prefs.clearClipboard) setTimeout(() => navigator.clipboard.writeText('').catch(()=>{}), 30000);
-  }).catch(() => showToast('فشل النسخ', 'error'));
+function editCurrentEntry() {
+  closeSheet('detail-sheet',{target:document.getElementById('detail-sheet')});
+  setTimeout(()=>openEditSheet(currentDetailId),300);
 }
 
-function editCurrentEntry() { closeSheet('detail-sheet'); setTimeout(() => openEditSheet(currentDetailId), 300); }
-
-// ─── FILTER / SEARCH / SORT ──────────────────────────────────────────────────
+// ─── FILTER / SORT ────────────────────────────────────────────────────────────
 let searchDebounce;
-document.getElementById('search-input').addEventListener('input', () => {
-  clearTimeout(searchDebounce);
-  searchDebounce = setTimeout(() => renderEntries(), 150);
-});
-
-function setFilter(cat) { currentFilter = cat; document.getElementById('list-label').textContent = cat === 'الكل' ? 'كل كلمات المرور' : cat; renderCatBar(); renderEntries(); }
-function setSort(sortType) { currentSort = sortType; renderEntries(); }
+document.getElementById('search-input').addEventListener('input', ()=>{ clearTimeout(searchDebounce); searchDebounce=setTimeout(renderEntries,250); });
+function setFilter(cat) {
+  currentFilter=cat;
+  document.getElementById('list-label').textContent=cat==='الكل'?'كل كلمات المرور':cat;
+  renderCatBar(); renderEntries();
+}
+function setSort(v) { currentSort=v; renderEntries(); }
 
 // ─── VIEWS ────────────────────────────────────────────────────────────────────
 function switchView(view) {
-  if (!masterKey && view !== 'passwords') return;
-  currentView = view;['passwords','generator','audit','settings'].forEach(v => {
-    const el = document.getElementById(`view-${v}`);
-    if (v === view) { el.classList.add('visible'); } else { el.classList.remove('visible'); }
-    document.getElementById(`bnav-${v}`).classList.toggle('active', v === view);
+  currentView=view;
+  ['passwords','generator','audit','settings'].forEach(v=>{
+    document.getElementById(`view-${v}`).classList.toggle('visible',v===view);
+    document.getElementById(`bnav-${v}`).classList.toggle('active',v===view);
   });
-  document.getElementById('search-input').style.display = view === 'passwords' ? '' : 'none';
-  document.getElementById('cat-bar').style.display = view === 'passwords' ? '' : 'none';
-  if (view === 'audit') renderAudit();
+  document.getElementById('search-input').style.display=view==='passwords'?'':'none';
+  document.getElementById('cat-bar-container').style.display=view==='passwords'?'':'none';
+  if (view==='audit') renderAudit();
+  if (view==='generator') renderGeneratorDropdown();
 }
 
-// ─── PASSWORD GENERATOR ───────────────────────────────────────────────────────
-const WORDS_ADJ =[
-  "able","absolute","active","actual","acute","agile","alert","alive","ancient","angry","awake","aware",
-  "basic","better","bitter","black","blank","blind","blond","blue","bold","brave","brief","bright",
-  "broad","broken","brown","busy","calm","careful","cheap","chief","clean","clear","clever","close",
-  "cold","common","cool","crazy","crisp","cross","cruel","dark","dead","dear","deep","dense",
-  "dirty","dry","dull","early","easy","empty","equal","even","exact","extra","fair","false",
-  "fast","fat","fine","firm","first","flat","fond","free","fresh","full","glad","good",
-  "grand","great","green","gross","happy","hard","harsh","heavy","high","holy","hot","huge",
-  "human","ideal","inner","joint","just","keen","kind","large","late","lazy","left","light",
-  "local","long","loose","loud","lucky","mad","magic","main","major","merry","minor","moral",
-  "naked","native","neat","new","nice","noble","noisy","odd","open","outer","pale","past",
-  "pink","plain","poor","prime","proud","pure","quick","quiet","rare","raw","ready","real"
-];
-const WORDS_NOUN =[
-  "actor","apple","area","army","atom","aunt","axis","baby","back","ball","band","bank",
-  "base","bath","bear","beat","bell","belt","bird","bite","block","blood","blow","boat",
-  "body","bone","book","boot","boss","bowl","boy","branch","bread","bulb","camp","card",
-  "care","cart","case","cash","cave","cell","cent","chair","chat","chef","chin","chip",
-  "city","club","coal","coat","coin","cook","copy","core","corn","cost","crew","crop",
-  "dark","data","date","dawn","day","deal","deck","deer","desk","dial","diet","dirt",
-  "dish","disk","dock","door","dose","drop","drum","duck","dust","duty","east","edge",
-  "epic","exam","exit","fact","fall","farm","fear","feel","fest","film","fire","fish",
-  "flag","flat","flow","flux","fold","food","fool","foot","form","fort","frog","fuel",
-  "fund","game","gang","gaze","gear","gift","girl","glad","gold","golf","grab","gram",
-  "grid","grip","grow","gulf","guru","hair","half","hall","halo","hand","harm","harp"
-];
-const WORDS_ALL = [...WORDS_ADJ, ...WORDS_NOUN];
+function renderGeneratorDropdown() {
+  const sel=document.getElementById('gen-update-existing');
+  if(!sel) return;
+  let html='<option value="">-- اختر الحساب للتحديث --</option>';
+  (vaultData.entries||[]).forEach(e=>{ html+=`<option value="${esc(e.id)}">${esc(e.title)} (${esc(e.username)})</option>`; });
+  sel.innerHTML=html;
+}
 
-function animateGenOutput(finalPwd) {
-  const el = document.getElementById('gen-output');
-  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%';
-  let iteration = 0;
-  clearInterval(el._scramble);
-  el._scramble = setInterval(() => {
-    el.textContent = finalPwd.split('').map((c, i) => {
-      if (i < iteration) return c;
-      return chars[Math.floor(Math.random() * chars.length)];
+// ─── GENERATOR ────────────────────────────────────────────────────────────────
+const WORDS = [...new Set(("actor apple area army atom aunt axis baby back ball band bank base bath bear beat bell belt bird bite block blood blow board boat body bone book boot boss bowl boy branch bread budget build bulb camp card care cart case cash cave cell cent chair chat chef chin chip city class client club coal coat coin cold cook copy core corn cost crew crop dark data date dawn day deal deck deer desk dial diet dirt dish disk dock door dose drop drum duck dust duty east edge epic exam exit fact fall farm fear feel fest film fire fish flag flat flow fold food fool foot form fort frog fuel fund game gang gear gift girl glad gold golf grab gram grid grip grow gulf guru hair half hall hand harm harp able absolute active actual acute agile alert alive angry awake aware basic better bitter black blank blind bold brave brief bright broad broken brown busy calm clean clear clever close common cool crazy crisp cross dark dead deep dense early easy empty equal exact fair false fast fine firm first flat fond free fresh full happy hard harsh heavy high holy hot huge human ideal inner keen kind large late lazy left light local long loose loud lucky magic main major merry minor moral naked neat noble noisy odd open pale past pink plain poor prime proud pure quick quiet rare raw ready real above abuse accept access achieve acquire across action affect afraid agency agent agree allow almost alone along basic basis beauty become begin belief below beyond bill blood blow board broad budget build burn call camera camp answer anyone appear apply argue arrive attack attend avoid beat bed claim class clear client cold score season seat secret section sense series short sign simple skill skin small smart smile sort sound source space speak speed spend spring standard start state stay step stop store story street strong student style subject sudden suffer suggest summer support surface system task tell tend term test there think true turn type under value voice walk wall watch water weak week well west wide wife wild will wish work world write wrong yard year").split(" "))].filter(w=>w.length>2);
+
+function scramble(final) {
+  const el=document.getElementById('gen-output');
+  const chars='ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$';
+  let iter=0; clearInterval(el._sc);
+  el._sc=setInterval(()=>{
+    el.textContent=final.split('').map((c,i)=>{
+      if(i<Math.floor(iter)) return c;
+      return chars[crypto.getRandomValues(new Uint8Array(1))[0]%chars.length];
     }).join('');
-    if (iteration >= finalPwd.length) clearInterval(el._scramble);
-    iteration += 1.5; 
-  }, 30);
+    if(iter>=final.length) clearInterval(el._sc);
+    iter+=1.5;
+  },28);
 }
 
 function generatePassword() {
-  let pwd = '';
-  switch(genType) {
-    case 'random': pwd = genRandom(); break;
-    case 'passphrase': pwd = genPassphrase(); break;
-    case 'pin': pwd = genPIN(); break;
-    case 'memorable': pwd = genMemorable(); break;
-  }
-  animateGenOutput(pwd);
+  let pwd='', bits=0;
+  if(genType==='random') { pwd=genRandom(); bits=getStrength(pwd).bits; }
+  else if(genType==='passphrase') { pwd=genPhrase(); bits=parseInt(document.getElementById('gen-words').value)*Math.log2(WORDS.length); }
+  else if(genType==='pin') { pwd=genPIN(); bits=pwd.length*Math.log2(10); }
+  else { pwd=genMemorable(); bits=Math.log2(Math.pow(WORDS.length,2)*100*7); }
+  lastGeneratedPwd=pwd;
+  const lvl=bits<45?1:(bits<65?2:(bits<90?3:4));
+  const lbl=bits<45?'ضعيفة':(bits<65?'متوسطة':(bits<90?'قوية':'ممتازة'));
+  const b=document.getElementById('gen-entropy-badge');
+  b.textContent=`الإنتروبيا: ${Math.round(bits)} بت · ${lbl}`;
+  b.style.color=STR_COLORS[lvl]; b.style.display='block';
+  scramble(pwd);
 }
 
 function genRandom() {
-  const len = parseInt(document.getElementById('gen-len').value);
-  let chars = '';
-  if (document.getElementById('opt-upper').checked) chars += 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-  if (document.getElementById('opt-lower').checked) chars += 'abcdefghijklmnopqrstuvwxyz';
-  if (document.getElementById('opt-nums').checked) chars += '0123456789';
-  if (document.getElementById('opt-syms').checked) chars += '!@#$%^&*()_+-=[]{}|;:,.<>?';
-  if (!chars) chars = 'abcdefghijklmnopqrstuvwxyz';
-  const limit = 256 - (256 % chars.length);
-  let result = '';
-  while (result.length < len) {
-    const vals = crypto.getRandomValues(new Uint8Array(1));
-    if (vals[0] < limit) result += chars[vals[0] % chars.length];
-  }
-  return result;
+  const len=parseInt(document.getElementById('gen-len').value);
+  let ch='';
+  if(document.getElementById('opt-upper').checked) ch+='ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+  if(document.getElementById('opt-lower').checked) ch+='abcdefghijklmnopqrstuvwxyz';
+  if(document.getElementById('opt-nums').checked)  ch+='0123456789';
+  if(document.getElementById('opt-syms').checked)  ch+='!@#$%^&*()_+-=[]{}|;:,.<>?';
+  if(!ch) ch='abcdefghijklmnopqrstuvwxyz';
+  const lim=256-(256%ch.length); let r='';
+  while(r.length<len){ const v=crypto.getRandomValues(new Uint8Array(1)); if(v[0]<lim) r+=ch[v[0]%ch.length]; }
+  return r;
 }
-
-function genPIN() { return Array.from(crypto.getRandomValues(new Uint8Array(parseInt(document.getElementById('gen-pin-len').value)))).map(v => v % 10).join(''); }
-function genPassphrase() {
-  const count = parseInt(document.getElementById('gen-words').value);
-  const chosen =[];
-  const vals = crypto.getRandomValues(new Uint32Array(count));
-  for (let i = 0; i < count; i++) chosen.push(WORDS_ALL[vals[i] % WORDS_ALL.length]);
-  return chosen.join('-');
+function genPIN() { return Array.from(crypto.getRandomValues(new Uint8Array(parseInt(document.getElementById('gen-pin-len').value)))).map(v=>v%10).join(''); }
+function genPhrase() {
+  const n=parseInt(document.getElementById('gen-words').value);
+  const v=crypto.getRandomValues(new Uint32Array(n));
+  return Array.from(v).map(x=>WORDS[x%WORDS.length]).join('-');
 }
 function genMemorable() {
-  const av = crypto.getRandomValues(new Uint16Array(2));
-  const num = crypto.getRandomValues(new Uint8Array(1))[0] % 100;
-  const syms = '!@#$%&*';
-  const sv = crypto.getRandomValues(new Uint8Array(1))[0] % syms.length;
-  const a = WORDS_ADJ[av[0] % WORDS_ADJ.length];
-  const n = WORDS_NOUN[av[1] % WORDS_NOUN.length];
-  return `${a[0].toUpperCase()}${a.slice(1)}${n[0].toUpperCase()}${n.slice(1)}${num}${syms[sv]}`;
+  const av=crypto.getRandomValues(new Uint16Array(2));
+  const num=crypto.getRandomValues(new Uint8Array(1))[0]%100;
+  const syms='!@#$%&*'; const sv=crypto.getRandomValues(new Uint8Array(1))[0]%syms.length;
+  const a=WORDS[av[0]%WORDS.length], b=WORDS[av[1]%WORDS.length];
+  return `${a[0].toUpperCase()}${a.slice(1)}${b[0].toUpperCase()}${b.slice(1)}${num}${syms[sv]}`;
 }
 
-function setGenType(type, btn) {
-  genType = type;
-  document.querySelectorAll('.type-btn').forEach(b => b.classList.remove('active'));
+function setGenType(t,btn) {
+  genType=t;
+  document.querySelectorAll('.type-btn').forEach(b=>b.classList.remove('active'));
   btn.classList.add('active');
-  document.getElementById('gen-random-opts').style.display = type === 'random' ? '' : 'none';
-  document.getElementById('gen-pin-opts').style.display = type === 'pin' ? '' : 'none';
-  document.getElementById('gen-phrase-opts').style.display = type === 'passphrase' ? '' : 'none';
-  document.getElementById('gen-memorable-warn').style.display = type === 'memorable' ? 'block' : 'none';
+  document.getElementById('gen-random-opts').style.display=t==='random'?'':'none';
+  document.getElementById('gen-pin-opts').style.display=t==='pin'?'':'none';
+  document.getElementById('gen-phrase-opts').style.display=t==='passphrase'?'':'none';
+  document.getElementById('gen-memorable-warn').style.display=t==='memorable'?'block':'none';
   generatePassword();
 }
-
-function copyGenerated(btn) { copyToClipboard(document.getElementById('gen-output').textContent, 'كلمة المرور المولّدة', btn); }
+function copyGenerated(btn) { if(lastGeneratedPwd) copyToClipboard(lastGeneratedPwd,'كلمة المرور المولّدة',btn); }
+function useGeneratedPassword() {
+  if(!lastGeneratedPwd){showToast('قم بتوليد كلمة مرور أولاً','error');return;}
+  openAddSheet(); document.getElementById('f-password').value=lastGeneratedPwd; liveStrength();
+}
+function updateExistingFromGen(sel) {
+  const id=sel.value; if(!id) return;
+  if(!lastGeneratedPwd){sel.value='';showToast('قم بتوليد كلمة مرور أولاً','error');return;}
+  openConfirm('⚠️ تحديث كلمة المرور','سيتم استبدال كلمة المرور الحالية للحساب.','تحديث', async()=>{
+    const idx=vaultData.entries.findIndex(e=>e.id===id);
+    if(idx>-1){vaultData.entries[idx].password=lastGeneratedPwd;vaultData.entries[idx].updatedAt=Date.now();await saveVault();renderAll();showToast('✅ تم التحديث','success');}
+    sel.value='';
+  });
+}
 function genForField() {
-  let pwd = '';
-  switch(genType) {
-    case 'passphrase': pwd = genPassphrase(); break;
-    case 'pin': pwd = genPIN(); break;
-    case 'memorable': pwd = genMemorable(); break;
-    case 'random': default: pwd = genRandom(); break;
-  }
-  document.getElementById('f-password').value = pwd;
-  liveStrength();
-  showToast('🎲 تم توليد كلمة مرور', 'success');
+  const pwd=genType==='pin'?genRandom():(genType==='passphrase'?genPhrase():(genType==='memorable'?genMemorable():genRandom()));
+  document.getElementById('f-password').value=pwd; liveStrength(); showToast('🎲 تم التوليد','success');
 }
 function toggleCheck(row) {
   row.classList.toggle('on');
-  const cb = row.querySelector('input[type=checkbox]');
-  cb.checked = !cb.checked;
-  generatePassword();
+  const cb=row.querySelector('input[type=checkbox]'); cb.checked=!cb.checked; generatePassword();
 }
 
 // ─── AUDIT ────────────────────────────────────────────────────────────────────
-function renderScoreCircle(score, color) {
-  const r = 52, circ = 2 * Math.PI * r;
-  const offset = circ - (score / 100) * circ;
-  setTimeout(() => {
-    const circleEl = document.getElementById('audit-score-ring');
-    if (circleEl) circleEl.style.strokeDashoffset = offset;
-  }, 50);
-  return `
-  <div class="score-circle">
-    <svg width="140" height="140" viewBox="0 0 140 140">
-      <circle cx="70" cy="70" r="${r}" fill="none" stroke="var(--surface3)" stroke-width="10"/>
-      <circle id="audit-score-ring" cx="70" cy="70" r="${r}" fill="none" stroke="${color}" stroke-width="10"
-        stroke-dasharray="${circ}" stroke-dashoffset="${circ}"
-        stroke-linecap="round" transform="rotate(-90 70 70)"
-        style="transition: stroke-dashoffset 0.8s cubic-bezier(0.16,1,0.3,1)"/>
-      <text x="70" y="75" text-anchor="middle" font-size="28" font-weight="900"
-        fill="${color}" font-family="var(--font)">${score}</text>
-    </svg>
-    <div class="score-lbl">نقاط الأمان</div>
-  </div>`;
-}
-
 function renderAudit() {
-  if (!vaultData.entries) return;
-  const entries = vaultData.entries;
-  if (!entries.length) {
-    document.getElementById('audit-content').innerHTML = `<div class="empty-state"><svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="1.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg><p>لا يوجد شيء للفحص</p><span>أضف كلمات مرور أولاً</span></div>`; return;
-  }
-  const weak = entries.filter(e => getStrength(e.password).level < 2);
-  const reused = findReused(entries);
-  const old = entries.filter(e => (Date.now() - e.createdAt) > 90 * 86400000);
-  const total = entries.length; const issues = weak.length + reused.length + old.length;
-  const score = Math.max(0, Math.round(100 - (issues / total) * 80));
-  const scoreColor = score >= 80 ? 'var(--green)' : score >= 50 ? 'var(--yellow)' : 'var(--red)';
-
-  let html = renderScoreCircle(score, scoreColor);
-  html += auditSection('🔴 كلمات المرور الضعيفة', weak, 'ضعيفة', 'var(--red)');
-  html += auditSection('🟡 كلمات المرور المكررة', reused, 'مكررة', 'var(--yellow)');
-  html += auditSection('⏰ كلمات المرور القديمة (+90 يوم)', old, 'قديمة', 'var(--text2)');
-  if (!issues) html += `<div style="text-align:center; padding:2rem; color:var(--green); font-weight:800;">✅ قبوك آمن تماماً! استمر هكذا.</div>`;
-  document.getElementById('audit-content').innerHTML = html;
+  if(!vaultData.entries){return;}
+  const entries=vaultData.entries;
+  if(!entries.length){document.getElementById('audit-content').innerHTML=`<div class="empty-state"><svg width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="var(--blue)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="opacity:.6;margin-bottom:1rem;"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg><p>لا يوجد شيء للفحص</p></div>`;return;}
+  const weak=entries.filter(e=>getStrength(e.password).level<2);
+  const reused=findReused(entries);
+  const old=entries.filter(e=>(Date.now()-e.createdAt)>90*86400000);
+  const issues=weak.length+reused.length+old.length;
+  const score=Math.max(0,Math.round(100-(issues/entries.length)*80));
+  const sc=score>=80?'var(--green)':(score>=50?'var(--yellow)':'var(--red)');
+  const circ=2*Math.PI*15.9;
+  let html=`<div class="score-card">
+    <svg viewBox="0 0 36 36" style="width:100px;height:100px;transform:rotate(-90deg)">
+      <circle cx="18" cy="18" r="15.9" fill="none" stroke="var(--surface3)" stroke-width="2.5"/>
+      <circle cx="18" cy="18" r="15.9" fill="none" stroke="${sc}" stroke-width="2.5"
+        stroke-dasharray="${((score/100)*circ).toFixed(1)} ${circ.toFixed(1)}"
+        stroke-linecap="round" style="transition:stroke-dasharray 1s cubic-bezier(0.16,1,0.3,1)"/>
+    </svg>
+    <div class="score-number" style="color:${sc}">${score}</div>
+    <div class="score-label">نقاط الأمان من 100</div>
+  </div>`;
+  html+=auditSec('🔴 كلمات المرور الضعيفة',weak,'ضعيفة','var(--red)');
+  html+=auditSec('🟡 كلمات المرور المكررة',reused,'مكررة','var(--yellow)');
+  html+=auditSec('⏰ كلمات المرور القديمة (+90 يوم)',old,'قديمة','var(--text2)');
+  if(!issues) html+=`<div style="text-align:center;padding:2rem;color:var(--green);font-weight:800;font-size:1rem;">✅ قبوك آمن تماماً!</div>`;
+  document.getElementById('audit-content').innerHTML=html;
 }
 
-// Event Delegation for Audit View
-document.getElementById('audit-content').addEventListener('click', e => {
-  const item = e.target.closest('.audit-item');
-  if (item) {
-    closeSheet('detail-sheet');
-    switchView('passwords');
-    setTimeout(() => openDetail(item.dataset.id), 100);
-  }
+document.getElementById('audit-content').addEventListener('click',e=>{
+  const item=e.target.closest('.audit-item');
+  if(item){closeSheet('detail-sheet',{target:document.getElementById('detail-sheet')});switchView('passwords');setTimeout(()=>openDetail(item.dataset.id),100);}
 });
 
 function findReused(entries) {
-  const pwdMap = {};
-  entries.forEach(e => { if (!pwdMap[e.password]) pwdMap[e.password] =[]; pwdMap[e.password].push(e); });
-  return entries.filter(e => pwdMap[e.password].length > 1);
+  const m={}; entries.forEach(e=>{if(!m[e.password])m[e.password]=[];m[e.password].push(e);});
+  return entries.filter(e=>m[e.password].length>1);
 }
-
-function auditSection(title, items, badgeTxt, color) {
-  if (!items.length) return `<div class="audit-section"><div class="audit-title" style="color:var(--green);">✅ ${title.replace(/^[🔴🟡⏰] /,'')} — آمنة</div></div>`;
-  return `
-    <div class="audit-section">
-      <div class="audit-title" style="color:${color};">${title} (${items.length})</div>
-      <div class="audit-card">
-        ${items.map(e => `
-          <div class="audit-item" data-id="${esc(e.id)}">
-            <div class="audit-item-icon">${getEntryIcon(e)}</div>
-            <div class="audit-item-info"><div class="audit-item-name">${esc(e.title)}</div><div class="audit-item-desc">${esc(e.username)}</div></div>
-            <span class="audit-badge" style="background:${color}20; color:${color};">${badgeTxt}</span>
-          </div>
-        `).join('')}
-      </div>
-    </div>
-  `;
+function auditSec(title,items,badge,color) {
+  if(!items.length) return `<div class="audit-section-wrap"><div class="audit-section-title" style="color:var(--green);">✅ ${title.replace(/^[🔴🟡⏰] /,'')} — آمنة</div></div>`;
+  return `<div class="audit-section-wrap">
+    <div class="audit-section-title" style="color:${color};">${title} (${items.length})</div>
+    <div class="audit-list">${items.map(e=>`<div class="audit-item" data-id="${esc(e.id)}">
+      <div class="audit-item-icon">${getIcon(e)}</div>
+      <div class="audit-item-info"><div class="audit-item-name">${esc(e.title)}</div><div class="audit-item-user">${esc(e.username)}</div></div>
+      <span class="audit-badge" style="background:${color}20;color:${color};">${badge}</span>
+    </div>`).join('')}</div>
+  </div>`;
 }
 
 // ─── IMPORT / EXPORT ──────────────────────────────────────────────────────────
 async function exportVault() {
-  if (!masterKey) return;
-  const enc = await encryptData(masterKey, vaultData);
-  const blob = new Blob([JSON.stringify(enc)], { type: 'application/json' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url; a.download = `miftah_backup_${new Date().toISOString().split('T')[0]}.miftah`; a.click();
-  setTimeout(() => URL.revokeObjectURL(url), 1000);
-  showToast('📤 تم تصدير القبو بنجاح', 'success');
+  if(!masterKey) return;
+  const blob=new Blob([JSON.stringify(await encrypt(masterKey,vaultData))],{type:'application/json'});
+  const url=URL.createObjectURL(blob), a=document.createElement('a');
+  a.href=url; a.download=`miftah_backup_${new Date().toISOString().split('T')[0]}.miftah`; a.click();
+  setTimeout(()=>URL.revokeObjectURL(url),1000);
+  showToast('📤 تم التصدير','success');
+}
+function exportCSV() {
+  openConfirm('⚠️ تصدير CSV','ستُصدَّر كلمات المرور كنص مكشوف غير مشفر. خطر أمني!','تصدير',()=>{
+    if(!vaultData.entries.length){showToast('القبو فارغ','error');return;}
+    let csv='name,url,username,password,notes,category\n';
+    vaultData.entries.forEach(e=>{ csv+=`"${(e.title||'').replace(/"/g,'""')}","${(e.url||'').replace(/"/g,'""')}","${(e.username||'').replace(/"/g,'""')}","${(e.password||'').replace(/"/g,'""')}","${(e.notes||'').replace(/"/g,'""')}","${(e.category||'').replace(/"/g,'""')}"\n`; });
+    const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'});
+    const url=URL.createObjectURL(blob), a=document.createElement('a');
+    a.href=url; a.download=`miftah_passwords_${new Date().toISOString().split('T')[0]}.csv`; a.click();
+    setTimeout(()=>URL.revokeObjectURL(url),1000);
+    showToast('📄 تم تصدير CSV','success');
+  });
 }
 
-function validateEntry(e) {
-  return e && typeof e.id === 'string' && typeof e.title === 'string' &&
-    typeof e.username === 'string' && typeof e.password === 'string' &&
-    e.title.length < 200 && e.password.length < 1000;
+function parseCSV(text) {
+  const lines=text.split('\n').filter(l=>l.trim()), sep=',';
+  if(!lines.length) return [];
+  const hdr=lines[0].toLowerCase();
+  const cols=hdr.split(sep).map(s=>s.replace(/"/g,'').trim());
+  let ni=cols.findIndex(c=>c.includes('name')||c.includes('title'));
+  let ui=cols.findIndex(c=>c.includes('user')||c.includes('login')||c.includes('email'));
+  let pi=cols.findIndex(c=>c.includes('pass')||c.includes('pwd'));
+  let li=cols.findIndex(c=>c==='url'||c.includes('website'));
+  if(ni===-1&&pi===-1){ni=0;li=1;ui=2;pi=3;}
+  const start=(pi!==-1&&cols[pi].includes('pass'))?1:0;
+  const split=(str)=>{const r=[];let cur='',inQ=false;for(let i=0;i<str.length;i++){if(str[i]==='"'){if(inQ&&str[i+1]==='"'){cur+='"';i++;}else inQ=!inQ;}else if(str[i]===sep&&!inQ){r.push(cur);cur='';}else cur+=str[i];}r.push(cur);return r.map(s=>s.trim());};
+  const entries=[];
+  for(let i=start;i<lines.length;i++){
+    const c=split(lines[i]); if(c.length<2) continue;
+    const pwd=pi>-1&&c[pi]?c[pi].substring(0,1999):''; if(!pwd) continue;
+    entries.unshift({id:genId(),title:(ni>-1&&c[ni]?c[ni]:'مستورد').substring(0,499),username:(ui>-1&&c[ui]?c[ui]:'').substring(0,499),password:pwd,url:(li>-1&&c[li]?c[li]:'').substring(0,499),notes:'تم استيراده من CSV',category:'عام',createdAt:Date.now(),updatedAt:Date.now()});
+  }
+  return entries;
+}
+
+function isValidEntry(e) {
+  return e && typeof e.id==='string' && e.id.length<64 && typeof e.title==='string' && e.title.length<500 && typeof e.username==='string' && e.username.length<500 && typeof e.password==='string' && e.password.length<2000 && typeof e.createdAt==='number';
 }
 
 async function importVault(input) {
-  const file = input.files[0]; if (!file) return;
+  const file=input.files[0]; if(!file) return;
   try {
-    const payload = JSON.parse(await file.text());
-    const data = await decryptData(masterKey, payload);
-    if (data.magic !== MAGIC) throw new Error('invalid');
-    const existingIds = new Set(vaultData.entries.map(e => e.id));
-    const newEntries = data.entries.filter(e => validateEntry(e) && !existingIds.has(e.id));
-    vaultData.entries =[...vaultData.entries, ...newEntries];
+    const text=await file.text(); let newEntries=[];
+    if(file.name.toLowerCase().endsWith('.csv')) {
+      newEntries=parseCSV(text);
+    } else {
+      const data=await decrypt(masterKey,JSON.parse(text));
+      if(data.magic!==MAGIC) throw new Error();
+      const ids=new Set(vaultData.entries.map(e=>e.id));
+      newEntries=data.entries.filter(e=>isValidEntry(e)&&!ids.has(e.id));
+      if(data.prefs){prefs={...prefs,...data.prefs};applyPrefsToUI();}
+    }
+    if(!newEntries.length){showToast('لا توجد بيانات جديدة','error');input.value='';return;}
+    vaultData.entries=[...vaultData.entries,...newEntries];
     await saveVault(); renderAll();
-    showToast(`📥 تم استيراد ${newEntries.length} عنصر جديد`, 'success');
-  } catch(e) { showToast('❌ فشل الاستيراد: مفتاح خاطئ أو ملف تالف', 'error'); }
-  input.value = '';
+    showToast(`📥 تم استيراد ${newEntries.length} عنصر`,'success');
+  } catch(e){showToast('❌ فشل الاستيراد','error');}
+  input.value='';
 }
 
 // ─── CHANGE PASSWORD ──────────────────────────────────────────────────────────
-function changePassword() {['chg-old','chg-new','chg-confirm'].forEach(id => document.getElementById(id).value = '');
-  document.getElementById('chg-str-fill').style.width = '0%';
-  document.getElementById('chg-str-lbl').textContent = 'قوة المفتاح: —';
+function changePassword() {
+  ['chg-old','chg-new','chg-confirm'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('chg-str-fill').style.width='0%';
+  document.getElementById('chg-str-lbl').textContent='قوة المفتاح: —';
   openSheet('change-pwd-sheet');
 }
-
 async function doChangePassword() {
-  const oldPwd = document.getElementById('chg-old').value;
-  const newPwd = document.getElementById('chg-new').value;
-  if (newPwd.length < 8) { showToast('المفتاح الجديد قصير جداً', 'error'); return; }
-  if (newPwd !== document.getElementById('chg-confirm').value) { showToast('المفتاحان غير متطابقين', 'error'); return; }
-  
-  const saltB64 = localStorage.getItem(SALT_STORE_KEY);
-  if (!saltB64) return;
-  
-  const btn = document.getElementById('btn-do-change');
-  btn.disabled = true; btn.textContent = '⏳ جاري التغيير...';
-
+  const oldPwd=document.getElementById('chg-old').value;
+  const newPwd=document.getElementById('chg-new').value;
+  const conf=document.getElementById('chg-confirm').value;
+  if(newPwd.length<8){showToast('المفتاح الجديد قصير','error');return;}
+  if(newPwd!==conf){showToast('المفتاحان غير متطابقين','error');return;}
+  const btn=document.getElementById('btn-do-change');
+  btn.disabled=true; btn.textContent='⏳ جاري...';
   try {
-    const testKey = await deriveKey(oldPwd, b642ab(saltB64));
-    await decryptData(testKey, JSON.parse(localStorage.getItem(DATA_STORE_KEY))); 
-    
-    const newSalt = randBytes(32);
-    masterKey = await deriveKey(newPwd, newSalt);
-    localStorage.setItem(SALT_STORE_KEY, ab2b64(newSalt));
-    await saveVault();
-    
-    closeSheet('change-pwd-sheet');
-    showToast('✅ تم تغيير المفتاح بنجاح', 'success');
-  } catch(e) { 
-    showToast('❌ المفتاح الحالي خاطئ', 'error'); 
-  } finally {
-    btn.disabled = false; btn.textContent = '🔑 تغيير';
-  }
+    const salt=localStorage.getItem(SALT_KEY); if(!salt) return;
+    const testKey=await deriveKey(oldPwd,b642ab(salt));
+    const d=await decrypt(testKey,JSON.parse(localStorage.getItem(DATA_KEY)));
+    if(d.magic!==MAGIC) throw new Error();
+    const newSalt=rand(32); masterKey=await deriveKey(newPwd,newSalt);
+    localStorage.setItem(SALT_KEY,ab2b64(newSalt)); await saveVault();
+    closeSheet('change-pwd-sheet',{target:document.getElementById('change-pwd-sheet')});
+    showToast('✅ تم تغيير المفتاح','success');
+  } catch(e){showToast('❌ المفتاح الحالي خاطئ','error');}
+  finally{btn.disabled=false;btn.textContent='تغيير';}
 }
 
-// ─── CUSTOM CONFIRM ───────────────────────────────────────────────────────────
-let confirmCallback = null;
-function openConfirm(title, msg, keyword, callback) {
-  document.getElementById('confirm-title').textContent = title;
-  document.getElementById('confirm-msg').textContent = msg;
-  document.getElementById('confirm-keyword').textContent = keyword;
-  document.getElementById('confirm-input').value = '';
-  document.getElementById('btn-confirm-action').disabled = true;
-  confirmCallback = callback;
-  
-  document.getElementById('confirm-input').oninput = function() {
-    const val = this.value.trim();
-    document.getElementById('btn-confirm-action').disabled = val !== keyword;
-    
-    if (val.length >= keyword.length && val !== keyword) {
-      this.classList.remove('input-shake');
-      void this.offsetWidth; 
-      this.classList.add('input-shake');
-      setTimeout(() => this.classList.remove('input-shake'), 400);
-    }
+// ─── CONFIRM ──────────────────────────────────────────────────────────────────
+let confirmCb=null;
+function openConfirm(title,msg,keyword,cb) {
+  document.getElementById('confirm-title').textContent=title;
+  document.getElementById('confirm-msg').textContent=msg;
+  document.getElementById('confirm-keyword').textContent=keyword;
+  document.getElementById('confirm-input').value='';
+  document.getElementById('btn-confirm-action').disabled=true;
+  confirmCb=cb;
+  document.getElementById('confirm-input').oninput=function(){
+    const v=this.value.trim();
+    document.getElementById('btn-confirm-action').disabled=v!==keyword;
+    if(v.length>=keyword.length&&v!==keyword){this.classList.remove('input-shake');void this.offsetWidth;this.classList.add('input-shake');setTimeout(()=>this.classList.remove('input-shake'),400);}
   };
-  
-  document.getElementById('btn-confirm-action').onclick = function() {
-    closeSheet('confirm-sheet');
-    if (confirmCallback) confirmCallback();
+  document.getElementById('btn-confirm-action').onclick=function(){
+    closeSheet('confirm-sheet',{target:document.getElementById('confirm-sheet')});
+    if(confirmCb) confirmCb();
   };
   openSheet('confirm-sheet');
 }
 
 function triggerDelete() {
-  if (!currentDetailId) return;
-  openConfirm('⚠️ حذف كلمة المرور', 'هل أنت متأكد من رغبتك في حذف كلمة المرور هذه نهائياً؟', 'احذف', async () => {
-    vaultData.entries = vaultData.entries.filter(e => e.id !== currentDetailId);
-    await saveVault();
-    closeSheet('detail-sheet');
-    renderAll();
-    showToast('🗑️ تم الحذف بنجاح', 'success');
+  if(!currentDetailId) return;
+  openConfirm('⚠️ حذف كلمة المرور','سيتم حذف هذه الكلمة نهائياً ولا يمكن التراجع.','احذف',async()=>{
+    vaultData.entries=vaultData.entries.filter(e=>e.id!==currentDetailId);
+    await saveVault(); closeSheet('detail-sheet',{target:document.getElementById('detail-sheet')});
+    renderAll(); showToast('🗑️ تم الحذف','success');
   });
 }
-
 function confirmDeleteVault() {
-  openConfirm('⚠️ مسح القبو نهائياً', 'سيتم مسح كل كلمات المرور والبيانات الخاصة بك إلى الأبد من هذا المتصفح. لا يمكن التراجع عن هذا الإجراء.', 'مسح', () => {
-    localStorage.removeItem(DATA_STORE_KEY);
-    localStorage.removeItem(SALT_STORE_KEY);
-    localStorage.removeItem(PREFS_KEY);
-    location.reload();
+  openConfirm('⚠️ مسح القبو','سيتم مسح كل البيانات نهائياً من هذا الجهاز.','مسح',()=>{
+    localStorage.removeItem(DATA_KEY); localStorage.removeItem(SALT_KEY); location.reload();
   });
 }
 
 // ─── PREFS ────────────────────────────────────────────────────────────────────
-function loadPrefs() {
-  try { prefs = { ...prefs, ...JSON.parse(localStorage.getItem(PREFS_KEY) || '{}') }; } catch(e) {}
-  document.getElementById('toggle-autolock').checked = prefs.autolock;
-  document.getElementById('toggle-clipboard').checked = prefs.clearClipboard;
-  if (prefs.autolockMinutes) document.getElementById('autolock-time').value = prefs.autolockMinutes;
+function applyPrefsToUI() {
+  document.getElementById('toggle-autolock').checked=prefs.autolock;
+  document.getElementById('toggle-clipboard').checked=prefs.clearClipboard;
+  if(prefs.autolockMinutes) document.getElementById('autolock-time').value=prefs.autolockMinutes;
 }
 function savePref() {
-  prefs.autolock = document.getElementById('toggle-autolock').checked;
-  prefs.clearClipboard = document.getElementById('toggle-clipboard').checked;
-  prefs.autolockMinutes = parseInt(document.getElementById('autolock-time').value) || 5;
-  localStorage.setItem(PREFS_KEY, JSON.stringify(prefs));
+  prefs.autolock=document.getElementById('toggle-autolock').checked;
+  prefs.clearClipboard=document.getElementById('toggle-clipboard').checked;
+  prefs.autolockMinutes=parseInt(document.getElementById('autolock-time').value)||5;
+  if(masterKey){vaultData.prefs=prefs; saveVault();}
   resetAutoLock();
 }
 
-// ─── SHEET HELPERS ────────────────────────────────────────────────────────────
+// ─── SHEETS ───────────────────────────────────────────────────────────────────
+function setupSwipeToDismiss() {
+  document.querySelectorAll('.overlay').forEach(overlay=>{
+    const sheet=overlay.querySelector('.sheet'); if(!sheet) return;
+    let startY=0, dragging=false;
+    sheet.addEventListener('touchstart',e=>{
+      if(e.target.closest('input,textarea,select,[contenteditable="true"]')) return;
+      if(sheet.scrollTop>0) return;
+      startY=e.touches[0].clientY; dragging=true; sheet.style.transition='none';
+    },{passive:true});
+    sheet.addEventListener('touchmove',e=>{
+      if(!dragging) return;
+      const dy=e.touches[0].clientY-startY;
+      if(dy>0) sheet.style.transform=`translateY(${dy}px)`;
+    },{passive:true});
+    sheet.addEventListener('touchend',e=>{
+      if(!dragging) return; dragging=false;
+      const dy=e.changedTouches[0].clientY-startY;
+      sheet.style.transition='transform 0.38s cubic-bezier(0.32,0.72,0,1)';
+      if(dy>80) closeSheet(overlay.id,{target:overlay}); else sheet.style.transform='';
+    });
+  });
+}
 function openSheet(id) { document.getElementById(id).classList.add('show'); }
-function closeSheet(id, event) { if (!event || event.target === document.getElementById(id)) document.getElementById(id).classList.remove('show'); }
-function closeAllSheets() { document.querySelectorAll('.overlay').forEach(o => o.classList.remove('show')); }
+function closeSheet(id,event) {
+  if(event&&!event.target.classList.contains('overlay')&&!event.target.closest('.btn-ghost')&&!event.target.closest('.btn-danger')) return;
+  document.getElementById(id).classList.remove('show');
+  if(id==='detail-sheet'){currentDetailId=null;revealedPassword=null;clearTimeout(revealTimer);}
+}
+function closeAllSheets() {
+  document.querySelectorAll('.overlay').forEach(o=>o.classList.remove('show'));
+  currentDetailId=null; revealedPassword=null; clearTimeout(revealTimer);
+}
 
 // ─── UTILS ────────────────────────────────────────────────────────────────────
 function esc(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
-function genId() { return ab2b64(randBytes(12)).replace(/[+/=]/g,''); }
-function toggleEye(inputId, btn) { 
-  const i = document.getElementById(inputId); 
-  const isPwd = i.type === 'password';
-  i.type = isPwd ? 'text' : 'password'; 
-  btn.textContent = isPwd ? '🙈' : '👁️'; 
-  btn.setAttribute('aria-label', isPwd ? 'إخفاء كلمة المرور' : 'إظهار كلمة المرور');
+function genId() { return ab2b64(rand(12)).replace(/[^a-zA-Z0-9]/g,''); }
+
+const eyeTimers={};
+function toggleEye(id,btn) {
+  const el=document.getElementById(id); const hidden=el.type==='password';
+  el.type=hidden?'text':'password'; btn.innerHTML=hidden?SVG_EYE_OFF:SVG_EYE;
+  btn.setAttribute('aria-label',hidden?'إخفاء':'إظهار');
+  if(eyeTimers[id]) clearTimeout(eyeTimers[id]);
+  if(hidden) eyeTimers[id]=setTimeout(()=>{ if(el.type==='text'){el.type='password';btn.innerHTML=SVG_EYE;} },10000);
 }
 
 let toastTimer;
-function showToast(msg, type = '') {
-  const t = document.getElementById('toast');
-  t.textContent = msg; t.className = 'toast show ' + type;
+function showToast(msg, type='') {
+  const t=document.getElementById('toast');
+  t.className='toast '+(type||'');
+  t.textContent=msg;
+  void t.offsetWidth;
+  t.classList.add('show');
   clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => t.classList.remove('show'), 3000);
+  toastTimer=setTimeout(()=>t.classList.remove('show'),3000);
 }
 </script>
 </body>

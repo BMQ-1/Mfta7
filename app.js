@@ -149,7 +149,9 @@ function showErr(m) {
 function unlockApp() {
   lockScreen.style.opacity = '0';
   lockScreen.style.visibility = 'hidden';
-  appContainer.innerHTML = document.getElementById('app-template').innerHTML; // آمن لنسخ التمبلت الأساسي فقط
+  const clone = document.getElementById('app-template').content.cloneNode(true);
+appContainer.appendChild(clone);
+ // آمن لنسخ التمبلت الأساسي فقط
   
   setTimeout(() => appContainer.classList.add('ready'), 50);
   document.getElementById('master-input').value = '';

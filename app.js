@@ -61,7 +61,7 @@ async function generateTOTPCode(secretBase32) {
 }
 
 // ==========================================
-// إدارة حالة التطبيق و DOM Elements
+// إدارة حالة التطبيق ومساعدات DOM
 // ==========================================
 let masterKey = null;
 let entries = [];
@@ -74,10 +74,8 @@ let currentDeleteId = null;
 let pendingImportData = null;
 let activityController;
 
-// DOM References (Initialized on DOMContentLoaded)
+// DOM References
 let lockScreen, appContainer, errorEl;
-
-function esc(s) { return String(s||'').replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])); }
 
 function getAvatar(name) {
   const canvas = document.createElement('canvas'); canvas.width = 100; canvas.height = 100;
@@ -89,6 +87,28 @@ function getAvatar(name) {
   ctx.fillStyle = '#ffffff'; ctx.font = 'bold 50px system-ui'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
   ctx.fillText(char, 50, 54);
   return canvas.toDataURL('image/png');
+}
+
+// 🛡️ DOM Builder: حل نهائي لاستبدال innerHTML وبناء الشجرة برمجياً بأمان
+function el(tag, props = {}, ...children) {
+  const element = document.createElement(tag);
+  for (const [key, value] of Object.entries(props)) {
+    if (key === 'className') element.className = value;
+    else if (key === 'dataset') {
+      for(const [dKey, dVal] of Object.entries(value)) element.dataset[dKey] = dVal;
+    }
+    else if (key === 'style') element.style.cssText = value;
+    else element[key] = value;
+  }
+  children.forEach(child => {
+    if (!child) return;
+    if (typeof child === 'string' || typeof child === 'number') {
+      element.appendChild(document.createTextNode(child));
+    } else if (child instanceof Node) {
+      element.appendChild(child);
+    }
+  });
+  return element;
 }
 
 // حماية Brute Force
@@ -129,7 +149,7 @@ function showErr(m) {
 function unlockApp() {
   lockScreen.style.opacity = '0';
   lockScreen.style.visibility = 'hidden';
-  appContainer.innerHTML = document.getElementById('app-template').innerHTML;
+  appContainer.innerHTML = document.getElementById('app-template').innerHTML; // آمن لنسخ التمبلت الأساسي فقط
   
   setTimeout(() => appContainer.classList.add('ready'), 50);
   document.getElementById('master-input').value = '';
@@ -145,8 +165,7 @@ function lockApp() {
   masterKey = null; entries = []; revealedSet.clear(); clearInterval(totpInterval);
   activityController?.abort(); 
   
-  // Wipe DOM immediately to prevent visual data leak window
-  appContainer.textContent = ''; 
+  appContainer.textContent = ''; // Wipe DOM immediately
   appContainer.classList.remove('ready');
   
   lockScreen.style.visibility = 'visible';
@@ -170,7 +189,7 @@ async function saveVault() {
 }
 
 // ==========================================
-// التصيير (Rendering) باستخدام DOM API
+// التصيير (Rendering) الخالي 100% من innerHTML
 // ==========================================
 function renderAll() { renderStats(); renderTabs(); renderCards(); }
 
@@ -185,17 +204,10 @@ function renderStats() {
   
   const bar = document.getElementById('stats-bar');
   bar.textContent = ''; 
-
-  const countPill = document.createElement('div');
-  countPill.className = 'stat-pill';
-  countPill.textContent = `🔑 ${entries.length} حساب محفوظ`;
-  bar.appendChild(countPill);
+  bar.appendChild(el('div', { className: 'stat-pill' }, `🔑 ${entries.length} حساب محفوظ`));
 
   if(reused > 0 || weak > 0) {
-    const healthPill = document.createElement('div');
-    healthPill.className = 'stat-pill health-bad';
-    healthPill.textContent = `⚠️ ${weak} ضعيفة | ${reused} مكررة`;
-    bar.appendChild(healthPill);
+    bar.appendChild(el('div', { className: 'stat-pill health-bad' }, `⚠️ ${weak} ضعيفة | ${reused} مكررة`));
   }
 }
 
@@ -205,12 +217,10 @@ function renderTabs() {
   w.textContent = ''; 
 
   const createTab = (text, val, isActive) => {
-    const t = document.createElement('div');
-    t.className = `tab ${isActive ? 'active' : ''}`;
-    t.dataset.action = 'set-cat';
-    t.dataset.val = val;
-    t.textContent = text;
-    w.appendChild(t);
+    w.appendChild(el('div', { 
+      className: `tab ${isActive ? 'active' : ''}`, 
+      dataset: { action: 'set-cat', val: val } 
+    }, text));
   };
 
   createTab('الكل', 'all', activeCat === 'all');
@@ -225,43 +235,74 @@ function renderCards() {
   );
 
   const grid = document.getElementById('cards-grid');
-  grid.innerHTML = res.map((e, index) => {
+  grid.textContent = ''; // مسح آمن
+
+  res.forEach((e, index) => {
     const isRev = revealedSet.has(e.id);
     const safeUrl = (e.url && (e.url.startsWith('http://') || e.url.startsWith('https://'))) ? e.url : '';
     const delay = Math.min(index * 0.05, 0.5); 
-    
-    return `
-    <div class="card" style="animation-delay: ${delay}s">
-      <div class="card-header">
-        <img class="site-avatar" src="${getAvatar(e.name || e.url)}" alt="">
-        <div style="flex:1;min-width:0">
-          <div class="card-site-name">${esc(e.name || 'حساب بدون اسم')}</div>
-          ${safeUrl ? `<div class="card-site-url">${esc(safeUrl)}</div>` : ''}
-        </div>
-        ${e.category ? `<div class="card-category">${esc(e.category)}</div>` : ''}
-      </div>
-      <div class="card-body">
-        <div class="field-row">
-          <div class="field-label">اليوزر</div>
-          <div class="field-value">${esc(e.username || '—')}</div>
-          <button class="copy-btn" aria-label="نسخ المستخدم" data-action="copy" data-id="${e.id}" data-field="username" title="نسخ">📋</button>
-        </div>
-        <div class="field-row">
-          <div class="field-label">المرور</div>
-          <div class="field-value" style="letter-spacing:${isRev?'0':'4px'}; font-size:${isRev?'15px':'18px'}">${isRev ? esc(e.password) : '••••••••'}</div>
-          <button class="copy-btn" aria-label="إظهار" data-action="toggle-rev" data-id="${e.id}">${isRev?'🙈':'👁'}</button>
-          <button class="copy-btn" aria-label="نسخ كلمة المرور" data-action="copy" data-id="${e.id}" data-field="password" title="نسخ">📋</button>
-        </div>
-        ${e.totp ? `<div class="field-row"><div class="field-label">2FA</div><div class="totp-display" id="totp-${e.id}">---</div><button class="copy-btn" aria-label="نسخ الرمز" data-action="copy-totp" data-id="${e.id}">📋</button></div>` : ''}
-        ${e.history && e.history.length ? `<div class="history-list">سجل التغييرات: ${e.history.map(h => isRev?esc(h):'***').join(' ، ')}</div>` : ''}
-      </div>
-      <div class="card-footer">
-        ${safeUrl ? `<a href="${safeUrl}" target="_blank" rel="noopener" style="text-decoration:none"><button class="btn-sm">🌐 فتح الرابط</button></a>` : ''}
-        <button class="btn-sm" data-action="edit" data-id="${e.id}">✏️ تعديل</button>
-        <button class="btn-sm danger" data-action="req-delete" data-id="${e.id}">🗑 حذف</button>
-      </div>
-    </div>`;
-  }).join('');
+
+    // Header Construction
+    const titleWrap = el('div', { style: 'flex:1;min-width:0' },
+      el('div', { className: 'card-site-name' }, e.name || 'حساب بدون اسم'),
+      safeUrl ? el('div', { className: 'card-site-url' }, safeUrl) : null
+    );
+
+    const headerContent = [
+      el('img', { className: 'site-avatar', src: getAvatar(e.name || e.url), alt: '' }),
+      titleWrap
+    ];
+    if(e.category) headerContent.push(el('div', { className: 'card-category' }, e.category));
+    const header = el('div', { className: 'card-header' }, ...headerContent);
+
+    // Body Construction - Helper function for rows
+    const createRow = (label, value, actionField, isPw = false, isTotp = false) => {
+      let valEl, extraBtn;
+      
+      if(isTotp) {
+        valEl = el('div', { className: 'totp-display', id: `totp-${e.id}` }, '---');
+      } else {
+        const valStyle = isPw ? `letter-spacing:${isRev?'0':'4px'}; font-size:${isRev?'15px':'18px'}` : '';
+        const valText = (isPw && !isRev) ? '••••••••' : (value || '—');
+        valEl = el('div', { className: 'field-value', style: valStyle }, valText);
+        if(isPw) extraBtn = el('button', { className: 'copy-btn', ariaLabel: 'إظهار', dataset: { action: 'toggle-rev', id: e.id } }, isRev ? '🙈' : '👁');
+      }
+
+      return el('div', { className: 'field-row' },
+        el('div', { className: 'field-label' }, label),
+        valEl,
+        extraBtn,
+        el('button', { className: 'copy-btn', ariaLabel: 'نسخ', dataset: { action: isTotp ? 'copy-totp' : 'copy', id: e.id, field: actionField } }, '📋')
+      );
+    };
+
+    const bodyChildren = [
+      createRow('اليوزر', e.username, 'username'),
+      createRow('المرور', e.password, 'password', true)
+    ];
+    if(e.totp) bodyChildren.push(createRow('2FA', null, null, false, true));
+    if(e.history && e.history.length) {
+      bodyChildren.push(el('div', { className: 'history-list' }, `سجل التغييرات: ${e.history.map(h => isRev ? h : '***').join(' ، ')}`));
+    }
+    const body = el('div', { className: 'card-body' }, ...bodyChildren);
+
+    // Footer Construction
+    const footerChildren = [];
+    if(safeUrl) { // Security: rel="noopener noreferrer" added
+      footerChildren.push(el('a', { href: safeUrl, target: '_blank', rel: 'noopener noreferrer', style: 'text-decoration:none' }, 
+        el('button', { className: 'btn-sm' }, '🌐 فتح الرابط')
+      ));
+    }
+    footerChildren.push(
+      el('button', { className: 'btn-sm', dataset: { action: 'edit', id: e.id } }, '✏️ تعديل'),
+      el('button', { className: 'btn-sm danger', dataset: { action: 'req-delete', id: e.id } }, '🗑 حذف')
+    );
+    const footer = el('div', { className: 'card-footer' }, ...footerChildren);
+
+    // Final Card Assembly
+    const card = el('div', { className: 'card', style: `animation-delay: ${delay}s` }, header, body, footer);
+    grid.appendChild(card);
+  });
   
   document.getElementById('screen-warning').style.display = revealedSet.size > 0 ? 'block' : 'none';
 }
@@ -323,7 +364,11 @@ function bindAppEvents(signal) {
 
     switch(action) {
       case 'lock-app': lockApp(); break;
-      case 'open-settings': openM('settings-modal'); break;
+      case 'open-settings': 
+        document.getElementById('current-pw-input').value = '';
+        document.getElementById('change-pw-input').value = '';
+        openM('settings-modal'); 
+        break;
       case 'open-add': editId = null; clearForm(); openM('form-modal'); break;
       case 'close-modal': closeM(target.dataset.target); break;
       case 'set-cat': activeCat = val; renderAll(); break;
@@ -492,15 +537,33 @@ function exportVault() {
   a.click();
 }
 
+// Security: تأمين تغيير كلمة المرور عبر التحقق من الكلمة الحالية
 async function changeMasterPassword() {
-  const np = document.getElementById('change-pw-input').value;
-  if(np.length < 8) return showTst('❌ كلمة المرور قصيرة جداً');
-  const newSalt = generateSalt();
-  localStorage.setItem(SALT_KEY, btoa(String.fromCharCode(...newSalt)));
-  masterKey = await deriveKey(np, newSalt);
-  await saveVault();
-  closeM('settings-modal'); showTst('✅ تم تغيير كلمة المرور وإعادة التشفير');
-  document.getElementById('change-pw-input').value = '';
+  const oldPw = document.getElementById('current-pw-input').value;
+  const newPw = document.getElementById('change-pw-input').value;
+  
+  if(!oldPw) return showTst('⚠️ أدخل كلمة المرور الحالية');
+  if(newPw.length < 8) return showTst('❌ كلمة المرور الجديدة قصيرة جداً');
+
+  try {
+    // اختبار كلمة المرور القديمة بتجربة فك التشفير
+    const oldSalt = Uint8Array.from(atob(localStorage.getItem(SALT_KEY)), c => c.charCodeAt(0));
+    const testKey = await deriveKey(oldPw, oldSalt);
+    await decryptData(localStorage.getItem(STORAGE_KEY), testKey);
+    
+    // إذا نجح الاختبار، نولد مفتاحاً جديداً بالكامل
+    const newSalt = generateSalt();
+    localStorage.setItem(SALT_KEY, btoa(String.fromCharCode(...newSalt)));
+    masterKey = await deriveKey(newPw, newSalt);
+    await saveVault();
+    
+    closeM('settings-modal'); 
+    showTst('✅ تم تغيير كلمة المرور وإعادة التشفير');
+    document.getElementById('current-pw-input').value = '';
+    document.getElementById('change-pw-input').value = '';
+  } catch(e) {
+    showTst('❌ كلمة المرور الحالية غير صحيحة');
+  }
 }
 
 const isValidEntry = (e) => 
@@ -538,12 +601,10 @@ async function processImport() {
 // التهيئة الابتدائية (Initial Boot)
 // ==========================================
 document.addEventListener('DOMContentLoaded', () => {
-  // ربط عناصر الـ DOM الأساسية
   lockScreen = document.getElementById('lock-screen');
   appContainer = document.getElementById('app-container');
   errorEl = document.getElementById('lock-error');
 
-  // استماع لأزرار شاشة القفل الرئيسية
   document.getElementById('lock-btn').addEventListener('click', async () => {
     const rLimit = checkRateLimit();
     if(rLimit) return showErr(rLimit);
@@ -585,6 +646,5 @@ document.addEventListener('DOMContentLoaded', () => {
     if(e.key === 'Enter') document.getElementById('lock-btn').click();
   });
 
-  // تشغيل واجهة القفل
   initLock();
 });

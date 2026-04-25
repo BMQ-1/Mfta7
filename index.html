@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<!-- 
+  CSP المُشدد: 
+  تمت إزالة 'unsafe-inline'. لتفعيل السكربت، يجب حساب الـ Hash للكود أدناه واستبدال sha256-PLACEHOLDER
+  مثال: openssl dgst -sha256 -binary file.js | openssl base64
+-->
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-PLACEHOLDER'; style-src 'unsafe-inline'; img-src data: blob:; connect-src 'none'; font-src 'none'; frame-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none';">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>مفتاح - الخزنة المعزولة</title>
+<link rel="manifest" href="data:application/manifest+json,%7B%22name%22%3A%22%D9%85%D9%81%D8%AA%D8%A7%D8%AD%22%2C%22short_name%22%3A%22%D9%85%D9%81%D8%AA%D8%A7%D8%AD%22%2C%22display%22%3A%22standalone%22%2C%22start_url%22%3A%22.%22%2C%22background_color%22%3A%22%2309090b%22%2C%22theme_color%22%3A%22%236366f1%22%7D">
+
+<style>
+  :root {
+    --bg: #09090b; --surface: #18181b; --surface2: #27272a; --border: #3f3f46;
+    --accent: #6366f1; --accent-hover: #4f46e5; --accent2: #8b5cf6;
+    --danger: #ef4444; --success: #10b981; --warning: #f59e0b;
+    --text: #f4f4f5; --muted: #a1a1aa; --radius: 16px; --transition: 0.2s ease-out;
+  }
+  body {
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    background: var(--bg); color: var(--text); min-height: 100dvh; direction: rtl; overflow-x: hidden; margin: 0; padding: 0;
+    -webkit-tap-highlight-color: transparent;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  @media (prefers-reduced-motion: reduce) { * { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; } }
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--surface2); border-radius: 10px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--border); }
+
+  .gradient-text { background: linear-gradient(135deg, var(--accent), var(--accent2)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+  
+  #lock-screen { position: fixed; inset: 0; z-index: 1000; background: var(--bg); display: flex; align-items: center; justify-content: center; flex-direction: column; padding: 24px; transition: opacity 0.4s ease; }
+  .lock-logo { font-size: clamp(48px, 12vw, 72px); font-weight: 900; letter-spacing: -2px; margin-bottom: 8px; animation: float 6s ease-in-out infinite; }
+  @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+  .lock-sub { color: var(--muted); font-size: 15px; margin-bottom: 40px; text-align: center; }
+
+  .lock-card { background: var(--surface); border: 1px solid var(--border); border-radius: 24px; padding: 32px; width: 100%; max-width: 400px; display: flex; flex-direction: column; gap: 16px; box-shadow: 0 20px 40px rgba(0,0,0,0.4); }
+  .lock-card h2 { font-size: 18px; font-weight: 700; text-align: center; margin-bottom: 8px; }
+
+  input { font-family: inherit; transition: var(--transition); }
+  .field-wrap input { width: 100%; background: var(--bg); border: 2px solid var(--border); border-radius: 12px; padding: 14px 16px; font-size: 15px; color: var(--text); direction: rtl; }
+  .field-wrap input:focus { outline: none; border-color: var(--accent); }
+
+  .btn-primary { background: linear-gradient(135deg, var(--accent), var(--accent2)); color: #fff; border: none; border-radius: 12px; padding: 15px; font-size: 16px; font-weight: 700; cursor: pointer; transition: transform 0.15s, filter 0.15s; }
+  .btn-primary:hover { filter: brightness(1.1); }
+  .btn-primary:active { transform: scale(0.96); }
+
+  #lock-error { color: var(--danger); font-size: 13px; text-align: center; font-weight: 600; display: none; }
+  #screen-warning { position: fixed; top: 0; left: 0; right: 0; background: var(--danger); color: white; text-align: center; padding: 8px; font-size: 13px; font-weight: bold; z-index: 9999; display: none; }
+  #app-container { display: flex; flex-direction: column; min-height: 100dvh; }
+
+  /* UI Components */
+  header { background: rgba(24, 24, 27, 0.9); border-bottom: 1px solid var(--border); padding: 16px 20px; display: flex; align-items: center; justify-content: space-between; gap: 16px; position: sticky; top: 0; z-index: 100; }
+  .logo { font-size: 24px; font-weight: 900; }
+  .search-wrap { flex: 1; position: relative; max-width: 400px; }
+  .search-wrap input { width: 100%; background: var(--bg); border: 1px solid var(--border); border-radius: 99px; padding: 10px 40px 10px 16px; font-size: 14px; color: var(--text); }
+  .search-wrap input:focus { outline: none; border-color: var(--accent); }
+  .header-actions { display: flex; gap: 10px; }
+  .icon-btn { background: var(--bg); border: 1px solid var(--border); border-radius: 12px; width: 44px; height: 44px; cursor: pointer; color: var(--text); display: flex; align-items: center; justify-content: center; }
+
+  .stats-tabs-container { padding: 12px 20px; border-bottom: 1px solid var(--border); display: flex; flex-direction: column; gap: 12px; }
+  .stats-row { display: flex; gap: 10px; flex-wrap: wrap; }
+  .stat-pill { background: var(--surface); border: 1px solid var(--border); border-radius: 99px; padding: 6px 14px; font-size: 12px; color: var(--muted); }
+  .stat-pill strong { color: var(--text); }
+  .tabs-row { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px; }
+  .tab { background: var(--surface); border: 1px solid var(--border); border-radius: 99px; padding: 6px 16px; font-size: 13px; color: var(--muted); cursor: pointer; white-space: nowrap; }
+  .tab.active { background: var(--text); color: var(--bg); }
+
+  main { padding: 20px 20px 120px; }
+  #cards-grid { display: grid; gap: 16px; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); }
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+  .card-header { padding: 16px; display: flex; align-items: center; gap: 12px; border-bottom: 1px solid var(--border); }
+  .site-avatar { width: 40px; height: 40px; border-radius: 10px; flex-shrink: 0; }
+  .card-site-name { font-weight: bold; font-size: 16px; }
+  .card-site-url { font-size: 12px; color: var(--muted); direction: ltr; text-align: left; }
+  .card-category { font-size: 11px; padding: 4px 8px; background: var(--surface2); border-radius: 6px; }
+  
+  .card-body { padding: 16px; display: flex; flex-direction: column; gap: 10px; }
+  .field-row { background: var(--bg); border: 1px solid var(--border); border-radius: 10px; padding: 10px; display: flex; align-items: center; gap: 8px; }
+  .field-label { font-size: 11px; color: var(--muted); width: 65px; font-weight: bold; }
+  .field-value { flex: 1; font-size: 14px; font-family: monospace; direction: ltr; text-align: left; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .copy-btn { background: var(--surface2); border: none; padding: 6px; border-radius: 8px; color: var(--text); cursor: pointer; }
+  .totp-display { font-family: monospace; font-size: 18px; font-weight: bold; color: var(--accent); letter-spacing: 2px;}
+
+  .card-footer { padding: 0 16px 16px; display: flex; gap: 8px; justify-content: flex-end; }
+  .btn-sm { background: var(--surface2); border: 1px solid var(--border); padding: 8px 16px; border-radius: 10px; font-size: 13px; color: var(--text); cursor: pointer; }
+  .btn-sm.danger { color: var(--danger); }
+
+  .fab { position: fixed; bottom: 32px; left: 50%; transform: translateX(-50%); background: linear-gradient(135deg, var(--accent), var(--accent2)); color: white; border: none; padding: 16px 32px; border-radius: 99px; font-weight: bold; cursor: pointer; box-shadow: 0 10px 25px rgba(0,0,0,0.5); z-index: 99;}
+
+  .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.8); display: none; align-items: center; justify-content: center; z-index: 200; padding: 16px; }
+  .modal-overlay.open { display: flex; }
+  .modal { background: var(--surface); border: 1px solid var(--border); border-radius: 24px; width: 100%; max-width: 420px; padding: 24px; display: flex; flex-direction: column; gap: 16px; max-height: 90vh; overflow-y: auto; }
+  .modal-title { font-size: 18px; font-weight: bold; display: flex; justify-content: space-between; border-bottom: 1px solid var(--border); padding-bottom: 12px; }
+  
+  .form-group { display: flex; flex-direction: column; gap: 6px; }
+  .form-group label { font-size: 12px; color: var(--muted); }
+  .form-input { background: var(--bg); border: 1px solid var(--border); padding: 12px; border-radius: 10px; color: var(--text); font-family: inherit; width: 100%; }
+  .pw-wrap { position: relative; }
+  .pw-toggle { position: absolute; left: 8px; top: 50%; transform: translateY(-50%); background: transparent; border: none; color: var(--text); cursor: pointer; }
+
+  #toast { position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%); background: var(--text); color: var(--bg); padding: 12px 24px; border-radius: 99px; font-weight: bold; font-size: 14px; opacity: 0; pointer-events: none; transition: opacity 0.3s; z-index: 1000; box-shadow: 0 5px 15px rgba(0,0,0,0.3); white-space: nowrap; }
+  #toast.show { opacity: 1; }
+  .health-bad { color: var(--warning); font-weight: bold; }
+  .history-list { font-size: 11px; color: var(--muted); font-family: monospace; max-height: 50px; overflow: auto; }
+</style>
+</head>
+<body>
+
+<div id="screen-warning">⚠️ تحذير: إحدى كلمات المرور مكشوفة حالياً - احذر تصوير الشاشة</div>
+
+<!-- Lock Screen -->
+<div id="lock-screen">
+  <div class="lock-logo gradient-text">مفتاح</div>
+  <p class="lock-sub">التشفير العسكري المحلي - لا خوادم، لا تتبع</p>
+  <div class="lock-card">
+    <h2 id="lock-title"></h2>
+    <div class="field-wrap">
+      <input type="password" id="master-input" placeholder="كلمة المرور الرئيسية" autocomplete="new-password" spellcheck="false">
+    </div>
+    <div class="field-wrap" id="confirm-wrap" style="display:none;">
+      <input type="password" id="master-confirm" placeholder="تأكيد كلمة المرور" autocomplete="new-password" spellcheck="false">
+    </div>
+    <button class="btn-primary" id="lock-btn"></button>
+    <p id="lock-error"></p>
+    <div style="font-size:12px; color:var(--muted); text-align:center;">يتم مسح الذاكرة بالكامل عند القفل. لا يمكن استعادة كلمة المرور إذا فُقدت.</div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<!-- Safe DOM Injection Target -->
+<div id="app-container"></div>
+
+<!-- ======================= TEMPLATES ======================= -->
+<template id="app-template">
+  <header>
+    <div class="logo gradient-text">مفتاح</div>
+    <div class="search-wrap">
+      <input type="search" id="search-input" placeholder="ابحث..." autocomplete="off">
+    </div>
+    <div class="header-actions">
+      <button class="icon-btn" data-action="open-settings" title="الإعدادات">⚙️</button>
+      <button class="icon-btn" data-action="logout" title="قفل">🔒</button>
+    </div>
+  </header>
+
+  <div class="stats-tabs-container">
+    <div class="stats-row" id="stats-bar"></div>
+    <div class="tabs-row" id="tabs-wrap"></div>
+  </div>
+
+  <main>
+    <div id="cards-grid"></div>
+  </main>
+  <button class="fab" data-action="open-add">+ إضافة حساب</button>
+
+  <!-- Modals -->
+  <div class="modal-overlay" id="form-modal" role="dialog">
+    <div class="modal">
+      <div class="modal-title"><span>إضافة حساب</span><button class="icon-btn" style="width:24px;height:24px;" data-close="form-modal">✕</button></div>
+      <div class="form-group"><label>الرابط (http/https)</label><input class="form-input" id="f-url" type="url" dir="ltr" autocomplete="off" spellcheck="false"></div>
+      <div class="form-group"><label>اسم الموقع</label><input class="form-input" id="f-name" type="text" dir="auto" autocomplete="off" spellcheck="false"></div>
+      <div class="form-group"><label>المستخدم</label><input class="form-input" id="f-user" type="text" dir="ltr" autocomplete="off" spellcheck="false"></div>
+      <div class="form-group">
+        <label>كلمة المرور</label>
+        <div class="pw-wrap">
+          <input class="form-input" id="f-pass" type="password" dir="ltr" autocomplete="new-password" spellcheck="false">
+          <button class="pw-toggle" id="pw-toggle-btn" type="button" data-action="toggle-pw-input">👁</button>
+        </div>
+        <button class="btn-sm" data-action="gen-pw" style="margin-top:4px;">⚡ توليد آمن (بدون انحياز)</button>
+      </div>
+      <div class="form-group"><label>رمز 2FA (Base32)</label><input class="form-input" id="f-totp" type="password" dir="ltr" autocomplete="off" spellcheck="false"></div>
+      <div class="form-group"><label>التصنيف</label><input class="form-input" id="f-cat" type="text" dir="auto" autocomplete="off"></div>
+      <button class="btn-primary" data-action="save-entry">حفظ في الخزنة</button>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="confirm-modal" role="dialog">
+    <div class="modal">
+      <div class="modal-title"><span>تأكيد الحذف</span><button class="icon-btn" style="width:24px;height:24px;" data-close="confirm-modal">✕</button></div>
+      <div style="color:var(--muted)">لحذف الحساب، اكتب <strong>DELETE</strong> بالأسفل:</div>
+      <input type="text" class="form-input" id="delete-confirm-input" dir="ltr">
+      <button class="btn-primary" data-action="confirm-delete" style="background:var(--danger)">حذف نهائي</button>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="settings-modal" role="dialog">
+    <div class="modal">
+      <div class="modal-title"><span>إدارة الخزنة</span><button class="icon-btn" style="width:24px;height:24px;" data-close="settings-modal">✕</button></div>
+      <button class="btn-primary" data-action="export-vault">📥 تصدير الخزنة (مشفرة)</button>
+      
+      <div style="border-top:1px solid var(--border); margin-top:8px; padding-top:8px;">
+        <label style="font-size:12px; color:var(--muted);">استيراد خزنة (سندمجها مع الحالية)</label>
+        <input type="file" id="import-file" accept=".json" style="margin-top:4px;">
+      </div>
+
+      <div style="border-top:1px solid var(--border); margin-top:8px; padding-top:8px;">
+        <label style="font-size:12px; color:var(--danger);">تغيير كلمة المرور الرئيسية</label>
+        <input type="password" class="form-input" id="change-pw-input" placeholder="كلمة المرور الجديدة" style="margin-top:4px;">
+        <button class="btn-sm" data-action="change-master-pw" style="margin-top:4px; width:100%">تغيير وتشفير من جديد</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal استيراد آمن بديل لـ prompt -->
+  <div class="modal-overlay" id="import-pw-modal" role="dialog">
+    <div class="modal">
+      <div class="modal-title"><span>كلمة مرور ملف الاستيراد</span><button class="icon-btn" style="width:24px;height:24px;" data-close="import-pw-modal">✕</button></div>
+      <p style="font-size: 13px; color: var(--muted);">أدخل كلمة المرور الخاصة بالملف الذي تحاول استيراده لفك تشفيره ودمجه.</p>
+      <input type="password" class="form-input" id="import-pw-input" placeholder="كلمة مرور الملف">
+      <button class="btn-primary" data-action="confirm-import">فك التشفير والدمج</button>
+    </div>
+  </div>
+</template>
+
+<script>
+// تغليف كامل الكود داخل IIFE لمنع تسريب المتغيرات لـ window (حماية من الإضافات والـ XSS)
+(() => {
+  'use strict';
+
+  const STORAGE_KEY = 'miftah_enc_v3';
+  const SALT_KEY = 'miftah_salt_v3';
+
+  function generateSalt() { return crypto.getRandomValues(new Uint8Array(32)); }
+  async function deriveKey(password, salt) {
+    const enc = new TextEncoder();
+    const raw = await crypto.subtle.importKey('raw', enc.encode(password), 'PBKDF2', false, ['deriveKey']);
+    return crypto.subtle.deriveKey(
+      { name: 'PBKDF2', salt, iterations: 250000, hash: 'SHA-256' },
+      raw, { name: 'AES-GCM', length: 256 }, false, ['encrypt', 'decrypt']
+    );
+  }
+
+  async function encryptData(data, key) {
+    const iv = crypto.getRandomValues(new Uint8Array(12));
+    const ct = await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, key, new TextEncoder().encode(JSON.stringify(data)));
+    const combined = new Uint8Array(iv.length + ct.byteLength);
+    combined.set(iv, 0); combined.set(new Uint8Array(ct), iv.length);
+    return btoa(String.fromCharCode(...combined));
+  }
+
+  async function decryptData(b64, key) {
+    const buf = Uint8Array.from(atob(b64), c => c.charCodeAt(0));
+    const pt = await crypto.subtle.decrypt({ name: 'AES-GCM', iv: buf.slice(0, 12) }, key, buf.slice(12));
+    return JSON.parse(new TextDecoder().decode(pt));
+  }
+
+  function base32ToBytes(base32) {
+    const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567";
+    let bits = "", bytes =[];
+    for(let i=0; i<base32.length; i++) {
+      const val = chars.indexOf(base32.charAt(i).toUpperCase());
+      if(val === -1) continue;
+      bits += val.toString(2).padStart(5, '0');
+    }
+    for(let i=0; i<bits.length - 7; i+=8) bytes.push(parseInt(bits.substr(i, 8), 2));
+    return new Uint8Array(bytes);
+  }
+
+  async function generateTOTPCode(secretBase32) {
+    try {
+      if(!secretBase32) return null;
+      const key = await crypto.subtle.importKey('raw', base32ToBytes(secretBase32), {name: 'HMAC', hash: 'SHA-1'}, false, ['sign']);
+      const epoch = Math.floor(Date.now() / 1000), time = Math.floor(epoch / 30);
+      const buffer = new ArrayBuffer(8); new DataView(buffer).setUint32(4, time, false);
+      const sig = new Uint8Array(await crypto.subtle.sign('HMAC', key, buffer));
+      const offset = sig[sig.length - 1] & 0xf;
+      const code = ((sig[offset] & 0x7f) << 24 | (sig[offset + 1] & 0xff) << 16 | (sig[offset + 2] & 0xff) << 8 | sig[offset + 3] & 0xff) % 1000000;
+      return { code: code.toString().padStart(6, '0'), timeRemaining: 30 - (epoch % 30) };
+    } catch(e) { return null; }
+  }
+
+  // State Variables المغلقة بإحكام داخل الدالة
+  let masterKey = null;
+  let entries = [];
+  let activeCat = 'all';
+  let editId = null;
+  let targetDeleteId = null; // بديل آمن لـ window.delTarget
+  let pendingImportFile = null;
+  let revealedSet = new Set();
+  let totpInterval, lockTimer, cbTimeout;
+
+  function getAvatar(name) {
+    const canvas = document.createElement('canvas'); canvas.width = 64; canvas.height = 64;
+    const ctx = canvas.getContext('2d'), colors =['#6366f1', '#8b5cf6', '#ec4899', '#f59e0b', '#10b981'];
+    const char = (name || '?').charAt(0).toUpperCase();
+    ctx.fillStyle = colors[char.charCodeAt(0) % colors.length] || colors[0]; ctx.fillRect(0,0,64,64);
+    ctx.fillStyle = '#fff'; ctx.font = 'bold 36px system-ui'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillText(char, 32, 34); return canvas.toDataURL('image/png');
+  }
+
+  function checkRateLimit() {
+    const until = parseInt(sessionStorage.getItem('lockUntil') || '0');
+    if(Date.now() < until) return `مقفول مؤقتاً. حاول بعد ${Math.ceil((until - Date.now())/60000)} دقيقة`;
+    return null;
+  }
+  function registerFailedAttempt() {
+    let fails = parseInt(sessionStorage.getItem('fails') || '0') + 1;
+    sessionStorage.setItem('fails', fails);
+    if(fails >= 10) sessionStorage.setItem('lockUntil', Date.now() + 300000);
+    else if(fails >= 5) sessionStorage.setItem('lockUntil', Date.now() + 30000);
+  }
+
+  const hasVault = () => !!localStorage.getItem(STORAGE_KEY);
+  function initLock() {
+    document.getElementById('lock-title').textContent = hasVault() ? 'افتح خزنتك' : 'إنشاء خزنة جديدة';
+    document.getElementById('confirm-wrap').style.display = hasVault() ? 'none' : 'block';
+    document.getElementById('lock-btn').textContent = hasVault() ? 'فتح' : 'إنشاء وتشفير';
+  }
+
+  document.getElementById('lock-btn').addEventListener('click', async () => {
+    const limitMsg = checkRateLimit(); if(limitMsg) return showErr(limitMsg);
+    const pw = document.getElementById('master-input').value; if(!pw) return showErr('أدخل كلمة المرور');
+
+    if(!hasVault()) {
+      if(pw !== document.getElementById('master-confirm').value) return showErr('غير متطابقة');
+      if(pw.length < 8) return showErr('8 أحرف كحد أدنى');
+      const salt = generateSalt(); localStorage.setItem(SALT_KEY, btoa(String.fromCharCode(...salt)));
+      masterKey = await deriveKey(pw, salt); entries = []; await saveVault(); unlockApp();
+    } else {
+      try {
+        const testKey = await deriveKey(pw, Uint8Array.from(atob(localStorage.getItem(SALT_KEY)), c => c.charCodeAt(0)));
+        entries = await decryptData(localStorage.getItem(STORAGE_KEY), testKey);
+        masterKey = testKey; sessionStorage.removeItem('fails'); sessionStorage.removeItem('lockUntil'); unlockApp();
+      } catch(e) { registerFailedAttempt(); showErr('كلمة المرور خاطئة أو الخزنة تالفة'); }
+    }
+  });
+
+  function showErr(m) { const el = document.getElementById('lock-error'); el.textContent = m; el.style.display = 'block'; }
+
+  function unlockApp() {
+    document.getElementById('lock-screen').style.opacity = '0';
+    setTimeout(() => document.getElementById('lock-screen').style.display = 'none', 400);
+    document.getElementById('app-container').innerHTML = document.getElementById('app-template').innerHTML;
+    document.getElementById('master-input').value = ''; document.getElementById('master-confirm').value = '';
+    bindAppEvents(); renderAll(); startActivityTimer();
+    totpInterval = setInterval(updateAllTOTP, 1000);
+  }
+
+  function lockApp() {
+    masterKey = null; entries = []; revealedSet.clear(); targetDeleteId = null; pendingImportFile = null;
+    clearInterval(totpInterval); document.getElementById('app-container').innerHTML = ''; // Wipe DOM
+    document.getElementById('lock-screen').style.display = 'flex';
+    setTimeout(() => document.getElementById('lock-screen').style.opacity = '1', 10);
+    document.getElementById('screen-warning').style.display = 'none'; initLock();
+  }
+
+  function startActivityTimer() {
+    const reset = () => { clearTimeout(lockTimer); if(masterKey) lockTimer = setTimeout(lockApp, 5 * 60000); };
+    ['mousemove','keydown','touchstart'].forEach(e => document.addEventListener(e, reset));
+    document.addEventListener('visibilitychange', () => { if(document.hidden && masterKey) lockTimer = setTimeout(lockApp, 15000); else reset(); });
+    reset();
+  }
+
+  async function saveVault() { localStorage.setItem(STORAGE_KEY, await encryptData(entries, masterKey)); }
+
+  function renderAll() {
+    const pwSet = new Set(); let reused = 0, weak = 0;
+    entries.forEach(e => { if(e.password) { if(pwSet.has(e.password)) reused++; else pwSet.add(e.password); if(e.password.length < 8) weak++; } });
+    document.getElementById('stats-bar').innerHTML = `<div class="stat-pill">🔑 <strong>${entries.length}</strong> حساب</div>` + 
+      ((reused > 0 || weak > 0) ? `<div class="stat-pill health-bad">⚠️ ${weak} ضعيفة | ${reused} مكررة</div>` : '');
+
+    const cats = [...new Set(entries.map(e => e.category || 'عام'))];
+    document.getElementById('tabs-wrap').innerHTML = 
+      `<div class="tab ${activeCat==='all'?'active':''}" data-action="set-cat" data-val="all">الكل</div>` +
+      cats.map(c => `<div class="tab ${activeCat===c?'active':''}" data-action="set-cat" data-val="${esc(c)}">${esc(c)}</div>`).join('');
+
+    const q = document.getElementById('search-input').value.toLowerCase();
+    const res = entries.filter(e => (activeCat === 'all' || (e.category || 'عام') === activeCat) && ((e.name||'').toLowerCase().includes(q) || (e.url||'').toLowerCase().includes(q)));
+    
+    // خلو الكود تماماً من الـ onclick لتوافق تام مع سياسات الـ CSP المشددة
+    document.getElementById('cards-grid').innerHTML = res.map(e => {
+      const isRev = revealedSet.has(e.id);
+      const safeUrl = (e.url && /^https?:\/\//i.test(e.url)) ? e.url : '';
+      return `
+      <div class="card">
+        <div class="card-header"><img class="site-avatar" src="${getAvatar(e.name || e.url)}" alt=""><div style="flex:1;min-width:0"><div class="card-site-name">${esc(e.name || 'حساب')}</div>${safeUrl ? `<div class="card-site-url">${esc(safeUrl)}</div>` : ''}</div>${e.category ? `<div class="card-category">${esc(e.category)}</div>` : ''}</div>
+        <div class="card-body">
+          <div class="field-row"><div class="field-label">اليوزر</div><div class="field-value">${esc(e.username || '—')}</div><button class="copy-btn" data-action="copy" data-val="${esc(e.username)}">📋</button></div>
+          <div class="field-row"><div class="field-label">المرور</div><div class="field-value" style="letter-spacing:${isRev?'0':'3px'}">${isRev ? esc(e.password) : '••••••••'}</div><button class="copy-btn" data-action="toggle-rev" data-id="${e.id}">${isRev?'🙈':'👁'}</button><button class="copy-btn" data-action="copy" data-val="${esc(e.password)}">📋</button></div>
+          ${e.totp ? `<div class="field-row"><div class="field-label">2FA</div><div class="totp-display" id="totp-${e.id}">---</div><button class="copy-btn" data-action="copy-totp" data-id="${e.id}">📋</button></div>` : ''}
+          ${e.history && e.history.length ? `<div class="history-list">سجل قديم: ${e.history.map(h => isRev?esc(h):'***').join(' ، ')}</div>` : ''}
+        </div>
+        <div class="card-footer">
+          ${safeUrl ? `<button class="btn-sm" data-action="open-url" data-val="${esc(safeUrl)}">🌐 فتح</button>` : ''}
+          <button class="btn-sm" data-action="edit" data-id="${e.id}">✏️ تعديل</button>
+          <button class="btn-sm danger" data-action="del" data-id="${e.id}">🗑 حذف</button>
+        </div>
+      </div>`;
+    }).join('');
+    document.getElementById('screen-warning').style.display = revealedSet.size > 0 ? 'block' : 'none';
+  }
+
+  async function updateAllTOTP() {
+    for(const e of entries) {
+      if(e.totp && document.getElementById(`totp-${e.id}`)) {
+        const t = await generateTOTPCode(e.totp);
+        if(t) { const el = document.getElementById(`totp-${e.id}`); el.textContent = `${t.code} (${t.timeRemaining}s)`; el.dataset.code = t.code; }
+      }
+    }
+  }
+
+  function esc(s) { return String(s||'').replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])); }
+
+  async function safeCopyText(text) {
+    if(!text) return;
+    try {
+      await navigator.clipboard.writeText(text); showTst('✅ تم النسخ. ستُمسح الحافظة تلقائياً بعد 30 ثانية');
+      clearTimeout(cbTimeout);
+      cbTimeout = setTimeout(() => {
+        // المسح الأعمى الآمن: لا نطلب صلاحية readText المزعجة أمنياً
+        navigator.clipboard.writeText('').then(() => showTst('🧹 تم مسح الحافظة')).catch(()=>{});
+      }, 30000);
+    } catch(e) { showTst('❌ فشل النسخ التلقائي'); }
+  }
+
+  function showTst(m) { const t = document.getElementById('toast'); t.textContent = m; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'), 3500); }
+  function openM(id) { document.getElementById(id).classList.add('open'); }
+  function closeM(id) { document.getElementById(id).classList.remove('open'); }
+
+  // مركّز الأحداث (Event Delegation) الآمن
+  function bindAppEvents() {
+    document.getElementById('search-input').addEventListener('input', renderAll);
+    
+    // مراقبة جميع الضغطات واستخراج data-action
+    document.addEventListener('click', async e => {
+      // إغلاق الـ Modals بالـ Close Buttons
+      if(e.target.dataset.close) return closeM(e.target.dataset.close);
+      
+      const btn = e.target.closest('[data-action]'); if(!btn) return;
+      const act = btn.dataset.action; const id = btn.dataset.id; const val = btn.dataset.val;
+
+      if(act === 'logout') lockApp();
+      if(act === 'open-settings') openM('settings-modal');
+      if(act === 'open-add') { editId = null; ['f-url','f-name','f-user','f-pass','f-totp','f-cat'].forEach(k => document.getElementById(k).value = ''); openM('form-modal'); }
+      if(act === 'set-cat') { activeCat = val; renderAll(); }
+      if(act === 'copy') safeCopyText(val);
+      if(act === 'toggle-rev') { if(revealedSet.has(id)) revealedSet.delete(id); else revealedSet.add(id); renderAll(); }
+      if(act === 'copy-totp') { const el = document.getElementById(`totp-${id}`); if(el && el.dataset.code) safeCopyText(el.dataset.code); }
+      if(act === 'open-url') window.open(val, '_blank', 'noopener noreferrer');
+      
+      if(act === 'edit') {
+        editId = id; const ent = entries.find(x => x.id === id); if(!ent) return;
+        ['url','name','username','password','totp','category'].forEach((k,i) => document.getElementById(['f-url','f-name','f-user','f-pass','f-totp','f-cat'][i]).value = ent[k] || '');
+        document.getElementById('f-pass').type = 'password'; document.getElementById('pw-toggle-btn').textContent = '👁';
+        openM('form-modal');
+      }
+      
+      if(act === 'del') { targetDeleteId = id; document.getElementById('delete-confirm-input').value=''; openM('confirm-modal'); }
+      
+      if(act === 'confirm-delete') {
+        if(document.getElementById('delete-confirm-input').value !== 'DELETE') return showTst('اكتب DELETE بشكل صحيح');
+        entries = entries.filter(x => x.id !== targetDeleteId);
+        targetDeleteId = null; await saveVault(); closeM('confirm-modal'); renderAll(); showTst('🗑 تم الحذف');
+      }
+
+      if(act === 'toggle-pw-input') {
+        const inp = document.getElementById('f-pass'); inp.type = inp.type === 'password' ? 'text' : 'password';
+        document.getElementById('pw-toggle-btn').textContent = inp.type === 'password' ? '👁' : '🙈';
+      }
+
+      if(act === 'gen-pw') {
+        const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz23456789!@#$%^&*';
+        let pw = ''; const max = Math.floor(0xFFFFFFFF / chars.length) * chars.length;
+        while(pw.length < 16) { const r = crypto.getRandomValues(new Uint32Array(1))[0]; if(r < max) pw += chars[r % chars.length]; }
+        document.getElementById('f-pass').value = pw; document.getElementById('f-pass').type = 'text'; document.getElementById('pw-toggle-btn').textContent = '🙈';
+      }
+
+      if(act === 'save-entry') {
+        const d = { url: document.getElementById('f-url').value, name: document.getElementById('f-name').value, username: document.getElementById('f-user').value, password: document.getElementById('f-pass').value, category: document.getElementById('f-cat').value, totp: document.getElementById('f-totp').value.replace(/\s/g,'').toUpperCase() };
+        if(!d.password) return showTst('⚠️ كلمة المرور مطلوبة');
+        
+        // تحقق صارم من Base32 قبل الحفظ
+        if(d.totp && !/^[A-Z2-7]+=*$/.test(d.totp)) return showTst('❌ رمز TOTP غير صحيح (يجب أن يكون Base32)');
+
+        if(editId) {
+          const idx = entries.findIndex(x => x.id === editId);
+          if(entries[idx].password !== d.password) d.history = [entries[idx].password, ...(entries[idx].history ||[])].slice(0, 5);
+          else d.history = entries[idx].history;
+          entries[idx] = { ...entries[idx], ...d };
+        } else { entries.push({ id: crypto.randomUUID(), ...d }); }
+        await saveVault(); closeM('form-modal'); renderAll(); showTst('✅ تم الحفظ');
+      }
+
+      if(act === 'export-vault') {
+        const blob = new Blob([JSON.stringify({ v:3, enc: localStorage.getItem(STORAGE_KEY), salt: localStorage.getItem(SALT_KEY) })], { type: 'application/json' });
+        const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'Miftah_Backup.json'; a.click();
+      }
+
+      // معالجة فك تشفير الملف المستورد بشكل آمن عبر Modal بدلاً من prompt
+      if(act === 'confirm-import') {
+        if(!pendingImportFile) return;
+        const pass = document.getElementById('import-pw-input').value; if(!pass) return showTst('أدخل كلمة المرور للملف');
+        try {
+          const obj = JSON.parse(await pendingImportFile.text());
+          const testKey = await deriveKey(pass, Uint8Array.from(atob(obj.salt), c => c.charCodeAt(0)));
+          entries = [...entries, ...await decryptData(obj.enc, testKey)];
+          await saveVault(); renderAll(); showTst('📥 تم دمج البيانات بنجاح'); closeM('import-pw-modal');
+        } catch(err) { showTst('❌ ملف تالف أو كلمة مرور الملف خاطئة'); }
+        document.getElementById('import-file').value = ''; pendingImportFile = null;
+      }
+
+      if(act === 'change-master-pw') {
+        const np = document.getElementById('change-pw-input').value; if(np.length < 8) return showTst('الكلمة قصيرة جداً');
+        const newSalt = generateSalt(); localStorage.setItem(SALT_KEY, btoa(String.fromCharCode(...newSalt)));
+        masterKey = await deriveKey(np, newSalt); await saveVault(); closeM('settings-modal'); showTst('✅ تم التغيير والتشفير');
+      }
+    });
+
+    // معالجة اختيار الملف المستورد (بحجم أقصى 5MB)
+    document.getElementById('import-file').addEventListener('change', e => {
+      const f = e.target.files[0]; if(!f) return;
+      if(f.size > 5 * 1024 * 1024) { showTst('❌ الملف كبير جداً (الحد 5MB)'); e.target.value = ''; return; }
+      pendingImportFile = f; document.getElementById('import-pw-input').value = '';
+      closeM('settings-modal'); openM('import-pw-modal');
+    });
+
+    document.addEventListener('keydown', e => {
+      if(!masterKey) return;
+      if(e.ctrlKey && e.key === 'l') { e.preventDefault(); lockApp(); }
+      if(e.ctrlKey && e.key === 'n') { e.preventDefault(); document.querySelector('[data-action="open-add"]').click(); }
+      if(e.key === 'Escape') document.querySelectorAll('.modal-overlay').forEach(m => m.classList.remove('open'));
+    });
+  }
+
+  // بدء التطبيق
+  initLock();
+})();
+</script>
+</body>
+</html>

@@ -4,8 +4,10 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="description" content="مِفتاح - مدير كلمات المرور الآمن والمشفر محلياً">
+<meta name="robots" content="noindex, nofollow">
 <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src 'none'; frame-ancestors 'none'; base-uri 'none'; form-action 'none'; object-src 'none';">
-<title>مِفتاح | مدير كلمات المرور</title>
+<title>مِفتاح — مدير كلمات المرور</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%230ea5e9' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='11' width='18' height='11' rx='2' ry='2'/%3E%3Cpath d='M7 11V7a5 5 0 0 1 10 0v4'/%3E%3C/svg%3E">
 <link rel="manifest" href="data:application/manifest+json;charset=utf-8,%7B%22name%22%3A%22%D9%85%D9%90%D9%81%D8%AA%D8%A7%D8%AD%22%2C%22short_name%22%3A%22%D9%85%D9%90%D9%81%D8%AA%D8%A7%D8%AD%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%230a0e17%22%2C%22theme_color%22%3A%220ea5e9%22%7D">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -104,9 +106,12 @@ body {
 .lock-icon-wrap svg { width: 32px; height: 32px; stroke: var(--blue); }
 .lock-title {
   font-size: 2.8rem; font-weight: 900; letter-spacing: -1.5px;
+  color: var(--text); /* Fallback */
   background: linear-gradient(135deg, var(--text) 0%, var(--blue) 100%);
-  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-  background-clip: text; margin-bottom: 0.3rem;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 0.3rem;
 }
 .lock-sub { color: var(--text2); font-size: 0.95rem; font-weight: 500; }
 
@@ -225,7 +230,6 @@ body {
   margin-top: 1.5rem; text-align: center;
   font-size: 0.78rem; color: var(--text3); line-height: 1.8;
 }
-.lock-footer strong { color: var(--blue); }
 
 /* ═══════════════════════════════════════════════
    MAIN APP
@@ -387,6 +391,8 @@ body {
 }
 .sort-select:focus { border-color: var(--blue); }
 
+.cat-bar-inline-desk { display: none; }
+
 /* ENTRY CARDS */
 .entry-card {
   background: var(--surface); border: 1px solid var(--border);
@@ -473,6 +479,7 @@ body {
   flex-shrink: 0;
   -webkit-backdrop-filter: blur(16px);
   backdrop-filter: blur(16px);
+  order: 3; /* Mobile visual order to the bottom */
 }
 .bnav-btn {
   flex: 1; padding: 0.7rem 0.5rem; border: none; background: transparent;
@@ -515,7 +522,7 @@ body {
   max-height: 92dvh; overflow-y: auto;
   transform: translateY(100%);
   transition: transform 0.38s cubic-bezier(0.32,0.72,0,1);
-  will-change: transform;
+  will-change: opacity; /* Fixed Ghost Field Issue */
   overscroll-behavior: contain;
   -webkit-overflow-scrolling: touch;
   position: relative;
@@ -901,9 +908,9 @@ mark { background: var(--blue-gl); color: var(--blue); padding: 0 2px; border-ra
 
   .cat-bar-wrap { display: none; }
 
-  /* Desktop nav becomes horizontal tab bar */
+  /* Desktop nav flows naturally */
   .bottom-nav {
-    order: -1; flex-direction: row;
+    order: 0; flex-direction: row;
     border-top: none; border-bottom: 1px solid var(--border);
     padding-bottom: 0; position: static; flex-shrink: 0;
     background: rgba(15,22,33,0.9);
@@ -924,6 +931,10 @@ mark { background: var(--blue-gl); color: var(--blue); padding: 0 2px; border-ra
 
   .main-content { flex: 1; min-height: 0; position: relative; overflow: hidden; }
   .view-container { position: absolute; inset: 0; padding: 1.5rem 2rem 2rem; overflow-y: auto; }
+
+  .cat-bar-inline-desk {
+    display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 1rem;
+  }
 
   #entries-list {
     display: grid;
@@ -952,10 +963,6 @@ mark { background: var(--blue-gl); color: var(--blue); padding: 0 2px; border-ra
 
   #view-settings { max-width: 560px; margin: 0 auto; }
   #view-audit { max-width: 700px; margin: 0 auto; }
-
-  #view-passwords .cat-bar-inline-desk {
-    display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 1rem;
-  }
 }
 
 @media (min-width: 1300px) {
@@ -995,7 +1002,7 @@ mark { background: var(--blue-gl); color: var(--blue); padding: 0 2px; border-ra
         <div class="field-group">
           <label class="field-label" for="unlock-pwd">المفتاح الرئيسي</label>
           <div class="input-wrap">
-            <input type="password" id="unlock-pwd" autocomplete="current-password" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="أدخل كلمة المرور الرئيسية...">
+            <input type="password" id="unlock-pwd" name="current-password" lang="en" autocomplete="current-password" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="أدخل كلمة المرور الرئيسية...">
             <button class="eye-btn" onclick="toggleEye('unlock-pwd',this)" aria-label="إظهار كلمة المرور">
               <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
             </button>
@@ -1012,7 +1019,7 @@ mark { background: var(--blue-gl); color: var(--blue); padding: 0 2px; border-ra
         <div class="field-group">
           <label class="field-label" for="create-pwd">المفتاح الرئيسي الجديد</label>
           <div class="input-wrap">
-            <input type="password" id="create-pwd" autocomplete="new-password" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="اختر مفتاحاً قوياً..." oninput="evalStrength(this,'create-str-fill','create-str-lbl')">
+            <input type="password" id="create-pwd" name="new-password" lang="en" autocomplete="new-password" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="اختر مفتاحاً قوياً..." oninput="evalStrength(this,'create-str-fill','create-str-lbl')">
             <button class="eye-btn" onclick="toggleEye('create-pwd',this)" aria-label="إظهار">
               <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
             </button>
@@ -1023,7 +1030,7 @@ mark { background: var(--blue-gl); color: var(--blue); padding: 0 2px; border-ra
         <div class="field-group">
           <label class="field-label" for="create-confirm">تأكيد المفتاح</label>
           <div class="input-wrap">
-            <input type="password" id="create-confirm" autocomplete="new-password" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="أعد كتابة المفتاح...">
+            <input type="password" id="create-confirm" name="new-password" lang="en" autocomplete="new-password" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="أعد كتابة المفتاح...">
             <button class="eye-btn" onclick="toggleEye('create-confirm',this)" aria-label="إظهار">
               <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
             </button>
@@ -1034,7 +1041,7 @@ mark { background: var(--blue-gl); color: var(--blue); padding: 0 2px; border-ra
     </div>
 
     <div class="lock-footer">
-      🔒 مشفر بالكامل محلياً •  <strong>AES-256-GCM</strong> • PBKDF2
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle; margin-left: 2px;"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg> مشفر بالكامل محلياً •  <strong>AES-256-GCM</strong> • PBKDF2
     </div>
   </div>
 </div>
@@ -1058,6 +1065,25 @@ mark { background: var(--blue-gl); color: var(--blue); padding: 0 2px; border-ra
     </button>
   </header>
 
+  <nav class="bottom-nav">
+    <button class="bnav-btn active" id="bnav-passwords" onclick="switchView('passwords')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg>
+      <span class="lbl">القبو</span>
+    </button>
+    <button class="bnav-btn" id="bnav-generator" onclick="switchView('generator')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 3 21 3 21 8"/><line x1="4" y1="20" x2="21" y2="3"/><polyline points="21 16 21 21 16 21"/><line x1="15" y1="15" x2="21" y2="21"/><line x1="4" y1="4" x2="9" y2="9"/></svg>
+      <span class="lbl">مُولد</span>
+    </button>
+    <button class="bnav-btn" id="bnav-audit" onclick="switchView('audit')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+      <span class="lbl">فحص</span>
+    </button>
+    <button class="bnav-btn" id="bnav-settings" onclick="switchView('settings')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+      <span class="lbl">إعدادات</span>
+    </button>
+  </nav>
+
   <div class="cat-bar-wrap" id="cat-bar-container">
     <div class="cat-bar" id="cat-bar"></div>
   </div>
@@ -1066,6 +1092,7 @@ mark { background: var(--blue-gl); color: var(--blue); padding: 0 2px; border-ra
     <!-- PASSWORDS -->
     <div id="view-passwords" class="view-container">
       <div class="stats-row" id="stats-row" role="region" aria-label="إحصائيات"></div>
+      <div id="cat-bar-inline-desk" class="cat-bar-inline-desk"></div>
       <div class="section-header">
         <span class="section-title" id="list-label">كل كلمات المرور</span>
         <div style="display:flex; align-items:center; gap:8px;">
@@ -1223,30 +1250,11 @@ mark { background: var(--blue-gl); color: var(--blue); padding: 0 2px; border-ra
       </div>
 
       <div class="settings-footer">
-        مِفتاح v2.7 • 🔒 AES-256-GCM • PBKDF2 • 600,000 دورة<br>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle; margin-left: 2px;"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg> مِفتاح v2.8 • AES-256-GCM • PBKDF2<br>
         لا خوادم • لا تتبع • خصوصيتك ملكك
       </div>
     </div>
   </main>
-
-  <nav class="bottom-nav">
-    <button class="bnav-btn active" id="bnav-passwords" onclick="switchView('passwords')">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg>
-      <span class="lbl">القبو</span>
-    </button>
-    <button class="bnav-btn" id="bnav-generator" onclick="switchView('generator')">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 3 21 3 21 8"/><line x1="4" y1="20" x2="21" y2="3"/><polyline points="21 16 21 21 16 21"/><line x1="15" y1="15" x2="21" y2="21"/><line x1="4" y1="4" x2="9" y2="9"/></svg>
-      <span class="lbl">مُولد</span>
-    </button>
-    <button class="bnav-btn" id="bnav-audit" onclick="switchView('audit')">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-      <span class="lbl">فحص</span>
-    </button>
-    <button class="bnav-btn" id="bnav-settings" onclick="switchView('settings')">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
-      <span class="lbl">إعدادات</span>
-    </button>
-  </nav>
 </div>
 
 <!-- ═══════════ ADD / EDIT SHEET ═══════════ -->
@@ -1261,7 +1269,7 @@ mark { background: var(--blue-gl); color: var(--blue); padding: 0 2px; border-ra
     </div>
     <div class="form-row">
       <div class="form-label"><label for="f-username">اسم المستخدم / البريد *</label></div>
-      <input type="text" class="form-input ltr" id="f-username" placeholder="user@example.com" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+      <input type="text" class="form-input ltr" id="f-username" name="username" lang="en" placeholder="user@example.com" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
     </div>
     <div class="form-row">
       <div class="form-label">
@@ -1269,7 +1277,7 @@ mark { background: var(--blue-gl); color: var(--blue); padding: 0 2px; border-ra
         <span id="pwd-strength-lbl" style="font-size:0.73rem; font-weight:700;"></span>
       </div>
       <div class="password-field-wrap">
-        <input type="password" class="form-input ltr" id="f-password" placeholder="كلمة المرور..." oninput="liveStrength()" autocomplete="new-password" autocorrect="off" autocapitalize="off" spellcheck="false">
+        <input type="password" class="form-input ltr" id="f-password" name="new-password" lang="en" placeholder="كلمة المرور..." oninput="liveStrength()" autocomplete="new-password" autocorrect="off" autocapitalize="off" spellcheck="false">
         <div class="pwd-actions">
           <button class="pwd-action-btn" onclick="toggleEye('f-password',this)" aria-label="إظهار">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
@@ -1281,7 +1289,7 @@ mark { background: var(--blue-gl); color: var(--blue); padding: 0 2px; border-ra
     </div>
     <div class="form-row">
       <div class="form-label"><label for="f-url">الرابط (اختياري)</label></div>
-      <input type="url" class="form-input ltr" id="f-url" placeholder="https://..." autocomplete="off">
+      <input type="url" class="form-input ltr" id="f-url" lang="en" placeholder="https://..." autocomplete="off">
     </div>
     <div class="form-row">
       <div class="form-label"><label for="f-category">التصنيف</label></div>
@@ -1321,7 +1329,7 @@ mark { background: var(--blue-gl); color: var(--blue); padding: 0 2px; border-ra
     <div class="detail-field">
       <div class="detail-field-label">اسم المستخدم / البريد</div>
       <div class="detail-field-val">
-        <span id="d-username" style="outline:none; border-bottom:1px dashed transparent; transition:0.2s;" contenteditable="true" onfocus="this.style.borderBottomColor='var(--blue)'" onblur="inlineEditSaveUsername(this)"></span>
+        <span id="d-username" style="outline:none; border-bottom:1px dashed transparent; transition:0.2s;" contenteditable="true" onfocus="this.style.borderBottomColor='var(--blue)'" onblur="inlineEditSaveUsername(this)" onkeydown="if(event.key==='Enter'){event.preventDefault();this.blur();}"></span>
         <div class="mini-btns">
           <button class="mini-btn" onclick="copyField('d-username','اسم المستخدم',this)" aria-label="نسخ">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
@@ -1333,12 +1341,16 @@ mark { background: var(--blue-gl); color: var(--blue); padding: 0 2px; border-ra
     <div class="detail-field">
       <div class="detail-field-label">كلمة المرور</div>
       <div class="detail-field-val">
-        <input type="password" id="d-password" readonly style="background:transparent;border:none;color:inherit;font-family:var(--mono);font-size:0.9rem;outline:none;border-bottom:1px dashed transparent;transition:0.2s;width:100%;direction:ltr;" value="••••••••••••" onfocus="inlineEditFocusPassword(this)" onblur="inlineEditSavePassword(this)">
+        <!-- تم حل مشكلة الحقل الشبحي (Ghost Field) عبر استخدام span بدلاً من input مع الحفاظ على خصائص العرض -->
+        <span id="d-password-display" lang="en"
+          style="font-family:var(--mono); font-size:0.9rem; direction:ltr; text-align:left; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; flex:1; min-width:0; letter-spacing:0.1em;">
+          ••••••••••••
+        </span>
         <div class="mini-btns">
           <button class="mini-btn" onclick="revealPassword()" id="d-reveal-btn" aria-label="إظهار">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
           </button>
-          <button class="mini-btn" onclick="copyField('d-password','كلمة المرور',this)" aria-label="نسخ">
+          <button class="mini-btn" onclick="copyField('d-password-display','كلمة المرور',this)" aria-label="نسخ">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
           </button>
         </div>
@@ -1393,14 +1405,14 @@ mark { background: var(--blue-gl); color: var(--blue); padding: 0 2px; border-ra
     <div class="form-row">
       <div class="form-label"><label for="chg-old">المفتاح الحالي</label></div>
       <div class="input-wrap">
-        <input type="password" class="form-input ltr" id="chg-old" autocomplete="current-password" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="المفتاح الحالي للتأكيد...">
+        <input type="password" class="form-input ltr" id="chg-old" name="current-password" lang="en" autocomplete="current-password" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="المفتاح الحالي للتأكيد...">
         <button class="eye-btn" onclick="toggleEye('chg-old',this)" aria-label="إظهار"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
       </div>
     </div>
     <div class="form-row">
       <div class="form-label"><label for="chg-new">المفتاح الجديد</label></div>
       <div class="input-wrap">
-        <input type="password" class="form-input ltr" id="chg-new" autocomplete="new-password" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="المفتاح الجديد..." oninput="evalStrength(this,'chg-str-fill','chg-str-lbl')">
+        <input type="password" class="form-input ltr" id="chg-new" name="new-password" lang="en" autocomplete="new-password" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="المفتاح الجديد..." oninput="evalStrength(this,'chg-str-fill','chg-str-lbl')">
         <button class="eye-btn" onclick="toggleEye('chg-new',this)" aria-label="إظهار"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
       </div>
       <div class="strength-track" style="margin-top:6px;"><div class="strength-fill" id="chg-str-fill"></div></div>
@@ -1409,7 +1421,7 @@ mark { background: var(--blue-gl); color: var(--blue); padding: 0 2px; border-ra
     <div class="form-row">
       <div class="form-label"><label for="chg-confirm">تأكيد المفتاح الجديد</label></div>
       <div class="input-wrap">
-        <input type="password" class="form-input ltr" id="chg-confirm" autocomplete="new-password" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="تأكيد...">
+        <input type="password" class="form-input ltr" id="chg-confirm" name="new-password" lang="en" autocomplete="new-password" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="تأكيد...">
         <button class="eye-btn" onclick="toggleEye('chg-confirm',this)" aria-label="إظهار"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
       </div>
     </div>
@@ -1449,8 +1461,19 @@ mark { background: var(--blue-gl); color: var(--blue); padding: 0 2px; border-ra
 
 <script>
 'use strict';
+
 const SVG_EYE = `<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>`;
 const SVG_EYE_OFF = `<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>`;
+
+// ─── STATE CLOSURE (Protecting Sensitive Variables) ─────────
+const VaultState = (function() {
+  let revealedPassword = null;
+  return {
+    setRevealed: (pwd) => { revealedPassword = pwd; },
+    getRevealed: () => revealedPassword,
+    clearRevealed: () => { revealedPassword = null; }
+  };
+})();
 
 // ─── CRYPTO ───────────────────────────────────────────────────────────────────
 const ENC = new TextEncoder(), DEC = new TextDecoder();
@@ -1480,7 +1503,11 @@ let masterKey = null, vaultData = { entries:[], prefs:{}, magic:MAGIC };
 let currentView = 'passwords', currentFilter = 'الكل', currentSort = 'newest';
 let editingId = null, currentDetailId = null, genType = 'random';
 let autoLockTimer = null, prefs = { autolock:true, autolockMinutes:5, clearClipboard:true };
-let failedAttempts = 0, revealedPassword = null, lastGeneratedPwd = '';
+let lastGeneratedPwd = '';
+
+// Persistent Lockout State
+let failedAttempts = parseInt(localStorage.getItem('miftah_fails') || '0', 10);
+let lockUntil = parseInt(localStorage.getItem('miftah_lock') || '0', 10);
 
 // ─── INIT ─────────────────────────────────────────────────────────────────────
 window.addEventListener('DOMContentLoaded', () => {
@@ -1493,6 +1520,17 @@ window.addEventListener('DOMContentLoaded', () => {
   const hasVault = !!localStorage.getItem(DATA_KEY);
   setAuthTab(hasVault ? 'unlock' : 'create');
   generatePassword();
+  
+  if (hasVault && Date.now() < lockUntil) {
+    const wait = lockUntil - Date.now();
+    const btn = document.getElementById('btn-unlock');
+    btn.disabled = true;
+    let rem = Math.round(wait/1000);
+    btn.textContent = `⏳ انتظر ${rem}ث`;
+    const iv = setInterval(() => { rem--; if (rem>0) btn.textContent=`⏳ انتظر ${rem}ث`; }, 1000);
+    setTimeout(() => { clearInterval(iv); btn.disabled=false; btn.textContent='فتح القبو'; }, wait);
+  }
+
   if (window.visualViewport) {
     window.visualViewport.addEventListener('resize', () => {
       const offset = window.innerHeight - window.visualViewport.height;
@@ -1517,23 +1555,42 @@ function setAuthTab(tab) {
 }
 
 async function unlockVault() {
+  if (Date.now() < lockUntil) {
+    const s = Math.ceil((lockUntil - Date.now()) / 1000);
+    showToast(`⏳ الرجاء الانتظار ${s} ثانية`, 'error'); 
+    return;
+  }
+
   const pwd = document.getElementById('unlock-pwd').value;
   if (!pwd) { showToast('أدخل المفتاح الرئيسي', 'error'); return; }
   const btn = document.getElementById('btn-unlock');
   btn.disabled = true; btn.textContent = '⏳ جاري الفتح...';
+
   try {
     const saltB64 = localStorage.getItem(SALT_KEY);
     if (!saltB64) { showToast('لا يوجد قبو محفوظ', 'error'); btn.disabled=false; btn.textContent='فتح القبو'; return; }
+    
     const key = await deriveKey(pwd, b642ab(saltB64));
     const data = await decrypt(key, JSON.parse(localStorage.getItem(DATA_KEY)));
     if (data.magic !== MAGIC) throw new Error('invalid');
+    
     masterKey = key; vaultData = data;
     if (vaultData.prefs) { prefs = { ...prefs, ...vaultData.prefs }; applyPrefsToUI(); }
+    
     failedAttempts = 0;
+    lockUntil = 0;
+    localStorage.removeItem('miftah_fails');
+    localStorage.removeItem('miftah_lock');
+    
     openApp();
   } catch(e) {
     failedAttempts++;
-    const wait = Math.min(1000 * Math.pow(2, failedAttempts-1), 30000);
+    const wait = Math.min(1000 * Math.pow(2, failedAttempts - 1), 60000);
+    lockUntil = Date.now() + wait;
+    
+    localStorage.setItem('miftah_fails', failedAttempts);
+    localStorage.setItem('miftah_lock', lockUntil);
+    
     showToast('❌ مفتاح خاطئ', 'error');
     let rem = Math.round(wait/1000);
     btn.textContent = `⏳ انتظر ${rem}ث`;
@@ -1647,26 +1704,16 @@ function renderStats() {
 }
 
 function renderCatBar() {
-  const isDesktop = window.innerWidth >= 900;
   const html = CATS.map(c => {
     const count = c==='الكل' ? (vaultData.entries||[]).length : (vaultData.entries||[]).filter(e=>e.category===c).length;
     return `<button class="cat-pill ${c===currentFilter?'active':''}" onclick="setFilter('${esc(c)}')">${CAT_ICONS[c]} ${esc(c)}${count>0?' ('+count+')':''}</button>`;
   }).join('');
-  document.getElementById('cat-bar').innerHTML = html;
-  if (isDesktop) {
-    let bar = document.getElementById('cat-bar-inline-desk');
-    if (!bar) {
-      bar = document.createElement('div');
-      bar.id = 'cat-bar-inline-desk';
-      bar.className = 'cat-bar-inline-desk';
-      const vp = document.getElementById('view-passwords');
-      vp.insertBefore(bar, vp.querySelector('.section-header'));
-    }
-    bar.innerHTML = html;
-  } else {
-    const b = document.getElementById('cat-bar-inline-desk');
-    if (b) b.remove();
-  }
+  
+  const cb = document.getElementById('cat-bar');
+  if (cb) cb.innerHTML = html;
+  
+  const deskCb = document.getElementById('cat-bar-inline-desk');
+  if (deskCb) deskCb.innerHTML = html;
 }
 
 function getFiltered(q='') {
@@ -1835,29 +1882,6 @@ function inlineEditSaveUsername(el) {
   if (val.length>500) { showToast('الاسم طويل جداً','error'); return; }
   inlineEditSave('username',val);
 }
-function inlineEditFocusPassword(el) {
-  clearTimeout(revealTimer);
-  el.removeAttribute('readonly'); el.type='text';
-  el.value=revealedPassword; el.style.borderBottomColor='var(--blue)';
-}
-function inlineEditSavePassword(el) {
-  const newText=el.value.trim();
-  el.value=''; el.type='password'; el.readOnly=true;
-  el.style.borderBottomColor='transparent';
-  requestAnimationFrame(() => { el.value='••••••••••••'; });
-  if (newText && newText!==revealedPassword) {
-    if (newText.length>2000) { showToast('كلمة المرور طويلة','error'); return; }
-    revealedPassword=newText; inlineEditSave('password',newText);
-    const s=getStrength(newText);
-    document.getElementById('d-strength-val').textContent=`${s.label} (${Math.round(s.bits)} بت)`;
-    document.getElementById('d-strength-val').style.color=STR_COLORS[s.level];
-    document.getElementById('d-strength-segs').innerHTML=[0,1,2,3,4].map(i=>`<div class="strength-segment" style="background:${i<=s.level?STR_COLORS[s.level]:'var(--surface3)'}"></div>`).join('');
-    const dup=vaultData.entries.filter(x=>x.password===newText&&x.id!==currentDetailId);
-    const w=document.getElementById('d-duplicate-warn');
-    if (dup.length>0) { w.style.display='block'; document.getElementById('d-duplicate-warn-text').textContent=`⚠️ مستخدمة في ${dup.length} حساب آخر!`; } else w.style.display='none';
-  }
-  document.getElementById('d-reveal-btn').innerHTML=SVG_EYE;
-}
 
 // ─── DETAIL ───────────────────────────────────────────────────────────────────
 let revealTimer;
@@ -1869,11 +1893,14 @@ function openDetail(id) {
   document.getElementById('d-title').textContent=e.title;
   document.getElementById('d-cat').textContent=`${CAT_ICONS[e.category]||'📁'} ${e.category}`;
   document.getElementById('d-username').textContent=e.username;
-  const pi=document.getElementById('d-password');
-  pi.value=''; pi.type='password'; pi.value='••••••••••••';
-  revealedPassword=e.password;
+  
+  const pi = document.getElementById('d-password-display');
+  pi.textContent = '••••••••••••';
+  VaultState.setRevealed(e.password);
+  
   document.getElementById('d-reveal-btn').innerHTML=SVG_EYE;
   clearTimeout(revealTimer);
+  
   const s=getStrength(e.password);
   document.getElementById('d-strength-val').textContent=`${s.label} (${Math.round(s.bits)} بت)`;
   document.getElementById('d-strength-val').style.color=STR_COLORS[s.level];
@@ -1891,12 +1918,22 @@ function openDetail(id) {
 }
 
 function revealPassword() {
-  const input=document.getElementById('d-password'), btn=document.getElementById('d-reveal-btn');
-  if (input.type==='password') {
-    input.type='text'; input.value=revealedPassword; btn.innerHTML=SVG_EYE_OFF;
+  const span = document.getElementById('d-password-display');
+  const btn = document.getElementById('d-reveal-btn');
+  const isHidden = span.textContent === '••••••••••••';
+  if (isHidden) {
+    span.textContent = VaultState.getRevealed(); 
+    btn.innerHTML = SVG_EYE_OFF;
     clearTimeout(revealTimer);
-    revealTimer=setTimeout(()=>{ input.value=''; input.type='password'; input.value='••••••••••••'; btn.innerHTML=SVG_EYE; }, 15000);
-  } else { input.value=''; input.type='password'; input.value='••••••••••••'; btn.innerHTML=SVG_EYE; clearTimeout(revealTimer); }
+    revealTimer = setTimeout(() => { 
+      span.textContent = '••••••••••••'; 
+      btn.innerHTML = SVG_EYE; 
+    }, 15000);
+  } else { 
+    span.textContent = '••••••••••••'; 
+    btn.innerHTML = SVG_EYE; 
+    clearTimeout(revealTimer); 
+  }
 }
 
 function openUrl() {
@@ -1909,7 +1946,7 @@ function openUrl() {
 
 let cbInterval, cbTimeout;
 function copyField(id, label, btn) {
-  const text = id==='d-password' ? revealedPassword : document.getElementById(id).textContent;
+  const text = (id === 'd-password-display' || id === 'd-password') ? VaultState.getRevealed() : document.getElementById(id).textContent;
   copyToClipboard(text, label, btn);
 }
 function quickCopy(id, btn) {
@@ -1922,6 +1959,7 @@ async function copyToClipboard(text, label, btn=null) {
     if (navigator.clipboard?.writeText) await navigator.clipboard.writeText(text);
     else throw new Error();
   } catch {
+    console.warn('navigator.clipboard failed or unavailable, falling back to document.execCommand');
     const ta=document.createElement('textarea');
     ta.value=text; ta.style.cssText='position:fixed;opacity:0'; document.body.appendChild(ta);
     ta.select(); document.execCommand('copy'); document.body.removeChild(ta);
@@ -1977,9 +2015,19 @@ function switchView(view) {
 function renderGeneratorDropdown() {
   const sel=document.getElementById('gen-update-existing');
   if(!sel) return;
-  let html='<option value="">-- اختر الحساب للتحديث --</option>';
-  (vaultData.entries||[]).forEach(e=>{ html+=`<option value="${esc(e.id)}">${esc(e.title)} (${esc(e.username)})</option>`; });
-  sel.innerHTML=html;
+  sel.innerHTML = '';
+  
+  const defOpt = document.createElement('option');
+  defOpt.value = '';
+  defOpt.textContent = '-- اختر الحساب للتحديث --';
+  sel.appendChild(defOpt);
+  
+  (vaultData.entries||[]).forEach(e => {
+    const opt = document.createElement('option');
+    opt.value = e.id;
+    opt.textContent = `${e.title} (${e.username})`;
+    sel.appendChild(opt);
+  });
 }
 
 // ─── GENERATOR ────────────────────────────────────────────────────────────────
@@ -2006,11 +2054,11 @@ function generatePassword() {
   else if(genType==='pin') { pwd=genPIN(); bits=pwd.length*Math.log2(10); }
   else { pwd=genMemorable(); bits=Math.log2(Math.pow(WORDS.length,2)*100*7); }
   lastGeneratedPwd=pwd;
-  const lvl=bits<45?1:(bits<65?2:(bits<90?3:4));
-  const lbl=bits<45?'ضعيفة':(bits<65?'متوسطة':(bits<90?'قوية':'ممتازة'));
+  
   const b=document.getElementById('gen-entropy-badge');
-  b.textContent=`الإنتروبيا: ${Math.round(bits)} بت · ${lbl}`;
-  b.style.color=STR_COLORS[lvl]; b.style.display='block';
+  b.textContent=`~${Math.round(bits)} بت من الإنتروبيا`;
+  b.style.color = bits >= 80 ? 'var(--green)' : (bits >= 50 ? 'var(--yellow)' : 'var(--red)');
+  b.style.display='block';
   scramble(pwd);
 }
 
@@ -2249,7 +2297,7 @@ function triggerDelete() {
   });
 }
 function confirmDeleteVault() {
-  openConfirm('⚠️ مسح القبو','سيتم مسح كل البيانات نهائياً من هذا الجهاز.','مسح',()=>{
+  openConfirm('⚠️ مسح القبو', 'سيتم مسح كل البيانات نهائياً من هذا الجهاز.', 'مسح', () => {
     localStorage.removeItem(DATA_KEY); localStorage.removeItem(SALT_KEY); location.reload();
   });
 }
@@ -2295,11 +2343,11 @@ function openSheet(id) { document.getElementById(id).classList.add('show'); }
 function closeSheet(id,event) {
   if(event&&!event.target.classList.contains('overlay')&&!event.target.closest('.btn-ghost')&&!event.target.closest('.btn-danger')) return;
   document.getElementById(id).classList.remove('show');
-  if(id==='detail-sheet'){currentDetailId=null;revealedPassword=null;clearTimeout(revealTimer);}
+  if(id==='detail-sheet'){currentDetailId=null;VaultState.clearRevealed();clearTimeout(revealTimer);}
 }
 function closeAllSheets() {
   document.querySelectorAll('.overlay').forEach(o=>o.classList.remove('show'));
-  currentDetailId=null; revealedPassword=null; clearTimeout(revealTimer);
+  currentDetailId=null; VaultState.clearRevealed(); clearTimeout(revealTimer);
 }
 
 // ─── UTILS ────────────────────────────────────────────────────────────────────

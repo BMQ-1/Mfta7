@@ -1,283 +1,1424 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
+<!-- 
+  SHA-256 Integrity Verification:
+  يُنصح دائماً بالتحقق من هاش الملف لضمان عدم التلاعب بالكود المصدري.
+-->
 <meta charset="UTF-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' blob:; style-src 'unsafe-inline'; img-src data: blob:; connect-src 'none'; font-src 'none'; frame-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none';">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="description" content="مفتاح - خزنة مشفرة محلياً لحفظ كلمات المرور والمصادقة الثنائية بأمان كامل داخل متصفحك.">
-<title>مفتاح - الخزنة المشفرة</title>
-<link rel="manifest" href="data:application/manifest+json,%7B%22name%22%3A%22%D9%85%D9%81%D8%AA%D8%A7%D8%AD%22%2C%22short_name%22%3A%22%D9%85%D9%81%D8%AA%D8%A7%D8%AD%22%2C%22display%22%3A%22standalone%22%2C%22start_url%22%3A%22.%22%2C%22background_color%22%3A%22%2309090b%22%2C%22theme_color%22%3A%22%236366f1%22%7D">
-
-<!-- ⚠️ تم التحديث إلى v2 لكسر الكاش القديم -->
-<script src="./app.js?v=2" defer></script>
-
+<meta name="viewport" content="width=device-width, initial-scale=1.0"> <!-- تم إزالة user-scalable=no لضمان الوصول Accessibility -->
+<meta name="description" content="مِفتاح - مدير كلمات المرور الآمن والمشفر محلياً">
+<!-- تحديث CSP للسماح بخطوط Google بشكل آمن -->
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src 'none'; frame-ancestors 'none'; base-uri 'none'; form-action 'none'; object-src 'none';">
+<title>مِفتاح | مدير كلمات المرور</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%230d9488' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><rect x='3' y='11' width='18' height='11' rx='2' ry='2'></rect><path d='M7 11V7a5 5 0 0 1 10 0v4'></path></svg>">
 <style>
-  :root {
-    --bg: #09090b; --surface: rgba(24, 24, 27, 0.7); --surface-solid: #18181b; 
-    --surface2: rgba(39, 39, 42, 0.9); --border: rgba(63, 63, 70, 0.6);
-    --accent: #6366f1; --accent-hover: #4f46e5; --accent2: #8b5cf6; --accent-glow: rgba(99, 102, 241, 0.3);
-    --danger: #ef4444; --danger-hover: #dc2626; --success: #10b981; --warning: #f59e0b;
-    --text: #f4f4f5; --muted: #a1a1aa; --radius: 20px;
-    --spring: cubic-bezier(0.175, 0.885, 0.32, 1.275); --transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  }
+@import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&display=swap');
 
-  body {
-    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-    background: var(--bg); color: var(--text); min-height: 100dvh; direction: rtl; overflow-x: hidden; margin: 0; padding: 0;
-    -webkit-tap-highlight-color: transparent; background-image: radial-gradient(circle at 50% -20%, rgba(99, 102, 241, 0.12) 0%, var(--bg) 70%);
-  }
+:root {
+  /* ألوان حديثة وأكثر دفئاً واحترافية */
+  --bg: #0a0d14;
+  --surface: #11151c;
+  --surface2: #181d27;
+  --surface3: #1f2633;
+  --border: #2c3a52;
+  --border2: #384865;
+  --text: #e8eaf0;
+  --text2: #8892a4;
+  --text3: #5c677d;
+  --accent: #0d9488; /* Teal */
+  --accent2: #0f766e;
+  --accent-glow: rgba(13, 148, 136, 0.18);
+  --green: #10b981;
+  --green-glow: rgba(16, 185, 129, 0.15);
+  --red: #ef4444;
+  --red-glow: rgba(239, 68, 68, 0.15);
+  --yellow: #f59e0b;
+  --gold: #fbbf24;
+  --radius: 14px;
+  --radius-sm: 9px;
+  --font: 'Tajawal', system-ui, sans-serif;
+  --mono: ui-monospace, SFMono-Regular, Menlo, monospace;
+  --shadow: 0 4px 24px rgba(0,0,0,0.5);
+}
 
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 8px; }
-  
-  @media (prefers-reduced-motion: reduce) { * { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; } }
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
 
-  ::-webkit-scrollbar { width: 6px; height: 6px; }
-  ::-webkit-scrollbar-track { background: transparent; }
-  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 10px; }
-  ::-webkit-scrollbar-thumb:hover { background: var(--muted); }
+body { font-family: var(--font); background: var(--bg); color: var(--text); min-height: 100vh; overflow-x: hidden; }
 
-  .gradient-text { background: linear-gradient(135deg, var(--accent), var(--accent2)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+/* ─── SPLASH / LOCK SCREEN ─── */
+#lock-screen {
+  position: fixed; inset: 0; z-index: 9999;
+  background: var(--bg);
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  padding: 2rem 1.5rem;
+  background-image: radial-gradient(ellipse 60% 40% at 20% 80%, var(--accent-glow) 0%, transparent 70%);
+}
 
-  /* UI Components */
-  input { font-family: inherit; transition: var(--transition); border: 1.5px solid var(--border); background: var(--surface-solid); color: var(--text); border-radius: 14px; padding: 14px 16px; font-size: 14.5px; width: 100%; box-shadow: inset 0 2px 4px rgba(0,0,0,0.1); }
-  input:focus { border-color: var(--accent); box-shadow: 0 0 0 4px var(--accent-glow), inset 0 2px 4px rgba(0,0,0,0.1); background: #202024; }
-  
-  .btn-primary { background: linear-gradient(135deg, var(--accent), var(--accent2)); color: #fff; border: none; border-radius: 14px; padding: 16px; font-size: 16px; font-weight: 700; cursor: pointer; transition: transform 0.2s ease, box-shadow 0.2s ease; box-shadow: 0 8px 20px var(--accent-glow); display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; }
-  .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 12px 25px rgba(99, 102, 241, 0.4); filter: brightness(1.1); }
-  .btn-primary:active { transform: translateY(1px); }
+.lock-logo-svg { width: 56px; height: 56px; stroke: var(--accent); margin-bottom: 0.8rem; animation: float 3s ease-in-out infinite; }
+@keyframes float { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
+.lock-title { font-size: 2.5rem; font-weight: 900; letter-spacing: -1px; color: var(--text); margin-bottom: 0.3rem; }
+.lock-sub { color: var(--text2); font-size: 1rem; font-weight: 500; margin-bottom: 2.5rem; }
 
-  .btn-sm { background: var(--surface2); border: 1px solid var(--border); padding: 8px 16px; border-radius: 12px; font-size: 13px; font-weight: 600; color: var(--text); cursor: pointer; transition: var(--transition); }
-  .btn-sm:hover { background: var(--border); transform: translateY(-1px); }
-  .btn-sm.danger { color: var(--danger); background: rgba(239, 68, 68, 0.1); border-color: rgba(239, 68, 68, 0.2); }
-  .btn-sm.danger:hover { background: rgba(239, 68, 68, 0.2); }
+.lock-card { width: 100%; max-width: 400px; background: var(--surface); border: 1px solid var(--border); border-radius: 20px; padding: 2rem; box-shadow: var(--shadow); }
+.lock-card h2 { font-size: 1.2rem; font-weight: 800; margin-bottom: 1.5rem; text-align: center; display: flex; align-items: center; justify-content: center; gap: 8px; }
 
-  .icon-btn { background: transparent; border: 1px solid transparent; border-radius: 12px; width: 44px; height: 44px; cursor: pointer; color: var(--text); display: flex; align-items: center; justify-content: center; font-size: 18px; transition: var(--transition); }
-  .icon-btn:hover { background: var(--surface2); border-color: var(--border); transform: scale(1.05); }
+.field-label { font-size: 0.85rem; font-weight: 700; color: var(--text2); margin-bottom: 0.5rem; display: block; }
+.input-wrap { position: relative; margin-bottom: 1rem; }
+.input-wrap input { width: 100%; background: var(--bg); border: 1.5px solid var(--border); color: var(--text); padding: 0.85rem 3rem 0.85rem 1rem; border-radius: var(--radius-sm); font-size: 1rem; font-family: var(--font); outline: none; transition: border-color 0.2s; direction: ltr; text-align: left; }
+.input-wrap input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-glow); }
+.eye-btn { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; color: var(--text3); cursor: pointer; font-size: 1.2rem; padding: 4px; line-height: 1; }
+.eye-btn:hover { color: var(--text2); }
 
-  /* Lock Screen */
-  #lock-screen { position: fixed; inset: 0; z-index: 1000; background: var(--bg); display: flex; align-items: center; justify-content: center; flex-direction: column; padding: 24px; transition: opacity 0.5s ease, visibility 0.5s; backdrop-filter: blur(20px); }
-  .lock-logo { font-size: clamp(54px, 15vw, 84px); font-weight: 900; letter-spacing: -2px; margin-bottom: 8px; animation: float 6s ease-in-out infinite; text-shadow: 0 10px 30px var(--accent-glow); }
-  @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-15px); } }
-  .lock-sub { color: var(--muted); font-size: 15px; margin-bottom: 40px; text-align: center; font-weight: 500; line-height: 1.6; }
-  .lock-card { background: var(--surface); border: 1px solid var(--border); border-radius: 28px; padding: 32px; width: 100%; max-width: 420px; display: flex; flex-direction: column; gap: 20px; box-shadow: 0 25px 50px rgba(0,0,0,0.5); backdrop-filter: blur(20px); transform: translateY(20px); opacity: 0; animation: slideUp 0.6s var(--spring) forwards 0.2s; }
-  @keyframes slideUp { to { transform: translateY(0); opacity: 1; } }
-  .lock-card h2 { font-size: 20px; font-weight: 700; text-align: center; margin-bottom: 4px; }
-  #lock-error { color: var(--danger); font-size: 14px; text-align: center; font-weight: 600; background: rgba(239, 68, 68, 0.1); padding: 10px; border-radius: 10px; display: none; animation: shake 0.4s; }
-  @keyframes shake { 0%,100%{transform:translateX(0);} 25%{transform:translateX(-5px);} 75%{transform:translateX(5px);} }
+.strength-bar { height: 4px; border-radius: 2px; background: var(--surface3); margin-bottom: 0.5rem; overflow: hidden; }
+.strength-fill { height: 100%; width: 0%; transition: width 0.4s, background 0.4s; border-radius: 2px; }
+.strength-label { font-size: 0.78rem; color: var(--text3); margin-bottom: 1rem; text-align: left; direction: ltr; }
 
-  /* App Layout */
-  #app-container { display: flex; flex-direction: column; min-height: 100dvh; opacity: 0; transition: opacity 0.5s ease; }
-  #app-container.ready { opacity: 1; }
-  header { background: rgba(9, 9, 11, 0.8); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border-bottom: 1px solid var(--border); padding: 16px 24px; display: flex; align-items: center; justify-content: space-between; gap: 16px; position: sticky; top: 0; z-index: 100; transition: var(--transition); }
-  .logo { font-size: 26px; font-weight: 900; letter-spacing: -1px; }
-  
-  .search-wrap { flex: 1; position: relative; max-width: 450px; }
-  .search-wrap input { padding: 12px 45px 12px 16px; border-radius: 99px; background: var(--surface); }
-  .search-icon { position: absolute; right: 16px; top: 50%; transform: translateY(-50%); color: var(--muted); font-size: 18px; pointer-events: none;}
-  .header-actions { display: flex; gap: 8px; }
+.btn { width: 100%; padding: 1rem; border: none; border-radius: var(--radius-sm); font-size: 1.05rem; font-weight: 800; font-family: var(--font); cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px; }
+.btn-primary { background: var(--accent); color: #fff; }
+.btn-primary:hover { background: var(--accent2); transform: translateY(-1px); box-shadow: 0 6px 20px var(--accent-glow); }
+.btn-primary:active { transform: translateY(0); }
+.btn-primary:disabled { background: var(--surface3); color: var(--text3); cursor: not-allowed; box-shadow: none; transform: none; }
+.btn-green { background: var(--green); color: #000; }
+.btn-green:hover { filter: brightness(1.1); transform: translateY(-1px); }
 
-  /* Stats & Tabs */
-  .stats-tabs-container { padding: 16px 24px; border-bottom: 1px solid var(--border); display: flex; flex-direction: column; gap: 16px; background: rgba(24, 24, 27, 0.4); }
-  .stats-row { display: flex; gap: 12px; flex-wrap: wrap; }
-  .stat-pill { background: var(--surface2); border: 1px solid var(--border); border-radius: 99px; padding: 8px 16px; font-size: 14px; color: var(--text); font-weight: 500; display: flex; align-items: center; gap: 6px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
-  .health-bad { color: var(--warning); border-color: rgba(245, 158, 11, 0.4); background: rgba(245, 158, 11, 0.15); }
-  
-  .tabs-row { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 4px; scrollbar-width: none; }
-  .tab { background: var(--bg); border: 1px solid var(--border); border-radius: 99px; padding: 8px 20px; font-size: 14px; font-weight: 500; color: var(--muted); cursor: pointer; white-space: nowrap; transition: var(--transition); }
-  .tab:hover { border-color: var(--muted); color: var(--text); background: var(--surface2); }
-  .tab.active { background: var(--text); color: var(--bg); border-color: var(--text); font-weight: 700; transform: scale(1.05); }
+.lock-footer { margin-top: 1.5rem; text-align: center; font-size: 0.82rem; color: var(--text3); line-height: 1.7; }
+.lock-footer a { color: var(--accent); text-decoration: none; font-weight: 700; }
 
-  /* Cards */
-  main { padding: 24px; padding-bottom: 120px; }
-  #cards-grid { display: grid; gap: 20px; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); }
-  .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; transition: transform 0.3s var(--spring), box-shadow 0.3s ease, border-color 0.3s ease; box-shadow: 0 10px 30px rgba(0,0,0,0.2); animation: cardPop 0.5s var(--spring) backwards; }
-  .card:hover { border-color: var(--muted); transform: translateY(-4px) scale(1.01); box-shadow: 0 20px 40px rgba(0,0,0,0.4); z-index: 2; }
-  @keyframes cardPop { from { opacity: 0; transform: translateY(20px) scale(0.95); } to { opacity: 1; transform: translateY(0) scale(1); } }
-  
-  .card-header { padding: 20px; display: flex; align-items: center; gap: 14px; border-bottom: 1px solid var(--border); background: rgba(255,255,255,0.01); }
-  .site-avatar { width: 48px; height: 48px; border-radius: 14px; flex-shrink: 0; object-fit: cover; border: 1px solid var(--border); transition: var(--transition); }
-  .card:hover .site-avatar { transform: scale(1.08) rotate(5deg); }
-  .card-site-name { font-weight: 800; font-size: 17px; margin-bottom: 2px; }
-  .card-site-url { font-size: 13px; color: var(--muted); direction: ltr; text-align: left; opacity: 0.8; }
-  .card-category { font-size: 11px; font-weight: 600; padding: 4px 10px; background: var(--accent-glow); color: var(--accent2); border-radius: 8px; margin-right: auto; }
-  
-  .card-body { padding: 20px; display: flex; flex-direction: column; gap: 12px; }
-  .field-row { background: rgba(0,0,0,0.2); border: 1px solid var(--border); border-radius: 14px; padding: 6px 6px 6px 12px; display: flex; align-items: center; gap: 10px; transition: var(--transition); }
-  .field-row:hover { border-color: var(--muted); background: var(--surface2); }
-  .field-label { font-size: 12px; color: var(--muted); width: 60px; font-weight: 700; text-align: center; background: rgba(255,255,255,0.05); padding: 8px 0; border-radius: 10px; }
-  .field-value { flex: 1; font-size: 15px; font-family: monospace; direction: ltr; text-align: left; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--text); transition: var(--transition); }
-  
-  .copy-btn { background: transparent; border: none; width: 36px; height: 36px; border-radius: 10px; color: var(--muted); cursor: pointer; transition: transform 0.2s var(--spring), color 0.2s ease, background 0.2s ease; display: flex; align-items: center; justify-content: center; font-size: 16px; }
-  .copy-btn:hover { background: var(--surface); color: var(--accent2); transform: scale(1.15); }
-  
-  .totp-display { font-family: monospace; font-size: 20px; font-weight: 900; color: var(--accent); letter-spacing: 3px; text-shadow: 0 0 15px var(--accent-glow); }
-  .card-footer { padding: 0 20px 20px; display: flex; gap: 10px; justify-content: flex-end; }
+.tabs-switch { display: flex; background: var(--bg); border-radius: var(--radius-sm); padding: 4px; margin-bottom: 1.5rem; border: 1px solid var(--border); }
+.tabs-switch button { flex: 1; padding: 0.6rem; border: none; background: transparent; color: var(--text2); cursor: pointer; border-radius: 6px; font-weight: 700; font-family: var(--font); font-size: 0.92rem; transition: 0.2s; }
+.tabs-switch button.active { background: var(--surface3); color: var(--text); box-shadow: 0 2px 8px rgba(0,0,0,0.3); }
 
-  /* FAB & Modals */
-  .fab { position: fixed; bottom: 32px; left: 50%; transform: translateX(-50%); background: linear-gradient(135deg, var(--accent), var(--accent2)); color: white; border: none; padding: 16px 32px; border-radius: 99px; font-size: 16px; font-weight: 800; cursor: pointer; box-shadow: 0 10px 30px var(--accent-glow); z-index: 99; transition: transform 0.3s var(--spring), box-shadow 0.3s ease; display: flex; align-items: center; gap: 8px; }
-  .fab:hover { transform: translateX(-50%) scale(1.05) translateY(-5px); box-shadow: 0 15px 40px rgba(99, 102, 241, 0.5); }
-  .fab:active { transform: translateX(-50%) scale(0.95); }
+/* ─── MAIN APP ─── */
+#app { display: none; height: 100vh; flex-direction: column; }
+#app.visible { display: flex; }
 
-  .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(12px); display: flex; align-items: center; justify-content: center; z-index: 200; padding: 20px; opacity: 0; pointer-events: none; transition: opacity 0.3s ease; }
-  .modal-overlay.open { opacity: 1; pointer-events: auto; }
-  .modal { background: var(--surface-solid); border: 1px solid var(--border); border-radius: 28px; width: 100%; max-width: 440px; padding: 28px; display: flex; flex-direction: column; gap: 20px; max-height: 90vh; overflow-y: auto; box-shadow: 0 25px 50px rgba(0,0,0,0.6); opacity: 0; transform: translateY(30px) scale(0.95); transition: transform 0.4s var(--spring), opacity 0.3s ease; }
-  .modal-overlay.open .modal { opacity: 1; transform: translateY(0) scale(1); }
-  
-  .modal-title { font-size: 20px; font-weight: 800; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); padding-bottom: 16px; }
-  
-  .form-group { display: flex; flex-direction: column; gap: 8px; position: relative; }
-  .form-group label { font-size: 13px; color: var(--text); font-weight: 600; padding-right: 4px; }
-  .pw-wrap { position: relative; }
-  .pw-toggle { position: absolute; left: 6px; top: 50%; transform: translateY(-50%); background: var(--surface2); border: none; color: var(--text); cursor: pointer; border-radius: 10px; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; transition: var(--transition); }
-  .pw-toggle:hover { background: var(--border); }
-  
-  /* Password Strength Bar */
-  .pw-strength-container { height: 4px; width: 100%; background: var(--surface2); border-radius: 4px; margin-top: 4px; overflow: hidden; }
-  .pw-strength-bar { height: 100%; width: 0; transition: width 0.4s var(--spring), background-color 0.4s ease; }
+.topbar { background: var(--surface); border-bottom: 1px solid var(--border); padding: 0.75rem 1rem; display: flex; align-items: center; gap: 10px; position: sticky; top: 0; z-index: 100; }
+.topbar-logo { display: flex; align-items: center; color: var(--accent); }
+.topbar-title { font-size: 1.2rem; font-weight: 900; flex-shrink: 0; color: var(--text); }
+.topbar-search { flex: 1; background: var(--bg); border: 1.5px solid var(--border); color: var(--text); padding: 0.55rem 0.9rem; border-radius: 50px; font-size: 0.92rem; font-family: var(--font); outline: none; min-width: 0; direction: rtl; transition: 0.2s; }
+.topbar-search:focus { border-color: var(--accent); }
+.topbar-search::placeholder { color: var(--text3); }
+.topbar-btn { background: var(--accent); color: #fff; border: none; width: 38px; height: 38px; border-radius: 50%; cursor: pointer; flex-shrink: 0; display: flex; align-items: center; justify-content: center; transition: 0.2s; }
+.topbar-btn:hover { background: var(--accent2); transform: scale(1.05); }
 
-  #toast { position: fixed; bottom: 40px; left: 50%; transform: translate(-50%, 20px); background: var(--text); color: var(--bg); padding: 14px 28px; border-radius: 99px; font-weight: 700; font-size: 15px; opacity: 0; pointer-events: none; transition: transform 0.4s var(--spring), opacity 0.3s ease; z-index: 9999; box-shadow: 0 15px 40px rgba(0,0,0,0.4); display: flex; align-items: center; gap: 8px; }
-  #toast.show { opacity: 1; transform: translate(-50%, 0); }
+.cat-bar { background: var(--surface); border-bottom: 1px solid var(--border); padding: 0.6rem 1rem; display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none; }
+.cat-bar::-webkit-scrollbar { display: none; }
+.cat-pill { flex-shrink: 0; padding: 5px 14px; border-radius: 50px; border: 1.5px solid var(--border); background: transparent; color: var(--text2); font-size: 0.82rem; font-weight: 700; font-family: var(--font); cursor: pointer; transition: 0.2s; white-space: nowrap; }
+.cat-pill.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+.cat-pill:hover:not(.active) { border-color: var(--accent); color: var(--text); }
 
-  .history-list { font-size: 12px; color: var(--muted); font-family: monospace; padding: 10px; background: rgba(0,0,0,0.3); border-radius: 10px; margin-top: 4px; }
-  #screen-warning { position: fixed; top: 0; left: 0; right: 0; background: rgba(239, 68, 68, 0.95); backdrop-filter: blur(8px); color: white; text-align: center; padding: 12px; font-size: 14px; font-weight: bold; z-index: 9999; display: none; box-shadow: 0 4px 20px rgba(239, 68, 68, 0.5); animation: slideDown 0.3s ease; }
-  @keyframes slideDown { from { transform: translateY(-100%); } to { transform: translateY(0); } }
+.main-content { flex: 1; overflow-y: auto; padding: 1rem; padding-bottom: 100px; }
+
+/* View Transitions */
+.view-container { display: none; }
+.view-container.visible { display: block; animation: fadeInView 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+@keyframes fadeInView { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+/* STATS BAR */
+.stats-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 1rem; }
+.stat-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 0.75rem; text-align: center; animation: scaleIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) backwards; }
+.stat-card:nth-child(1) { animation-delay: 0.05s; } .stat-card:nth-child(2) { animation-delay: 0.1s; } .stat-card:nth-child(3) { animation-delay: 0.15s; }
+@keyframes scaleIn { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+.stat-num { font-size: 1.5rem; font-weight: 900; }
+.stat-lbl { font-size: 0.72rem; color: var(--text2); font-weight: 600; margin-top: 2px; }
+
+/* PASSWORD LIST */
+.section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.6rem; margin-top: 0.3rem; }
+.section-title { font-size: 0.85rem; font-weight: 700; color: var(--text2); }
+
+.entry-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 0.9rem 1rem; margin-bottom: 8px; cursor: pointer; transition: border-color 0.15s, background 0.15s; display: flex; align-items: center; gap: 12px; }
+.entry-card:hover { border-color: var(--border2); background: var(--surface2); }
+.entry-icon { width: 42px; height: 42px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.3rem; flex-shrink: 0; font-weight: 900; }
+.entry-body { flex: 1; min-width: 0; }
+.entry-title { font-weight: 800; font-size: 0.98rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--text); }
+.entry-user { font-size: 0.8rem; color: var(--text2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; direction: ltr; text-align: right; }
+.entry-meta { display: flex; align-items: center; gap: 6px; margin-top: 4px; }
+.entry-badge { font-size: 0.68rem; font-weight: 700; padding: 2px 7px; border-radius: 50px; }
+.badge-excellent { background: rgba(251,191,36,0.15); color: var(--gold); }
+.badge-strong { background: rgba(16,185,129,0.15); color: var(--green); }
+.badge-medium { background: rgba(245,158,11,0.15); color: var(--yellow); }
+.badge-weak { background: rgba(239,68,68,0.15); color: var(--red); }
+.entry-age { font-size: 0.68rem; color: var(--text3); }
+
+.entry-actions { display: flex; gap: 6px; flex-shrink: 0; }
+.icon-btn { width: 34px; height: 34px; border-radius: 8px; border: 1px solid var(--border); background: var(--surface3); color: var(--text2); cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.2s; flex-shrink: 0; }
+.icon-btn:hover { background: var(--surface2); color: var(--text); border-color: var(--border2); }
+
+.empty-state { text-align: center; padding: 3rem 1rem; color: var(--text3); display: flex; flex-direction: column; align-items: center; justify-content: center; }
+.empty-state p { font-size: 1rem; font-weight: 600; margin-bottom: 0.4rem; color: var(--text2); }
+.empty-state span { font-size: 0.85rem; }
+
+/* BOTTOM NAV */
+.bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: var(--surface); border-top: 1px solid var(--border); display: flex; z-index: 100; padding-bottom: env(safe-area-inset-bottom); }
+.bnav-btn { flex: 1; padding: 0.7rem 0.5rem 0.5rem; border: none; background: transparent; color: var(--text3); cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 4px; font-family: var(--font); transition: color 0.2s; }
+.bnav-btn svg { width: 22px; height: 22px; stroke: currentColor; }
+.bnav-btn .lbl { font-size: 0.68rem; font-weight: 700; }
+.bnav-btn.active { color: var(--accent); }
+.bnav-btn:hover:not(.active) { color: var(--text2); }
+
+/* ─── MODAL / SHEET ─── */
+.overlay { position: fixed; inset: 0; z-index: 500; background: rgba(0,0,0,0.6); backdrop-filter: blur(3px); display: flex; align-items: flex-end; opacity: 0; pointer-events: none; transition: opacity 0.25s; }
+.overlay.show { opacity: 1; pointer-events: all; }
+.sheet { width: 100%; background: var(--surface); border-radius: 24px 24px 0 0; border-top: 1px solid var(--border); padding: 1.5rem 1.5rem 2rem; max-height: 92vh; overflow-y: auto; transform: translateY(100%); transition: transform 0.35s cubic-bezier(0.32, 0.72, 0, 1); }
+.overlay.show .sheet { transform: translateY(0); }
+.sheet-handle { width: 40px; height: 4px; background: var(--border2); border-radius: 2px; margin: 0 auto 1.5rem; }
+.sheet-title { font-size: 1.2rem; font-weight: 900; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 8px; }
+
+.form-row { margin-bottom: 1rem; }
+.form-label { font-size: 0.85rem; font-weight: 700; color: var(--text2); margin-bottom: 0.4rem; display: flex; justify-content: space-between; align-items: center; }
+.form-input { width: 100%; background: var(--bg); border: 1.5px solid var(--border); color: var(--text); padding: 0.8rem 1rem; border-radius: var(--radius-sm); font-size: 0.95rem; font-family: var(--font); outline: none; transition: border-color 0.2s; }
+.form-input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-glow); }
+.form-input.ltr { direction: ltr; text-align: left; }
+.form-select { width: 100%; background: var(--bg); border: 1.5px solid var(--border); color: var(--text); padding: 0.8rem 1rem; border-radius: var(--radius-sm); font-size: 0.95rem; font-family: var(--font); outline: none; cursor: pointer; appearance: none; }
+.form-select:focus { border-color: var(--accent); }
+
+.password-field-wrap { position: relative; }
+.password-field-wrap .form-input { padding-left: 80px; }
+.pwd-actions { position: absolute; left: 6px; top: 50%; transform: translateY(-50%); display: flex; gap: 4px; }
+.pwd-actions button { background: var(--surface3); border: none; color: var(--text2); width: 30px; height: 30px; border-radius: 6px; cursor: pointer; font-size: 0.85rem; display: flex; align-items: center; justify-content: center; transition: 0.15s; }
+.pwd-actions button:hover { color: var(--text); background: var(--surface2); }
+
+.gen-options { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 0.6rem; }
+.len-slider { width: 100%; accent-color: var(--accent); margin: 0.5rem 0; cursor: pointer; }
+
+.save-row { display: flex; gap: 8px; margin-top: 1.5rem; }
+.save-row .btn { flex: 1; }
+.btn-ghost { background: transparent; border: 1.5px solid var(--border); color: var(--text2); }
+.btn-ghost:hover { border-color: var(--border2); color: var(--text); }
+
+/* ─── ENTRY DETAIL SHEET ─── */
+.detail-header { display: flex; align-items: center; gap: 12px; margin-bottom: 1.5rem; }
+.detail-icon { width: 56px; height: 56px; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 1.8rem; }
+.detail-info h2 { font-size: 1.2rem; font-weight: 900; }
+.detail-info p { font-size: 0.85rem; color: var(--text2); }
+
+.detail-field { margin-bottom: 1rem; }
+.detail-field-label { font-size: 0.78rem; font-weight: 700; color: var(--text3); margin-bottom: 0.3rem; }
+.detail-field-val { background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 0.7rem 1rem; display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.detail-field-val span { font-family: var(--mono); font-size: 0.9rem; direction: ltr; text-align: left; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1; min-width: 0; }
+.detail-field-val span.blurred { filter: blur(6px); cursor: pointer; }
+.detail-field-val .mini-btns { display: flex; gap: 4px; flex-shrink: 0; }
+.mini-btn { background: var(--surface3); border: none; color: var(--text2); width: 28px; height: 28px; border-radius: 6px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.15s; }
+.mini-btn:hover { color: var(--text); background: var(--surface2); }
+.mini-btn svg { width: 14px; height: 14px; }
+
+.strength-detail { margin: 1rem 0; }
+.strength-row { display: flex; align-items: center; gap: 10px; margin-bottom: 0.5rem; }
+.strength-row .label { font-size: 0.85rem; font-weight: 700; color: var(--text2); }
+.strength-row .value { font-size: 0.85rem; font-weight: 700; }
+.strength-segments { display: flex; gap: 3px; height: 6px; }
+.strength-segment { flex: 1; border-radius: 3px; background: var(--surface3); }
+
+.detail-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 1.5rem; }
+.detail-actions .btn { font-size: 0.9rem; padding: 0.8rem; }
+
+/* ─── GENERATOR VIEW ─── */
+.gen-result { background: var(--bg); border: 1.5px solid var(--accent); border-radius: var(--radius); padding: 1.2rem; font-family: var(--mono); font-size: 1.2rem; letter-spacing: 1px; text-align: center; margin-bottom: 1rem; word-break: break-all; color: var(--green); line-height: 1.6; min-height: 70px; display: flex; align-items: center; justify-content: center; }
+.gen-copy-row { display: flex; gap: 8px; margin-bottom: 1.5rem; }
+.gen-copy-row .btn { flex: 1; font-size: 0.92rem; padding: 0.9rem; }
+
+.gen-section { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.2rem; margin-bottom: 1rem; }
+.gen-section-title { font-size: 0.9rem; font-weight: 800; color: var(--text2); margin-bottom: 1rem; }
+.type-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px; }
+.type-btn { background: var(--surface3); border: 1.5px solid var(--border); color: var(--text2); padding: 0.7rem; border-radius: var(--radius-sm); cursor: pointer; font-size: 0.82rem; font-weight: 700; font-family: var(--font); transition: 0.15s; text-align: center; }
+.type-btn.active { border-color: var(--accent); color: var(--accent); background: var(--accent-glow); }
+.type-btn:hover:not(.active) { border-color: var(--border2); color: var(--text); }
+
+.range-row { display: flex; align-items: center; gap: 10px; }
+.range-row label { font-size: 0.85rem; font-weight: 700; color: var(--text2); flex-shrink: 0; }
+.range-row span { font-size: 0.85rem; font-weight: 900; color: var(--accent); width: 28px; text-align: center; }
+.range-row input[type=range] { flex: 1; accent-color: var(--accent); cursor: pointer; }
+
+.checks-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px; }
+.check-row { display: flex; align-items: center; gap: 8px; padding: 0.6rem 0.8rem; background: var(--surface3); border: 1.5px solid var(--border); border-radius: var(--radius-sm); cursor: pointer; transition: 0.15s; }
+.check-row.on { border-color: var(--accent); background: var(--accent-glow); }
+.check-row input { accent-color: var(--accent); width: 16px; height: 16px; cursor: pointer; pointer-events: none; }
+.check-row label { font-size: 0.8rem; font-weight: 700; color: var(--text2); cursor: pointer; flex: 1; pointer-events: none; }
+.check-row.on label { color: var(--text); }
+
+/* ─── AUDIT VIEW ─── */
+.audit-section { margin-bottom: 1.5rem; }
+.audit-title { font-size: 1rem; font-weight: 800; margin-bottom: 0.8rem; display: flex; align-items: center; gap: 6px; }
+.audit-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; margin-bottom: 6px; }
+.audit-item { display: flex; align-items: center; gap: 10px; padding: 0.8rem 1rem; border-bottom: 1px solid var(--border); }
+.audit-item:last-child { border-bottom: none; }
+.audit-item-icon { font-size: 1.1rem; flex-shrink: 0; }
+.audit-item-info { flex: 1; min-width: 0; }
+.audit-item-name { font-size: 0.9rem; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.audit-item-desc { font-size: 0.77rem; color: var(--text2); direction: ltr; text-align: right; }
+.audit-badge { font-size: 0.72rem; font-weight: 800; padding: 3px 9px; border-radius: 50px; flex-shrink: 0; }
+.score-circle { width: 100%; max-width: 180px; margin: 0 auto 1.5rem; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.5rem; text-align: center; }
+.score-num { font-size: 3.5rem; font-weight: 900; }
+.score-lbl { font-size: 0.85rem; color: var(--text2); font-weight: 600; }
+
+/* ─── SETTINGS VIEW ─── */
+.settings-group { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; margin-bottom: 1rem; }
+.settings-item { display: flex; align-items: center; gap: 12px; padding: 1rem; border-bottom: 1px solid var(--border); cursor: pointer; transition: background 0.15s; }
+.settings-item:last-child { border-bottom: none; }
+.settings-item:hover { background: var(--surface2); }
+.settings-item-icon { font-size: 1.2rem; flex-shrink: 0; }
+.settings-item-info { flex: 1; }
+.settings-item-title { font-size: 0.95rem; font-weight: 700; }
+.settings-item-desc { font-size: 0.78rem; color: var(--text2); margin-top: 2px; }
+
+/* TOGGLE */
+.toggle-wrap { position: relative; width: 44px; height: 24px; flex-shrink: 0; }
+.toggle-wrap input { opacity: 0; width: 0; height: 0; position: absolute; }
+.toggle-slider { position: absolute; inset: 0; background: var(--surface3); border-radius: 12px; cursor: pointer; transition: 0.2s; border: 1.5px solid var(--border); }
+.toggle-slider:before { content: ''; position: absolute; width: 16px; height: 16px; border-radius: 50%; background: var(--text2); left: 3px; top: 2px; transition: 0.2s; }
+input:checked + .toggle-slider { background: var(--accent); border-color: var(--accent); }
+input:checked + .toggle-slider:before { transform: translateX(20px); background: #fff; }
+
+/* ─── TOAST ─── */
+.toast { position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%) translateY(20px); background: var(--surface); border: 1px solid var(--border); color: var(--text); padding: 0.75rem 1.5rem; border-radius: 50px; font-size: 0.9rem; font-weight: 700; box-shadow: var(--shadow); opacity: 0; transition: all 0.3s; pointer-events: none; z-index: 9999; white-space: nowrap; }
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+.toast.success { background: var(--green); color: #000; border-color: var(--green); }
+.toast.error { background: var(--red); color: #fff; border-color: var(--red); }
+
+/* COLORS */
+.color-blue { background: rgba(14, 165, 233, 0.15); color: #0ea5e9; }
+.color-green { background: rgba(16, 185, 129, 0.15); color: #10b981; }
+.color-red { background: rgba(239, 68, 68, 0.15); color: #ef4444; }
+.color-yellow { background: rgba(245, 158, 11, 0.15); color: #f59e0b; }
+.color-purple { background: rgba(168, 85, 247, 0.15); color: #a855f7; }
+.color-orange { background: rgba(249, 115, 22, 0.15); color: #f97316; }
 </style>
 </head>
 <body>
 
-<div id="screen-warning">⚠️ تحذير: إحدى كلمات المرور مكشوفة حالياً - احذر تصوير الشاشة</div>
-
-<!-- Lock Screen -->
+<!-- LOCK SCREEN -->
 <div id="lock-screen">
-  <div class="lock-logo gradient-text">مفتاح</div>
-  <p class="lock-sub">
-    تشفير AES-256-GCM المعياري<br>
-    <span style="font-size: 0.9em; opacity: 0.8; display: inline-block; margin-top: 6px;">يعمل محلياً بالكامل — بياناتك لا تغادر جهازك</span>
-  </p>
+  <svg class="lock-logo-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+    <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+  </svg>
+  <h1 class="lock-title">مِفتاح</h1>
+  <p class="lock-sub">مدير كلمات المرور الآمن والمشفر</p>
+
   <div class="lock-card">
-    <h2 id="lock-title"></h2>
-    <div class="form-group">
-      <input type="password" id="master-input" placeholder="كلمة المرور الرئيسية" autocomplete="new-password" spellcheck="false" dir="auto">
+    <div class="tabs-switch" id="auth-tabs">
+      <button class="active" onclick="setAuthTab('unlock')" id="tab-unlock">فتح القبو</button>
+      <button onclick="setAuthTab('create')" id="tab-create">إنشاء قبو</button>
     </div>
-    <div class="form-group" id="confirm-wrap" style="display:none;">
-      <input type="password" id="master-confirm" placeholder="تأكيد كلمة المرور" autocomplete="new-password" spellcheck="false" dir="auto">
+
+    <!-- UNLOCK -->
+    <div id="panel-unlock">
+      <div class="input-wrap">
+        <label class="field-label">المفتاح الرئيسي</label>
+        <input type="password" id="unlock-pwd" class="form-input ltr" placeholder="كلمة المرور الرئيسية...">
+        <button class="eye-btn" onclick="toggleEye('unlock-pwd',this)">👁️</button>
+      </div>
+      <button class="btn btn-primary" id="btn-unlock" onclick="unlockVault()">🔓 فتح القبو</button>
+      <div style="margin-top:1rem; text-align:center; font-size:0.8rem; color:var(--text3);">
+        لا يوجد قبو محفوظ؟ <a href="#" style="color:var(--accent); font-weight:700;" onclick="setAuthTab('create'); return false;">أنشئ قبوًا جديداً</a>
+      </div>
     </div>
-    <button class="btn-primary" id="lock-btn">فتح الخزنة</button>
-    <p id="lock-error"></p>
-    <div style="font-size:12.5px; color:var(--muted); text-align:center; line-height: 1.6;">تشفير قوي وآمن.<br>لا يمكن استعادة البيانات نهائياً إذا فُقدت كلمة المرور.</div>
+
+    <!-- CREATE -->
+    <div id="panel-create" style="display:none;">
+      <div class="input-wrap">
+        <label class="field-label">المفتاح الرئيسي الجديد</label>
+        <input type="password" id="create-pwd" class="form-input ltr" placeholder="اختر مفتاحاً قوياً (8 أحرف أضعف الإيمان)..." oninput="evalStrength(this,'create-str-fill','create-str-lbl')">
+        <button class="eye-btn" onclick="toggleEye('create-pwd',this)">👁️</button>
+      </div>
+      <div class="strength-bar"><div class="strength-fill" id="create-str-fill"></div></div>
+      <div class="strength-label" id="create-str-lbl">قوة المفتاح: —</div>
+      <div class="input-wrap">
+        <label class="field-label">تأكيد المفتاح</label>
+        <input type="password" id="create-confirm" class="form-input ltr" placeholder="أعد كتابة المفتاح للتأكيد...">
+        <button class="eye-btn" onclick="toggleEye('create-confirm',this)">👁️</button>
+      </div>
+      <button class="btn btn-primary" id="btn-create" onclick="createVault()">✨ إنشاء القبو</button>
+    </div>
+
+    <div class="lock-footer">
+      🔒 كل البيانات مشفرة محلياً <strong>AES-256-GCM</strong>
+    </div>
   </div>
 </div>
 
-<div id="toast"></div>
-<div id="app-container"></div>
-
-<!-- ======================= TEMPLATES ======================= -->
-<template id="app-template">
-  <header>
-    <div class="logo gradient-text">مفتاح</div>
-    <div class="search-wrap">
-      <span class="search-icon">🔍</span>
-      <input type="search" id="search-input" placeholder="ابحث عن حساب، موقع..." autocomplete="off">
+<!-- MAIN APP -->
+<div id="app">
+  <div class="topbar">
+    <div class="topbar-logo">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
     </div>
-    <div class="header-actions">
-      <button class="icon-btn" aria-label="الإعدادات" data-action="open-settings" title="الإعدادات">⚙️</button>
-      <button class="icon-btn" aria-label="قفل الخزنة" data-action="lock-app" title="قفل">🔒</button>
-    </div>
-  </header>
-
-  <div class="stats-tabs-container">
-    <div class="stats-row" id="stats-bar"></div>
-    <div class="tabs-row" id="tabs-wrap"></div>
+    <div class="topbar-title">مِفتاح</div>
+    <input type="search" class="topbar-search" id="search-input" placeholder="🔍 بحث..." autocomplete="off">
+    <button class="topbar-btn" onclick="openAddSheet()" title="إضافة">+</button>
   </div>
 
-  <main>
-    <div id="cards-grid"></div>
-  </main>
-  <button class="fab" data-action="open-add">➕ إضافة حساب جديد</button>
+  <div class="cat-bar" id="cat-bar"></div>
 
-  <!-- Modals (ARIA Labels applied) -->
-  <div class="modal-overlay" id="form-modal" role="dialog" aria-modal="true" aria-labelledby="modal-title-text">
-    <div class="modal">
-      <div class="modal-title">
-        <span id="modal-title-text">إضافة حساب</span>
-        <button class="icon-btn" aria-label="إغلاق" data-action="close-modal" data-target="form-modal">✕</button>
-      </div>
-      <div class="form-group">
-        <label>الرابط (http/https)</label>
-        <input id="f-url" type="url" placeholder="https://example.com" autocomplete="off" spellcheck="false" dir="ltr">
-      </div>
-      <div class="form-group">
-        <label>اسم الموقع/التطبيق</label>
-        <input id="f-name" type="text" autocomplete="off" spellcheck="false">
-      </div>
-      <div class="form-group">
-        <label>المستخدم / البريد</label>
-        <input id="f-user" type="text" autocomplete="off" spellcheck="false" dir="ltr">
-      </div>
-      <div class="form-group">
-        <label>كلمة المرور</label>
-        <div class="pw-wrap">
-          <input id="f-pass" type="password" autocomplete="new-password" spellcheck="false" dir="ltr">
-          <button class="pw-toggle" aria-label="إظهار/إخفاء" data-action="toggle-form-pw" type="button">👁</button>
+  <div class="main-content" id="main-content">
+    <!-- PASSWORDS VIEW -->
+    <div id="view-passwords" class="view-container">
+      <div class="stats-row" id="stats-row"></div>
+      <div class="section-header">
+        <span class="section-title" id="list-label">كل كلمات المرور</span>
+        <div style="display:flex; align-items:center; gap:8px;">
+          <select class="form-select" id="sort-select" style="padding: 2px 8px; font-size:0.75rem; width:auto; border-radius:50px;" onchange="setSort(this.value)">
+            <option value="newest">الأحدث</option>
+            <option value="az">أ-ي</option>
+            <option value="za">ي-أ</option>
+            <option value="weak">الأضعف</option>
+          </select>
+          <span class="section-title" id="list-count" style="font-size:0.75rem;"></span>
         </div>
-        <div class="pw-strength-container"><div id="f-pw-bar" class="pw-strength-bar"></div></div>
-        <button class="btn-sm" data-action="generate-pw" style="margin-top:6px; background:var(--surface2);">⚡ توليد كلمة مرور قوية</button>
       </div>
-      <div class="form-group">
-        <label>رمز المصادقة الثنائية (اختياري)
-          <span style="display:block; font-size:11px; color:var(--muted); font-weight:normal; margin-top:4px;">الرمز السري من تطبيق المصادقة (Base32)</span>
-        </label>
-        <input id="f-totp" type="password" placeholder="JBSWY3DPEHPK3PXP" autocomplete="off" spellcheck="false" dir="ltr">
+      <div id="entries-list"></div>
+    </div>
+
+    <!-- GENERATOR VIEW -->
+    <div id="view-generator" class="view-container">
+      <div class="gen-result" id="gen-output">اضغط توليد</div>
+      <div class="gen-copy-row">
+        <button class="btn btn-primary" onclick="generatePassword()">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 3 21 3 21 8"></polyline><line x1="4" y1="20" x2="21" y2="3"></line><polyline points="21 16 21 21 16 21"></polyline><line x1="15" y1="15" x2="21" y2="21"></line><line x1="4" y1="4" x2="9" y2="9"></line></svg>
+          توليد
+        </button>
+        <button class="btn btn-green" onclick="copyGenerated()">📋 نسخ</button>
       </div>
-      <div class="form-group">
-        <label>التصنيف</label>
-        <input id="f-cat" type="text" placeholder="مثال: عمل، شخصي، بنوك" autocomplete="off">
+      <div class="gen-section">
+        <div class="gen-section-title">نوع كلمة المرور</div>
+        <div class="type-grid">
+          <button class="type-btn active" onclick="setGenType('random',this)">🔀 عشوائي</button>
+          <button class="type-btn" onclick="setGenType('passphrase',this)">📖 عبارة مرور</button>
+          <button class="type-btn" onclick="setGenType('pin',this)">🔢 رمز PIN</button>
+          <button class="type-btn" onclick="setGenType('memorable',this)">🧠 سهل الحفظ</button>
+        </div>
       </div>
-      <button class="btn-primary" data-action="save-entry">💾 حفظ في الخزنة</button>
+      <div class="gen-section" id="gen-random-opts">
+        <div class="gen-section-title">الطول</div>
+        <div class="range-row" style="margin-bottom:1rem;">
+          <label>الحروف</label>
+          <input type="range" id="gen-len" min="8" max="64" value="20" oninput="document.getElementById('gen-len-val').textContent=this.value; generatePassword();">
+          <span id="gen-len-val">20</span>
+        </div>
+        <div class="gen-section-title" style="margin-bottom:0.6rem;">الخيارات</div>
+        <div class="checks-grid">
+          <div class="check-row on" onclick="toggleCheck(this)"><input type="checkbox" id="opt-upper" checked><label>A-Z أحرف كبيرة</label></div>
+          <div class="check-row on" onclick="toggleCheck(this)"><input type="checkbox" id="opt-lower" checked><label>a-z أحرف صغيرة</label></div>
+          <div class="check-row on" onclick="toggleCheck(this)"><input type="checkbox" id="opt-nums" checked><label>0-9 أرقام</label></div>
+          <div class="check-row on" onclick="toggleCheck(this)"><input type="checkbox" id="opt-syms" checked><label>!@#$ رموز</label></div>
+        </div>
+      </div>
+      <div class="gen-section" id="gen-pin-opts" style="display:none;">
+        <div class="range-row">
+          <label>عدد الأرقام</label>
+          <input type="range" id="gen-pin-len" min="4" max="12" value="6" oninput="document.getElementById('gen-pin-val').textContent=this.value; generatePassword();">
+          <span id="gen-pin-val">6</span>
+        </div>
+      </div>
+      <div class="gen-section" id="gen-phrase-opts" style="display:none;">
+        <div class="range-row">
+          <label>عدد الكلمات</label>
+          <input type="range" id="gen-words" min="3" max="8" value="5" oninput="document.getElementById('gen-words-val').textContent=this.value; generatePassword();">
+          <span id="gen-words-val">5</span>
+        </div>
+        <div style="font-size:0.75rem; color:var(--text3); margin-top:0.8rem;">يعتمد على قائمة آمنة من 500 كلمة لتكوين عبارة قوية.</div>
+      </div>
+    </div>
+
+    <!-- AUDIT VIEW -->
+    <div id="view-audit" class="view-container">
+      <div id="audit-content"></div>
+    </div>
+
+    <!-- SETTINGS VIEW -->
+    <div id="view-settings" class="view-container">
+      <div style="margin-bottom:1rem;">
+        <div style="font-size:1.1rem; font-weight:900; margin-bottom:0.3rem;">الإعدادات</div>
+        <div style="font-size:0.82rem; color:var(--text2);">جميع البيانات مشفرة محلياً فقط</div>
+      </div>
+
+      <div class="settings-group">
+        <div class="settings-item" onclick="exportVault()">
+          <div class="settings-item-icon">📤</div>
+          <div class="settings-item-info">
+            <div class="settings-item-title">تصدير القبو</div>
+            <div class="settings-item-desc">تنزيل نسخة احتياطية مشفرة (.miftah)</div>
+          </div>
+        </div>
+        <div class="settings-item" onclick="document.getElementById('import-file').click()">
+          <div class="settings-item-icon">📥</div>
+          <div class="settings-item-info">
+            <div class="settings-item-title">استيراد قبو</div>
+            <div class="settings-item-desc">استيراد نسخة احتياطية مشفرة</div>
+          </div>
+          <input type="file" id="import-file" accept=".miftah,.json" style="display:none" onchange="importVault(this)">
+        </div>
+      </div>
+
+      <div class="settings-group">
+        <div class="settings-item" onclick="document.getElementById('toggle-autolock').click()">
+          <div class="settings-item-icon">⏱️</div>
+          <div class="settings-item-info">
+            <div class="settings-item-title">قفل تلقائي</div>
+            <div class="settings-item-desc">قفل القبو عند الخمول (5 دقائق)</div>
+          </div>
+          <label class="toggle-wrap" onclick="event.stopPropagation()">
+            <input type="checkbox" id="toggle-autolock" checked onchange="savePref()">
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+        <div class="settings-item" onclick="document.getElementById('toggle-clipboard').click()">
+          <div class="settings-item-icon">📋</div>
+          <div class="settings-item-info">
+            <div class="settings-item-title">مسح الحافظة</div>
+            <div class="settings-item-desc">حذف كلمة المرور من الحافظة بعد 30 ثانية</div>
+          </div>
+          <label class="toggle-wrap" onclick="event.stopPropagation()">
+            <input type="checkbox" id="toggle-clipboard" checked onchange="savePref()">
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+      </div>
+
+      <div class="settings-group">
+        <div class="settings-item" onclick="changePassword()">
+          <div class="settings-item-icon">🔑</div>
+          <div class="settings-item-info">
+            <div class="settings-item-title">تغيير المفتاح الرئيسي</div>
+            <div class="settings-item-desc">تحديث كلمة مرور القبو الرئيسية</div>
+          </div>
+        </div>
+        <div class="settings-item" onclick="lockApp()">
+          <div class="settings-item-icon">🔒</div>
+          <div class="settings-item-info">
+            <div class="settings-item-title">قفل القبو الآن</div>
+            <div class="settings-item-desc">العودة لشاشة القفل</div>
+          </div>
+        </div>
+        <div class="settings-item" onclick="confirmDeleteVault()">
+          <div class="settings-item-icon">🗑️</div>
+          <div class="settings-item-info">
+            <div class="settings-item-title" style="color:var(--red);">حذف القبو نهائياً</div>
+            <div class="settings-item-desc">تفريغ جهازك من كل كلمات المرور</div>
+          </div>
+        </div>
+      </div>
+
+      <div style="text-align:center; padding:1rem; font-size:0.78rem; color:var(--text3); line-height:1.7;">
+        <a href="https://github.com" style="color:var(--text3); text-decoration:none;">مِفتاح v2.1 • مفتوح المصدر</a><br>
+        🔒 AES-256-GCM • PBKDF2 • 600,000 دورة<br>
+        لا خوادم • لا تتبع • خصوصيتك ملكك
+      </div>
     </div>
   </div>
 
-  <div class="modal-overlay" id="confirm-modal" role="dialog" aria-modal="true" aria-labelledby="confirm-title">
-    <div class="modal">
-      <div class="modal-title"><span id="confirm-title">تأكيد الحذف</span><button class="icon-btn" aria-label="إغلاق" data-action="close-modal" data-target="confirm-modal">✕</button></div>
-      <div style="color:var(--text); font-size:14px; line-height:1.6;">
-        سيُحذف هذا الحساب من الخزنة. <span style="color:var(--muted);">(النسخ الاحتياطية السابقة لا تتأثر).</span><br>
-        لتأكيد الحذف نهائياً، اكتب <strong style="color:var(--danger)">DELETE</strong> بالأسفل:
+  <!-- BOTTOM NAV -->
+  <nav class="bottom-nav">
+    <button class="bnav-btn active" id="bnav-passwords" onclick="switchView('passwords')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"></path></svg>
+      <span class="lbl">القبو</span>
+    </button>
+    <button class="bnav-btn" id="bnav-generator" onclick="switchView('generator')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 3 21 3 21 8"></polyline><line x1="4" y1="20" x2="21" y2="3"></line><polyline points="21 16 21 21 16 21"></polyline><line x1="15" y1="15" x2="21" y2="21"></line><line x1="4" y1="4" x2="9" y2="9"></line></svg>
+      <span class="lbl">مُولد</span>
+    </button>
+    <button class="bnav-btn" id="bnav-audit" onclick="switchView('audit')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+      <span class="lbl">فحص</span>
+    </button>
+    <button class="bnav-btn" id="bnav-settings" onclick="switchView('settings')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+      <span class="lbl">إعدادات</span>
+    </button>
+  </nav>
+</div>
+
+<!-- ADD/EDIT SHEET -->
+<div class="overlay" id="add-sheet" onclick="closeSheet('add-sheet',event)">
+  <div class="sheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-title" id="add-sheet-title">➕ إضافة كلمة مرور</div>
+
+    <div class="form-row">
+      <div class="form-label">الاسم / الخدمة *</div>
+      <input type="text" class="form-input" id="f-title" placeholder="مثال: Gmail, Twitter..." autocomplete="off">
+    </div>
+    <div class="form-row">
+      <div class="form-label">اسم المستخدم / البريد *</div>
+      <input type="text" class="form-input ltr" id="f-username" placeholder="user@example.com" autocomplete="off">
+    </div>
+    <div class="form-row">
+      <div class="form-label">
+        <span>كلمة المرور *</span>
+        <span id="pwd-strength-lbl" style="font-size:0.75rem;"></span>
       </div>
-      <input type="text" id="delete-confirm-input" dir="ltr" placeholder="DELETE">
-      <button class="btn-primary" data-action="confirm-delete" style="background:var(--danger); box-shadow: 0 8px 20px rgba(239,68,68,0.3);">🗑 حذف نهائي</button>
+      <div class="password-field-wrap">
+        <input type="password" class="form-input ltr" id="f-password" placeholder="كلمة المرور..." oninput="liveStrength()" autocomplete="off">
+        <div class="pwd-actions">
+          <button onclick="toggleEye('f-password',this)" title="إظهار">👁️</button>
+          <button onclick="genForField()" title="توليد تلقائي">🎲</button>
+        </div>
+      </div>
+      <div class="strength-bar" style="margin-top:6px;"><div class="strength-fill" id="f-str-fill"></div></div>
+    </div>
+    <div class="form-row">
+      <div class="form-label">الرابط (اختياري)</div>
+      <input type="url" class="form-input ltr" id="f-url" placeholder="https://..." autocomplete="off">
+    </div>
+    <div class="form-row">
+      <div class="form-label">التصنيف</div>
+      <select class="form-select" id="f-category">
+        <option value="عام">🌐 عام</option>
+        <option value="عمل">💼 عمل</option>
+        <option value="بنوك">🏦 بنوك</option>
+        <option value="شبكات">📱 شبكات اجتماعية</option>
+        <option value="بريد">📧 بريد إلكتروني</option>
+        <option value="ترفيه">🎮 ترفيه</option>
+        <option value="أخرى">📁 أخرى</option>
+      </select>
+    </div>
+    <div class="form-row">
+      <div class="form-label">ملاحظات (اختياري)</div>
+      <textarea class="form-input" id="f-notes" rows="2" placeholder="أي معلومات إضافية..." style="resize:none;"></textarea>
+    </div>
+    <div class="save-row">
+      <button class="btn btn-ghost" onclick="closeSheet('add-sheet')">إلغاء</button>
+      <button class="btn btn-primary" onclick="saveEntry()">💾 حفظ</button>
     </div>
   </div>
+</div>
 
-  <div class="modal-overlay" id="settings-modal" role="dialog" aria-modal="true" aria-labelledby="settings-title">
-    <div class="modal">
-      <div class="modal-title"><span id="settings-title">إدارة الخزنة</span><button class="icon-btn" aria-label="إغلاق" data-action="close-modal" data-target="settings-modal">✕</button></div>
-      <button class="btn-primary" data-action="export-vault">📥 تصدير نسخة احتياطية (مشفرة)</button>
-      
-      <div style="border-top:1px solid var(--border); margin-top:12px; padding-top:16px;">
-        <label style="font-size:13px; color:var(--text); font-weight:bold;">استيراد ودمج نسخة احتياطية</label>
-        <input type="file" id="import-file" accept=".json" style="margin-top:8px; padding: 10px; font-size:13px;">
-      </div>
-
-      <div style="border-top:1px solid var(--border); margin-top:12px; padding-top:16px;">
-        <label style="font-size:13px; color:var(--danger); font-weight:bold;">تغيير كلمة المرور الرئيسية</label>
-        <!-- Security: إجبار المستخدم على إدخال كلمة المرور القديمة أولاً -->
-        <input type="password" id="current-pw-input" placeholder="كلمة المرور الحالية" style="margin-top:8px;" dir="auto">
-        <input type="password" id="change-pw-input" placeholder="كلمة المرور الجديدة (8 أحرف فأكثر)" style="margin-top:8px;" dir="auto">
-        <button class="btn-sm" data-action="change-master-pw" style="margin-top:10px; width:100%; padding:12px;">تغيير وإعادة التشفير</button>
+<!-- DETAIL SHEET -->
+<div class="overlay" id="detail-sheet" onclick="closeSheet('detail-sheet',event)">
+  <div class="sheet">
+    <div class="sheet-handle"></div>
+    <div class="detail-header">
+      <div class="detail-icon" id="d-icon"></div>
+      <div class="detail-info">
+        <h2 id="d-title"></h2>
+        <p id="d-cat"></p>
       </div>
     </div>
-  </div>
-
-  <div class="modal-overlay" id="import-pw-modal" role="dialog" aria-modal="true" aria-labelledby="import-pw-title">
-    <div class="modal">
-      <div class="modal-title"><span id="import-pw-title">فك تشفير النسخة</span><button class="icon-btn" aria-label="إغلاق" data-action="close-modal" data-target="import-pw-modal">✕</button></div>
-      <div style="color:var(--text); font-size:14px;">أدخل كلمة المرور التي تم تشفير ملف الاستيراد بها:</div>
-      <input type="password" id="import-pw-input" dir="auto" placeholder="كلمة مرور الملف">
-      <button class="btn-primary" data-action="process-import">فتح ودمج 📥</button>
+    <div class="detail-field">
+      <div class="detail-field-label">اسم المستخدم / البريد</div>
+      <div class="detail-field-val">
+        <span id="d-username" style="direction:ltr;"></span>
+        <div class="mini-btns"><button class="mini-btn" onclick="copyField('d-username','اسم المستخدم')" title="نسخ"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg></button></div>
+      </div>
+    </div>
+    <div class="detail-field">
+      <div class="detail-field-label">كلمة المرور</div>
+      <div class="detail-field-val">
+        <span id="d-password" class="blurred">••••••••••••</span>
+        <div class="mini-btns">
+          <button class="mini-btn" onclick="revealPassword()" id="d-reveal-btn" title="إظهار">👁️</button>
+          <button class="mini-btn" onclick="copyField('d-password','كلمة المرور')" title="نسخ"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg></button>
+        </div>
+      </div>
+    </div>
+    <div class="strength-detail" id="d-strength-section">
+      <div class="strength-row">
+        <span class="label">قوة المرور:</span>
+        <span class="value" id="d-strength-val"></span>
+      </div>
+      <div class="strength-segments" id="d-strength-segs"></div>
+    </div>
+    <div class="detail-field" id="d-url-field" style="display:none">
+      <div class="detail-field-label">الرابط</div>
+      <div class="detail-field-val">
+        <span id="d-url" style="direction:ltr; color:var(--accent);"></span>
+        <div class="mini-btns">
+          <button class="mini-btn" onclick="openUrl()" title="فتح">🔗</button>
+          <button class="mini-btn" onclick="copyField('d-url','الرابط')" title="نسخ"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg></button>
+        </div>
+      </div>
+    </div>
+    <div class="detail-field" id="d-notes-field" style="display:none">
+      <div class="detail-field-label">ملاحظات</div>
+      <div class="detail-field-val" style="display:block; padding:0.7rem 1rem;">
+        <span id="d-notes" style="font-family:inherit; word-break:break-word; white-space:pre-wrap; direction:rtl; text-align:right;"></span>
+      </div>
+    </div>
+    <div style="font-size:0.75rem; color:var(--text3); margin:0.5rem 0 1rem; text-align:left;">
+      تم الإضافة: <span id="d-date"></span>
+    </div>
+    <div class="detail-actions">
+      <button class="btn btn-ghost" onclick="editCurrentEntry()">✏️ تعديل</button>
+      <button class="btn" style="background:var(--red-glow);border:1.5px solid var(--red);color:var(--red);" onclick="triggerDelete()">🗑️ حذف</button>
     </div>
   </div>
-</template>
+</div>
+
+<!-- CHANGE PASSWORD SHEET -->
+<div class="overlay" id="change-pwd-sheet" onclick="closeSheet('change-pwd-sheet',event)">
+  <div class="sheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-title">🔑 تغيير المفتاح الرئيسي</div>
+    <div class="form-row">
+      <div class="form-label">المفتاح الحالي</div>
+      <div class="input-wrap" style="margin-bottom:0">
+        <input type="password" class="form-input ltr" id="chg-old" placeholder="المفتاح الحالي للتأكيد...">
+        <button class="eye-btn" onclick="toggleEye('chg-old',this)">👁️</button>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-label">المفتاح الجديد</div>
+      <div class="input-wrap" style="margin-bottom:0">
+        <input type="password" class="form-input ltr" id="chg-new" placeholder="المفتاح الجديد..." oninput="evalStrength(this,'chg-str-fill','chg-str-lbl')">
+        <button class="eye-btn" onclick="toggleEye('chg-new',this)">👁️</button>
+      </div>
+      <div class="strength-bar" style="margin-top:6px;"><div class="strength-fill" id="chg-str-fill"></div></div>
+      <div class="strength-label" id="chg-str-lbl">قوة المفتاح: —</div>
+    </div>
+    <div class="form-row">
+      <div class="form-label">تأكيد المفتاح الجديد</div>
+      <div class="input-wrap" style="margin-bottom:0">
+        <input type="password" class="form-input ltr" id="chg-confirm" placeholder="تأكيد...">
+        <button class="eye-btn" onclick="toggleEye('chg-confirm',this)">👁️</button>
+      </div>
+    </div>
+    <div class="save-row">
+      <button class="btn btn-ghost" onclick="closeSheet('change-pwd-sheet')">إلغاء</button>
+      <button class="btn btn-primary" id="btn-do-change" onclick="doChangePassword()">🔑 تغيير</button>
+    </div>
+  </div>
+</div>
+
+<!-- CONFIRM DESTRUCTIVE ACTION SHEET -->
+<div class="overlay" id="confirm-sheet" onclick="closeSheet('confirm-sheet',event)">
+  <div class="sheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-title" id="confirm-title" style="color:var(--red);">⚠️ تأكيد الإجراء</div>
+    <p id="confirm-msg" style="margin-bottom: 1.5rem; color: var(--text2); font-size:0.9rem; line-height:1.6;"></p>
+    <div class="form-row">
+      <div class="form-label">اكتب <strong id="confirm-keyword" style="color:var(--text); background:var(--surface3); padding:2px 6px; border-radius:4px; user-select:all;"></strong> للتأكيد</div>
+      <input type="text" class="form-input" id="confirm-input" placeholder="اكتب هنا..." autocomplete="off">
+    </div>
+    <div class="save-row">
+      <button class="btn btn-ghost" onclick="closeSheet('confirm-sheet')">إلغاء</button>
+      <button class="btn" style="background:var(--red-glow); color:var(--red); border:1.5px solid var(--red);" id="btn-confirm-action" disabled>🗑️ تأكيد</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+'use strict';
+// ─── CRYPTO HELPERS ───────────────────────────────────────────────────────────
+const ENC = new TextEncoder();
+const DEC = new TextDecoder();
+const PBKDF2_ITER = 600000;
+const SALT_STORE_KEY = 'miftah_salt';
+const DATA_STORE_KEY = 'miftah_vault';
+const PREFS_KEY = 'miftah_prefs';
+const MAGIC = 'MIFTAH_v2';
+
+function ab2b64(buf) { return btoa(String.fromCharCode(...new Uint8Array(buf))); }
+function b642ab(b64) { return Uint8Array.from(atob(b64), c => c.charCodeAt(0)).buffer; }
+function randBytes(n) { return crypto.getRandomValues(new Uint8Array(n)); }
+
+async function deriveKey(password, salt) {
+  const raw = await crypto.subtle.importKey('raw', ENC.encode(password), 'PBKDF2', false, ['deriveKey']);
+  return crypto.subtle.deriveKey(
+    { name: 'PBKDF2', salt, iterations: PBKDF2_ITER, hash: 'SHA-256' },
+    raw, { name: 'AES-GCM', length: 256 }, false, ['encrypt', 'decrypt']
+  );
+}
+
+async function encryptData(key, data) {
+  const iv = randBytes(12);
+  const enc = await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, key, ENC.encode(JSON.stringify(data)));
+  return { iv: ab2b64(iv), ct: ab2b64(enc) };
+}
+
+async function decryptData(key, payload) {
+  const dec = await crypto.subtle.decrypt({ name: 'AES-GCM', iv: b642ab(payload.iv) }, key, b642ab(payload.ct));
+  return JSON.parse(DEC.decode(dec));
+}
+
+// ─── STATE ───────────────────────────────────────────────────────────────────
+let masterKey = null; // No plain-text masterPwd in memory anymore
+let vaultData = { entries: [], magic: MAGIC };
+let currentView = 'passwords';
+let currentFilter = 'الكل';
+let currentSort = 'newest';
+let editingId = null;
+let currentDetailId = null;
+let genType = 'random';
+let autoLockTimer = null;
+let prefs = { autolock: true, clearClipboard: true };
+let failedAttempts = 0;
+
+// ─── INIT ─────────────────────────────────────────────────────────────────────
+window.onload = async () => {
+  loadPrefs();
+  const hasVault = !!localStorage.getItem(DATA_STORE_KEY);
+  if (hasVault) {
+    setAuthTab('unlock');
+    document.getElementById('tab-create').style.display = 'none';
+  } else {
+    setAuthTab('create');
+    document.getElementById('tab-unlock').style.display = 'none';
+  }
+  generatePassword();
+};
+
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeAllSheets(); });
+
+// ─── AUTH ─────────────────────────────────────────────────────────────────────
+function setAuthTab(tab) {
+  document.getElementById('panel-unlock').style.display = tab === 'unlock' ? 'block' : 'none';
+  document.getElementById('panel-create').style.display = tab === 'create' ? 'block' : 'none';
+  document.getElementById('tab-unlock').classList.toggle('active', tab === 'unlock');
+  document.getElementById('tab-create').classList.toggle('active', tab === 'create');
+}
+
+async function unlockVault() {
+  const pwd = document.getElementById('unlock-pwd').value;
+  if (!pwd) { showToast('أدخل المفتاح الرئيسي', 'error'); return; }
+  const btn = document.getElementById('btn-unlock');
+  btn.disabled = true; btn.textContent = '⏳ جاري الفتح...';
+  try {
+    const saltB64 = localStorage.getItem(SALT_STORE_KEY);
+    if (!saltB64) { showToast('لا يوجد قبو محفوظ', 'error'); return; }
+    const key = await deriveKey(pwd, b642ab(saltB64));
+    const stored = JSON.parse(localStorage.getItem(DATA_STORE_KEY));
+    const data = await decryptData(key, stored);
+    if (data.magic !== MAGIC) throw new Error('invalid');
+    
+    masterKey = key;
+    vaultData = data;
+    failedAttempts = 0; // Reset
+    openApp();
+  } catch(e) {
+    failedAttempts++;
+    const waitSec = Math.min(Math.pow(2, failedAttempts - 1), 60);
+    showToast('❌ مفتاح خاطئ أو القبو تالف', 'error');
+    btn.textContent = `⏳ انتظر ${waitSec} ثانية...`;
+    setTimeout(() => { btn.disabled = false; btn.textContent = '🔓 فتح القبو'; }, waitSec * 1000);
+  }
+}
+
+async function createVault() {
+  const pwd = document.getElementById('create-pwd').value;
+  const confirm = document.getElementById('create-confirm').value;
+  if (!pwd) { showToast('أدخل المفتاح الرئيسي', 'error'); return; }
+  if (pwd.length < 8) { showToast('المفتاح قصير جداً، 8 أحرف على الأقل', 'error'); return; }
+  if (pwd !== confirm) { showToast('المفتاحان غير متطابقين', 'error'); return; }
+  const btn = document.getElementById('btn-create');
+  btn.disabled = true; btn.textContent = '⏳ جاري الإنشاء...';
+  try {
+    const salt = randBytes(32);
+    masterKey = await deriveKey(pwd, salt);
+    vaultData = { entries: [], magic: MAGIC };
+    localStorage.setItem(SALT_STORE_KEY, ab2b64(salt));
+    await saveVault();
+    openApp();
+  } catch(e) {
+    showToast('خطأ في إنشاء القبو', 'error');
+    btn.disabled = false; btn.textContent = '✨ إنشاء القبو';
+  }
+}
+
+function openApp() {
+  document.getElementById('lock-screen').style.display = 'none';
+  const app = document.getElementById('app');
+  app.classList.add('visible');
+  document.getElementById('unlock-pwd').value = ''; // clear plain text pwd immediately
+  document.getElementById('create-pwd').value = '';
+  document.getElementById('create-confirm').value = '';
+  renderAll();
+  startAutoLock();
+  resetAutoLock();
+}
+
+function lockApp() {
+  masterKey = null;
+  vaultData = { entries: [], magic: MAGIC };
+  clearTimeout(autoLockTimer);
+  document.getElementById('app').classList.remove('visible');
+  document.getElementById('lock-screen').style.display = 'flex';
+  document.getElementById('unlock-pwd').value = '';
+  document.getElementById('btn-unlock').disabled = false;
+  document.getElementById('btn-unlock').textContent = '🔓 فتح القبو';
+  closeAllSheets();
+  switchView('passwords');
+}
+
+// ─── AUTO LOCK ────────────────────────────────────────────────────────────────
+function startAutoLock() { ['touchstart','click','keypress','mousemove'].forEach(e => document.addEventListener(e, resetAutoLock, {passive:true})); }
+function resetAutoLock() {
+  if (!prefs.autolock) return;
+  clearTimeout(autoLockTimer);
+  autoLockTimer = setTimeout(lockApp, 5 * 60 * 1000);
+}
+document.addEventListener('visibilitychange', () => { if (document.hidden && masterKey) lockApp(); });
+
+// ─── SAVE VAULT ───────────────────────────────────────────────────────────────
+async function saveVault() {
+  if (!masterKey) return;
+  const enc = await encryptData(masterKey, vaultData);
+  localStorage.setItem(DATA_STORE_KEY, JSON.stringify(enc));
+}
+
+// ─── RENDER ───────────────────────────────────────────────────────────────────
+const CATEGORIES = ['الكل','عام','عمل','بنوك','شبكات','بريد','ترفيه','أخرى'];
+const CAT_ICONS = { الكل:'🌐', عام:'🌐', عمل:'💼', بنوك:'🏦', شبكات:'📱', بريد:'📧', ترفيه:'🎮', أخرى:'📁' };
+
+function renderAll() { renderStats(); renderCatBar(); renderEntries(); }
+
+function renderStats() {
+  const entries = vaultData.entries;
+  const weak = entries.filter(e => getStrength(e.password).level < 2).length;
+  const strong = entries.filter(e => getStrength(e.password).level >= 3).length;
+  document.getElementById('stats-row').innerHTML = `
+    <div class="stat-card"><div class="stat-num">${entries.length}</div><div class="stat-lbl">إجمالي</div></div>
+    <div class="stat-card"><div class="stat-num" style="color:var(--green)">${strong}</div><div class="stat-lbl">قوية</div></div>
+    <div class="stat-card"><div class="stat-num" style="color:var(--red)">${weak}</div><div class="stat-lbl">ضعيفة</div></div>
+  `;
+}
+
+function renderCatBar() {
+  document.getElementById('cat-bar').innerHTML = CATEGORIES.map(c => `
+    <button class="cat-pill ${c === currentFilter ? 'active' : ''}" onclick="setFilter('${c}')">${CAT_ICONS[c]} ${c}</button>
+  `).join('');
+}
+
+function getFilteredEntries() {
+  const q = document.getElementById('search-input').value.trim().toLowerCase();
+  let list = vaultData.entries.filter(e => {
+    const catMatch = currentFilter === 'الكل' || e.category === currentFilter;
+    const search = !q || e.title.toLowerCase().includes(q) || e.username.toLowerCase().includes(q) || (e.url||'').toLowerCase().includes(q);
+    return catMatch && search;
+  });
+  
+  if (currentSort === 'newest') list.sort((a,b) => b.createdAt - a.createdAt);
+  else if (currentSort === 'az') list.sort((a,b) => a.title.localeCompare(b.title, 'ar'));
+  else if (currentSort === 'za') list.sort((a,b) => b.title.localeCompare(a.title, 'ar'));
+  else if (currentSort === 'weak') list.sort((a,b) => getStrength(a.password).bits - getStrength(b.password).bits);
+  
+  return list;
+}
+
+function renderEntries() {
+  const list = getFilteredEntries();
+  const container = document.getElementById('entries-list');
+  document.getElementById('list-count').textContent = `${list.length} عنصر`;
+
+  if (!list.length) {
+    container.innerHTML = `
+      <div class="empty-state">
+        <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom:1rem; opacity:0.8;"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+        <p>${vaultData.entries.length ? 'لا توجد نتائج بحث' : 'قبوك فارغ حالياً'}</p>
+        ${!vaultData.entries.length ? `<button class="btn btn-primary" onclick="openAddSheet()" style="margin-top:1rem; width:auto; padding:0.6rem 1.5rem; border-radius:50px;">➕ إضافة كلمة مرور</button>` : ''}
+      </div>`;
+    return;
+  }
+  container.innerHTML = list.map(e => entryCard(e)).join('');
+}
+
+function entryCard(e) {
+  const s = getStrength(e.password);
+  const age = getAge(e.createdAt);
+  const icon = getEntryIcon(e);
+  const colorClass = getColorClass(e.category);
+  // Using dataset to prevent inline JS XSS vulnerabilities
+  return `
+    <div class="entry-card" data-id="${esc(e.id)}">
+      <div class="entry-icon ${colorClass}">${icon}</div>
+      <div class="entry-body">
+        <div class="entry-title">${esc(e.title)}</div>
+        <div class="entry-user">${esc(e.username)}</div>
+        <div class="entry-meta">
+          <span class="entry-badge badge-${s.cls}">${s.label}</span>
+          <span class="entry-age">${age}</span>
+        </div>
+      </div>
+      <div class="entry-actions">
+        <button class="icon-btn copy-btn" data-id="${esc(e.id)}" title="نسخ كلمة المرور">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px;"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+        </button>
+      </div>
+    </div>
+  `;
+}
+
+// Event Delegation for Entry Cards
+document.getElementById('entries-list').addEventListener('click', e => {
+  const copyBtn = e.target.closest('.copy-btn');
+  if (copyBtn) {
+    quickCopy(copyBtn.dataset.id);
+    e.stopPropagation();
+    return;
+  }
+  const card = e.target.closest('.entry-card');
+  if (card) openDetail(card.dataset.id);
+});
+
+function getEntryIcon(e) {
+  const icons = { عمل:'💼', بنوك:'🏦', شبكات:'📱', بريد:'📧', ترفيه:'🎮', أخرى:'📁', عام:'🔑' };
+  return icons[e.category] || e.title.charAt(0).toUpperCase();
+}
+function getColorClass(cat) {
+  const map = { عام:'color-blue', عمل:'color-purple', بنوك:'color-green', شبكات:'color-blue', بريد:'color-yellow', ترفيه:'color-red', أخرى:'color-orange' };
+  return map[cat] || 'color-blue';
+}
+function getAge(ts) {
+  if (!ts) return '';
+  const diff = Date.now() - ts;
+  const days = Math.floor(diff / 86400000);
+  if (days === 0) return 'اليوم'; if (days === 1) return 'أمس';
+  if (days < 30) return `${days} يوم`; if (days < 365) return `${Math.floor(days/30)} شهر`;
+  return `${Math.floor(days/365)} سنة`;
+}
+
+// ─── STRENGTH ─────────────────────────────────────────────────────────────────
+function getStrength(pwd) {
+  if (!pwd) return { bits: 0, level: 0, label: 'فارغة', cls: 'weak' };
+  let pool = 0;
+  if (/[a-z]/.test(pwd)) pool += 26;
+  if (/[A-Z]/.test(pwd)) pool += 26;
+  if (/[0-9]/.test(pwd)) pool += 10;
+  if (/[^a-zA-Z0-9]/.test(pwd)) pool += 32;
+  const bits = pool > 0 ? pwd.length * Math.log2(pool) : 0;
+  if (bits < 28) return { bits, level: 0, label: 'ضعيفة جداً', cls: 'weak' };
+  if (bits < 45) return { bits, level: 1, label: 'ضعيفة', cls: 'weak' };
+  if (bits < 65) return { bits, level: 2, label: 'متوسطة', cls: 'medium' };
+  if (bits < 90) return { bits, level: 3, label: 'قوية', cls: 'strong' };
+  return { bits, level: 4, label: 'ممتازة', cls: 'excellent' };
+}
+
+const STR_COLORS = ['var(--red)','var(--red)','var(--yellow)','var(--green)','var(--gold)'];
+
+function evalStrength(input, fillId, lblId) {
+  const s = getStrength(input.value);
+  const pct = Math.min(s.bits / 100 * 100, 100);
+  document.getElementById(fillId).style.width = pct + '%';
+  document.getElementById(fillId).style.background = STR_COLORS[s.level];
+  document.getElementById(lblId).textContent = `قوة المفتاح: ${s.label} (${Math.round(s.bits)} بت)`;
+}
+
+function liveStrength() {
+  const pwd = document.getElementById('f-password').value;
+  const s = getStrength(pwd);
+  const pct = Math.min(s.bits / 100 * 100, 100);
+  document.getElementById('f-str-fill').style.width = pct + '%';
+  document.getElementById('f-str-fill').style.background = STR_COLORS[s.level];
+  document.getElementById('pwd-strength-lbl').textContent = s.label;
+  document.getElementById('pwd-strength-lbl').style.color = STR_COLORS[s.level];
+}
+
+// ─── ADD / EDIT ENTRY ─────────────────────────────────────────────────────────
+function openAddSheet() {
+  editingId = null;
+  document.getElementById('add-sheet-title').textContent = '➕ إضافة كلمة مرور';
+  ['f-title','f-username','f-password','f-url','f-notes'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('f-category').value = 'عام';
+  document.getElementById('f-str-fill').style.width = '0%';
+  document.getElementById('pwd-strength-lbl').textContent = '';
+  openSheet('add-sheet');
+}
+
+function openEditSheet(id) {
+  const e = vaultData.entries.find(x => x.id === id);
+  if (!e) return;
+  editingId = id;
+  document.getElementById('add-sheet-title').textContent = '✏️ تعديل كلمة المرور';
+  document.getElementById('f-title').value = e.title;
+  document.getElementById('f-username').value = e.username;
+  document.getElementById('f-password').value = e.password;
+  document.getElementById('f-url').value = e.url || '';
+  document.getElementById('f-notes').value = e.notes || '';
+  document.getElementById('f-category').value = e.category || 'عام';
+  liveStrength();
+  openSheet('add-sheet');
+}
+
+async function saveEntry() {
+  const title = document.getElementById('f-title').value.trim();
+  const username = document.getElementById('f-username').value.trim();
+  const password = document.getElementById('f-password').value;
+  if (!title || !username || !password) { showToast('أكمل الحقول المطلوبة', 'error'); return; }
+
+  if (editingId) {
+    const idx = vaultData.entries.findIndex(e => e.id === editingId);
+    if (idx > -1) {
+      vaultData.entries[idx] = { ...vaultData.entries[idx], title, username, password,
+        url: document.getElementById('f-url').value.trim(), notes: document.getElementById('f-notes').value.trim(),
+        category: document.getElementById('f-category').value, updatedAt: Date.now()
+      };
+    }
+  } else {
+    vaultData.entries.unshift({
+      id: genId(), title, username, password,
+      url: document.getElementById('f-url').value.trim(), notes: document.getElementById('f-notes').value.trim(),
+      category: document.getElementById('f-category').value, createdAt: Date.now(), updatedAt: Date.now()
+    });
+  }
+  await saveVault();
+  closeSheet('add-sheet');
+  renderAll();
+  showToast(editingId ? '✅ تم التعديل' : '✅ تمت الإضافة', 'success');
+  editingId = null;
+}
+
+// ─── DETAIL VIEW ──────────────────────────────────────────────────────────────
+let revealTimer;
+function openDetail(id) {
+  const e = vaultData.entries.find(x => x.id === id);
+  if (!e) return;
+  currentDetailId = id;
+  const icon = getEntryIcon(e);
+  document.getElementById('d-icon').textContent = icon;
+  document.getElementById('d-icon').className = `detail-icon ${getColorClass(e.category)}`;
+  document.getElementById('d-title').textContent = e.title;
+  document.getElementById('d-cat').textContent = `${CAT_ICONS[e.category] || '📁'} ${e.category}`;
+  document.getElementById('d-username').textContent = e.username;
+  
+  const pwdSpan = document.getElementById('d-password');
+  pwdSpan.textContent = e.password;
+  pwdSpan.setAttribute('data-real', e.password);
+  pwdSpan.classList.add('blurred');
+  document.getElementById('d-reveal-btn').textContent = '👁️';
+  clearTimeout(revealTimer);
+
+  const s = getStrength(e.password);
+  document.getElementById('d-strength-val').textContent = `${s.label} (${Math.round(s.bits)} بت)`;
+  document.getElementById('d-strength-val').style.color = STR_COLORS[s.level];
+  document.getElementById('d-strength-segs').innerHTML = [0,1,2,3,4].map(i => `<div class="strength-segment" style="background:${i <= s.level ? STR_COLORS[s.level] : 'var(--surface3)'}"></div>`).join('');
+
+  if (e.url) { document.getElementById('d-url-field').style.display = ''; document.getElementById('d-url').textContent = e.url; } 
+  else document.getElementById('d-url-field').style.display = 'none';
+
+  if (e.notes) { document.getElementById('d-notes-field').style.display = ''; document.getElementById('d-notes').textContent = e.notes; } 
+  else document.getElementById('d-notes-field').style.display = 'none';
+
+  document.getElementById('d-date').textContent = new Date(e.createdAt).toLocaleDateString('ar-SA');
+  openSheet('detail-sheet');
+}
+
+function revealPassword() {
+  const span = document.getElementById('d-password');
+  const isBlurred = span.classList.contains('blurred');
+  span.classList.toggle('blurred', !isBlurred);
+  document.getElementById('d-reveal-btn').textContent = isBlurred ? '🙈' : '👁️';
+  
+  if (isBlurred) { // Auto hide after 10s
+    clearTimeout(revealTimer);
+    revealTimer = setTimeout(() => {
+      span.classList.add('blurred');
+      document.getElementById('d-reveal-btn').textContent = '👁️';
+    }, 10000);
+  } else { clearTimeout(revealTimer); }
+}
+
+function openUrl() {
+  let url = document.getElementById('d-url').textContent;
+  if (!url) return;
+  if (!url.startsWith('http://') && !url.startsWith('https://')) url = 'https://' + url;
+  window.open(url, '_blank', 'noopener,noreferrer');
+}
+
+function copyField(id, label) {
+  const span = document.getElementById(id);
+  const text = span.getAttribute('data-real') || span.textContent;
+  copyToClipboard(text, label);
+}
+
+async function quickCopy(id) {
+  const e = vaultData.entries.find(x => x.id === id);
+  if (!e) return;
+  copyToClipboard(e.password, 'كلمة المرور');
+}
+
+function copyToClipboard(text, label) {
+  navigator.clipboard.writeText(text).then(() => {
+    showToast(`📋 تم نسخ ${label}`, 'success');
+    if (prefs.clearClipboard) setTimeout(() => navigator.clipboard.writeText('').catch(()=>{}), 30000);
+  }).catch(() => showToast('فشل النسخ', 'error'));
+}
+
+function editCurrentEntry() { closeSheet('detail-sheet'); setTimeout(() => openEditSheet(currentDetailId), 300); }
+
+// ─── FILTER / SEARCH / SORT ──────────────────────────────────────────────────
+let searchDebounce;
+document.getElementById('search-input').addEventListener('input', () => {
+  clearTimeout(searchDebounce);
+  searchDebounce = setTimeout(() => renderEntries(), 150);
+});
+
+function setFilter(cat) { currentFilter = cat; document.getElementById('list-label').textContent = cat === 'الكل' ? 'كل كلمات المرور' : cat; renderCatBar(); renderEntries(); }
+function setSort(sortType) { currentSort = sortType; renderEntries(); }
+
+// ─── VIEWS ────────────────────────────────────────────────────────────────────
+function switchView(view) {
+  currentView = view;
+  ['passwords','generator','audit','settings'].forEach(v => {
+    const el = document.getElementById(`view-${v}`);
+    if (v === view) { el.classList.add('visible'); } else { el.classList.remove('visible'); }
+    document.getElementById(`bnav-${v}`).classList.toggle('active', v === view);
+  });
+  document.getElementById('search-input').style.display = view === 'passwords' ? '' : 'none';
+  document.getElementById('cat-bar').style.display = view === 'passwords' ? '' : 'none';
+  if (view === 'audit') renderAudit();
+}
+
+// ─── PASSWORD GENERATOR ───────────────────────────────────────────────────────
+const WORDS = "apple,brave,cloud,dance,eagle,flame,grace,happy,island,jungle,karma,light,magic,noble,ocean,peace,quest,river,solar,tiger,ultra,vivid,water,xenon,yacht,zonal,storm,sonic,swift,smart,sharp,shine,shade,scope,scale,safe,sage,saga,rock,ride,rich,rice,rain,race,pure,pool,pine,pick,peak,pave,path,park,pace,open,only,once,next,moon,mind,mill,mile,mesh,meal,mark,map,love,loop,lock,lion,life,lens,leaf,lake,key,jump,iron,hope,home,gold,glow,gift,gem,gate,fast,fame,face,eye,even,dusk,drop,door,dome,dive,dark,core,corn,cool,code,coal,bark,ball,back,axe,atom,arch,aqua,bold,breeze,bronze,brush,burst,cabin,cable,calm,camp,candy,cane,cape,card,care,cart,case,cash,cast,cave,cell,cent,chef,chin,chip,chop,city,clap,claw,clay,clean,clip,clock,cloth,coach,coast,coin,cold,color,comb,come,cone,cook,copy,cost,cozy,crab,crew,crop,cross,crow,cube,cure,curl,cute,damp,dare,dart,dash,data,date,dawn,deaf,deal,dean,dear,debt,deck,deep,deer,desk,dial,dirt,dish,disk,dock,dose,draw,dream,drum,dual,duck,dust,duty,each,earn,ease,east,easy,edge,epic,equal,exam,exit,fact,fade,fair,fall,farm,fear,feat,feel,fest,film,find,fine,fire,firm,fish,flag,flat,flow,flux,fold,fond,food,fool,foot,ford,form,fort,free,frog,from,fuel,full,fund,gain,game,gang,gaze,gear,glad,glib,golf,good,grab,gram,gray,grid,grip,grow,gulf,guru,hair,half,hall,halo,hand,hard,harm,harp,hate,have,hawk,head,heal,hear,heat,help,hero,hide,high,hill,hint,hire,hold,holy,hook,horn,host,hour,huge,hunt,hurl,hurt,hush,icon,idea,idle,into,item,jazz,join,joke,just,keen,keep,kick,kill,kind,king,kiss,kite,knee,knot,know,lace,lack,lady,lamp,land,lane,long,look,lord,lose,loss,loud,luck,lump,lung,lure,lush,make,mall,malt,many,mass,mate,math,meat,meet,melt,menu,mere,milk,mine,mint,miss,mock,mode,mold,mood,more,most,move,much,mule,must,myth,name,navy,near,neat,neck,need,nest,news,nice,nine,node,none,noon,norm,note,noun,nova,nude,null,numb,oath,obey,oral,oval,oven,over,pack,page,pain,pair,palm,pant,part,pass,past,peer,pelt,pest,pet,pile,pill,pipe,pity,plan,play,plea,plot,plug,plus,poet,poll,polo,pomp,pond,pony,pope,port,pose,post,pour,pout,pray,prep,prey,prop,pull,pump,punk,push,quit,quiz,rack,raft,rage,rail,rare,rate,read,real,rear,rely,rent,rest,ring,riot,rise,risk,road,roar,roll,roof,room,root,rope,rose,ruin,rule,rush,rust,sack,sail,sake,sale,salt,same,sand,sane,save,scar,seat,seed,seek,seem,self,sell,send,tent,term,test,text,that,them,then,they,thin,this,turn,twin,type,unit,upon,urge,user,vast,very,veto,vice,view,vote,wage,wait,wake,walk,wall,want,ward,warm,wash,wave,weak,wear,weed,week,weep,well,west,what,when,whom,wide,wife,wild,will,wind,wine,wing,wire,wise,wish,with,wolf,wood,wool,word,work,worm,wrap,yard,yarn,year,yell,zero,zinc,zone,zoom".split(',');
+
+function generatePassword() {
+  let pwd = '';
+  switch(genType) {
+    case 'random': pwd = genRandom(); break;
+    case 'passphrase': pwd = genPassphrase(); break;
+    case 'pin': pwd = genPIN(); break;
+    case 'memorable': pwd = genMemorable(); break;
+  }
+  document.getElementById('gen-output').textContent = pwd;
+}
+
+function genRandom() {
+  const len = parseInt(document.getElementById('gen-len').value);
+  let chars = '';
+  if (document.getElementById('opt-upper').checked) chars += 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+  if (document.getElementById('opt-lower').checked) chars += 'abcdefghijklmnopqrstuvwxyz';
+  if (document.getElementById('opt-nums').checked) chars += '0123456789';
+  if (document.getElementById('opt-syms').checked) chars += '!@#$%^&*()_+-=[]{}|;:,.<>?';
+  if (!chars) chars = 'abcdefghijklmnopqrstuvwxyz';
+  const limit = 256 - (256 % chars.length);
+  let result = '';
+  while (result.length < len) {
+    const vals = crypto.getRandomValues(new Uint8Array(1));
+    if (vals[0] < limit) result += chars[vals[0] % chars.length];
+  }
+  return result;
+}
+
+function genPIN() { return Array.from(crypto.getRandomValues(new Uint8Array(parseInt(document.getElementById('gen-pin-len').value)))).map(v => v % 10).join(''); }
+function genPassphrase() {
+  const count = parseInt(document.getElementById('gen-words').value);
+  const chosen = [];
+  const vals = crypto.getRandomValues(new Uint32Array(count));
+  for (let i = 0; i < count; i++) chosen.push(WORDS[vals[i] % WORDS.length]);
+  const num = crypto.getRandomValues(new Uint8Array(1))[0] % 100;
+  return chosen.join('-') + '-' + num;
+}
+function genMemorable() {
+  const adj = ['fast','cool','dark','bright','sharp','bold','quick','smart','soft','wild'];
+  const noun = ['tiger','wave','storm','cloud','river','flame','rock','star','moon','blade'];
+  const av = crypto.getRandomValues(new Uint8Array(2));
+  const num = crypto.getRandomValues(new Uint8Array(1))[0] % 100;
+  const syms = '!@#$%';
+  const sv = crypto.getRandomValues(new Uint8Array(1))[0] % syms.length;
+  const a = adj[av[0] % adj.length]; const n = noun[av[1] % noun.length];
+  return `${a[0].toUpperCase()}${a.slice(1)}${n[0].toUpperCase()}${n.slice(1)}${num}${syms[sv]}`;
+}
+
+function setGenType(type, btn) {
+  genType = type;
+  document.querySelectorAll('.type-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('gen-random-opts').style.display = type === 'random' ? '' : 'none';
+  document.getElementById('gen-pin-opts').style.display = type === 'pin' ? '' : 'none';
+  document.getElementById('gen-phrase-opts').style.display = type === 'passphrase' ? '' : 'none';
+  generatePassword();
+}
+
+function copyGenerated() { copyToClipboard(document.getElementById('gen-output').textContent, 'كلمة المرور المولّدة'); }
+function genForField() { document.getElementById('f-password').value = genRandom(); liveStrength(); showToast('🎲 تم توليد كلمة مرور', 'success'); }
+function toggleCheck(row) {
+  row.classList.toggle('on');
+  const cb = row.querySelector('input[type=checkbox]');
+  cb.checked = !cb.checked;
+  generatePassword();
+}
+
+// ─── AUDIT ────────────────────────────────────────────────────────────────────
+function renderAudit() {
+  const entries = vaultData.entries;
+  if (!entries.length) {
+    document.getElementById('audit-content').innerHTML = `<div class="empty-state"><svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="1.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg><p>لا يوجد شيء للفحص</p><span>أضف كلمات مرور أولاً</span></div>`; return;
+  }
+  const weak = entries.filter(e => getStrength(e.password).level < 2);
+  const reused = findReused(entries);
+  const old = entries.filter(e => (Date.now() - e.createdAt) > 90 * 86400000);
+  const total = entries.length; const issues = weak.length + reused.length + old.length;
+  const score = Math.max(0, Math.round(100 - (issues / total) * 80));
+  const scoreColor = score >= 80 ? 'var(--green)' : score >= 50 ? 'var(--yellow)' : 'var(--red)';
+
+  let html = `<div class="score-circle"><div class="score-num" style="color:${scoreColor}">${score}</div><div class="score-lbl">نقاط الأمان</div></div>`;
+  html += auditSection('🔴 كلمات المرور الضعيفة', weak, 'ضعيفة', 'var(--red)');
+  html += auditSection('🟡 كلمات المرور المكررة', reused, 'مكررة', 'var(--yellow)');
+  html += auditSection('⏰ كلمات المرور القديمة (+90 يوم)', old, 'قديمة', 'var(--text2)');
+  if (!issues) html += `<div style="text-align:center; padding:2rem; color:var(--green); font-weight:800;">✅ قبوك آمن تماماً! استمر هكذا.</div>`;
+  document.getElementById('audit-content').innerHTML = html;
+}
+
+function findReused(entries) {
+  const pwdMap = {};
+  entries.forEach(e => { if (!pwdMap[e.password]) pwdMap[e.password] = []; pwdMap[e.password].push(e); });
+  return entries.filter(e => pwdMap[e.password].length > 1);
+}
+
+function auditSection(title, items, badgeTxt, color) {
+  if (!items.length) return `<div class="audit-section"><div class="audit-title" style="color:var(--green);">✅ ${title.replace(/^[🔴🟡⏰] /,'')} — آمنة</div></div>`;
+  return `
+    <div class="audit-section">
+      <div class="audit-title" style="color:${color};">${title} (${items.length})</div>
+      <div class="audit-card">
+        ${items.map(e => `
+          <div class="audit-item" onclick="closeSheet('detail-sheet'); switchView('passwords'); setTimeout(()=>openDetail('${e.id}'),100);" style="cursor:pointer;">
+            <div class="audit-item-icon">${getEntryIcon(e)}</div>
+            <div class="audit-item-info"><div class="audit-item-name">${esc(e.title)}</div><div class="audit-item-desc">${esc(e.username)}</div></div>
+            <span class="audit-badge" style="background:${color}20; color:${color};">${badgeTxt}</span>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+  `;
+}
+
+// ─── IMPORT / EXPORT ──────────────────────────────────────────────────────────
+async function exportVault() {
+  if (!masterKey) return;
+  const enc = await encryptData(masterKey, vaultData);
+  const blob = new Blob([JSON.stringify(enc)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = `miftah_backup_${new Date().toISOString().split('T')[0]}.miftah`; a.click();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+  showToast('📤 تم تصدير القبو بنجاح', 'success');
+}
+
+function validateEntry(e) {
+  return e && typeof e.id === 'string' && typeof e.title === 'string' &&
+    typeof e.username === 'string' && typeof e.password === 'string' &&
+    e.title.length < 200 && e.password.length < 1000;
+}
+
+async function importVault(input) {
+  const file = input.files[0]; if (!file) return;
+  try {
+    const payload = JSON.parse(await file.text());
+    const data = await decryptData(masterKey, payload);
+    if (data.magic !== MAGIC) throw new Error('invalid');
+    const existingIds = new Set(vaultData.entries.map(e => e.id));
+    const newEntries = data.entries.filter(e => validateEntry(e) && !existingIds.has(e.id));
+    vaultData.entries = [...vaultData.entries, ...newEntries];
+    await saveVault(); renderAll();
+    showToast(`📥 تم استيراد ${newEntries.length} عنصر جديد`, 'success');
+  } catch(e) { showToast('❌ فشل الاستيراد: مفتاح خاطئ أو ملف تالف', 'error'); }
+  input.value = '';
+}
+
+// ─── CHANGE PASSWORD ──────────────────────────────────────────────────────────
+function changePassword() {
+  ['chg-old','chg-new','chg-confirm'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('chg-str-fill').style.width = '0%';
+  document.getElementById('chg-str-lbl').textContent = 'قوة المفتاح: —';
+  openSheet('change-pwd-sheet');
+}
+
+async function doChangePassword() {
+  const oldPwd = document.getElementById('chg-old').value;
+  const newPwd = document.getElementById('chg-new').value;
+  if (newPwd.length < 8) { showToast('المفتاح الجديد قصير جداً', 'error'); return; }
+  if (newPwd !== document.getElementById('chg-confirm').value) { showToast('المفتاحان غير متطابقين', 'error'); return; }
+  
+  const saltB64 = localStorage.getItem(SALT_STORE_KEY);
+  if (!saltB64) return;
+  
+  const btn = document.getElementById('btn-do-change');
+  btn.disabled = true; btn.textContent = '⏳ جاري التغيير...';
+
+  try {
+    // 1. Verify old password mathematically instead of plain-text storage
+    const testKey = await deriveKey(oldPwd, b642ab(saltB64));
+    await decryptData(testKey, JSON.parse(localStorage.getItem(DATA_STORE_KEY))); 
+    
+    // 2. Generate new key and save
+    const newSalt = randBytes(32);
+    masterKey = await deriveKey(newPwd, newSalt);
+    localStorage.setItem(SALT_STORE_KEY, ab2b64(newSalt));
+    await saveVault();
+    
+    closeSheet('change-pwd-sheet');
+    showToast('✅ تم تغيير المفتاح بنجاح', 'success');
+  } catch(e) { 
+    showToast('❌ المفتاح الحالي خاطئ', 'error'); 
+  } finally {
+    btn.disabled = false; btn.textContent = '🔑 تغيير';
+  }
+}
+
+// ─── CUSTOM CONFIRM ───────────────────────────────────────────────────────────
+let confirmCallback = null;
+function openConfirm(title, msg, keyword, callback) {
+  document.getElementById('confirm-title').textContent = title;
+  document.getElementById('confirm-msg').textContent = msg;
+  document.getElementById('confirm-keyword').textContent = keyword;
+  document.getElementById('confirm-input').value = '';
+  document.getElementById('btn-confirm-action').disabled = true;
+  confirmCallback = callback;
+  
+  document.getElementById('confirm-input').oninput = function() {
+    document.getElementById('btn-confirm-action').disabled = this.value.trim() !== keyword;
+  };
+  
+  document.getElementById('btn-confirm-action').onclick = function() {
+    closeSheet('confirm-sheet');
+    if (confirmCallback) confirmCallback();
+  };
+  openSheet('confirm-sheet');
+}
+
+function triggerDelete() {
+  if (!currentDetailId) return;
+  openConfirm('⚠️ حذف كلمة المرور', 'هل أنت متأكد من رغبتك في حذف كلمة المرور هذه نهائياً؟', 'احذف', async () => {
+    vaultData.entries = vaultData.entries.filter(e => e.id !== currentDetailId);
+    await saveVault();
+    closeSheet('detail-sheet');
+    renderAll();
+    showToast('🗑️ تم الحذف بنجاح', 'success');
+  });
+}
+
+function confirmDeleteVault() {
+  openConfirm('⚠️ مسح القبو نهائياً', 'سيتم مسح كل كلمات المرور والبيانات الخاصة بك إلى الأبد من هذا المتصفح. لا يمكن التراجع عن هذا الإجراء.', 'مسح', () => {
+    localStorage.removeItem(DATA_STORE_KEY);
+    localStorage.removeItem(SALT_STORE_KEY);
+    localStorage.removeItem(PREFS_KEY);
+    location.reload();
+  });
+}
+
+// ─── PREFS ────────────────────────────────────────────────────────────────────
+function loadPrefs() {
+  try { prefs = { ...prefs, ...JSON.parse(localStorage.getItem(PREFS_KEY) || '{}') }; } catch(e) {}
+  document.getElementById('toggle-autolock').checked = prefs.autolock;
+  document.getElementById('toggle-clipboard').checked = prefs.clearClipboard;
+}
+function savePref() {
+  prefs.autolock = document.getElementById('toggle-autolock').checked;
+  prefs.clearClipboard = document.getElementById('toggle-clipboard').checked;
+  localStorage.setItem(PREFS_KEY, JSON.stringify(prefs));
+}
+
+// ─── SHEET HELPERS ────────────────────────────────────────────────────────────
+function openSheet(id) { document.getElementById(id).classList.add('show'); }
+function closeSheet(id, event) { if (!event || event.target === document.getElementById(id)) document.getElementById(id).classList.remove('show'); }
+function closeAllSheets() { document.querySelectorAll('.overlay').forEach(o => o.classList.remove('show')); }
+
+// ─── UTILS ────────────────────────────────────────────────────────────────────
+function esc(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function genId() { return ab2b64(randBytes(12)).replace(/[+/=]/g,''); }
+function toggleEye(inputId, btn) { const i = document.getElementById(inputId); i.type = i.type === 'password' ? 'text' : 'password'; btn.textContent = i.type === 'password' ? '👁️' : '🙈'; }
+
+let toastTimer;
+function showToast(msg, type = '') {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.className = 'toast show ' + type;
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+window.addEventListener('DOMContentLoaded', () => { switchView('passwords'); });
+</script>
 </body>
 </html>

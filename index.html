@@ -2,18 +2,14 @@
 <html lang="ar" dir="rtl">
 <head>
 <meta charset="UTF-8">
-<!--
-  🔒 CSP صارمة ومحدثة:
-  - script-src 'self' تمنع تنفيذ أي سكربت خارجي أو مضمن (Inline)
-  - style-src 'unsafe-inline' مسموحة للحفاظ على التنسيقات مدمجة بدون ملف خارجي
--->
 <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' blob:; style-src 'unsafe-inline'; img-src data: blob:; connect-src 'none'; font-src 'none'; frame-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none';">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="مفتاح - خزنة مشفرة محلياً لحفظ كلمات المرور والمصادقة الثنائية بأمان كامل داخل متصفحك.">
 <title>مفتاح - الخزنة المشفرة</title>
 <link rel="manifest" href="data:application/manifest+json,%7B%22name%22%3A%22%D9%85%D9%81%D8%AA%D8%A7%D8%AD%22%2C%22short_name%22%3A%22%D9%85%D9%81%D8%AA%D8%A7%D8%AD%22%2C%22display%22%3A%22standalone%22%2C%22start_url%22%3A%22.%22%2C%22background_color%22%3A%22%2309090b%22%2C%22theme_color%22%3A%22%236366f1%22%7D">
 
-<!-- ⚠️ تذكير: بعد أي تعديل على app.js، قم بتغيير الرقم في ?v= لتحديث الكاش عند المستخدمين -->
-<script src="./app.js?v=1" defer></script>
+<!-- ⚠️ تم التحديث إلى v2 لكسر الكاش القديم -->
+<script src="./app.js?v=2" defer></script>
 
 <style>
   :root {
@@ -200,8 +196,8 @@
   </main>
   <button class="fab" data-action="open-add">➕ إضافة حساب جديد</button>
 
-  <!-- Modals -->
-  <div class="modal-overlay" id="form-modal" role="dialog" aria-modal="true">
+  <!-- Modals (ARIA Labels applied) -->
+  <div class="modal-overlay" id="form-modal" role="dialog" aria-modal="true" aria-labelledby="modal-title-text">
     <div class="modal">
       <div class="modal-title">
         <span id="modal-title-text">إضافة حساب</span>
@@ -242,9 +238,9 @@
     </div>
   </div>
 
-  <div class="modal-overlay" id="confirm-modal" role="dialog" aria-modal="true">
+  <div class="modal-overlay" id="confirm-modal" role="dialog" aria-modal="true" aria-labelledby="confirm-title">
     <div class="modal">
-      <div class="modal-title"><span>تأكيد الحذف</span><button class="icon-btn" aria-label="إغلاق" data-action="close-modal" data-target="confirm-modal">✕</button></div>
+      <div class="modal-title"><span id="confirm-title">تأكيد الحذف</span><button class="icon-btn" aria-label="إغلاق" data-action="close-modal" data-target="confirm-modal">✕</button></div>
       <div style="color:var(--text); font-size:14px; line-height:1.6;">
         سيُحذف هذا الحساب من الخزنة. <span style="color:var(--muted);">(النسخ الاحتياطية السابقة لا تتأثر).</span><br>
         لتأكيد الحذف نهائياً، اكتب <strong style="color:var(--danger)">DELETE</strong> بالأسفل:
@@ -254,9 +250,9 @@
     </div>
   </div>
 
-  <div class="modal-overlay" id="settings-modal" role="dialog" aria-modal="true">
+  <div class="modal-overlay" id="settings-modal" role="dialog" aria-modal="true" aria-labelledby="settings-title">
     <div class="modal">
-      <div class="modal-title"><span>إدارة الخزنة</span><button class="icon-btn" aria-label="إغلاق" data-action="close-modal" data-target="settings-modal">✕</button></div>
+      <div class="modal-title"><span id="settings-title">إدارة الخزنة</span><button class="icon-btn" aria-label="إغلاق" data-action="close-modal" data-target="settings-modal">✕</button></div>
       <button class="btn-primary" data-action="export-vault">📥 تصدير نسخة احتياطية (مشفرة)</button>
       
       <div style="border-top:1px solid var(--border); margin-top:12px; padding-top:16px;">
@@ -266,15 +262,17 @@
 
       <div style="border-top:1px solid var(--border); margin-top:12px; padding-top:16px;">
         <label style="font-size:13px; color:var(--danger); font-weight:bold;">تغيير كلمة المرور الرئيسية</label>
+        <!-- Security: إجبار المستخدم على إدخال كلمة المرور القديمة أولاً -->
+        <input type="password" id="current-pw-input" placeholder="كلمة المرور الحالية" style="margin-top:8px;" dir="auto">
         <input type="password" id="change-pw-input" placeholder="كلمة المرور الجديدة (8 أحرف فأكثر)" style="margin-top:8px;" dir="auto">
         <button class="btn-sm" data-action="change-master-pw" style="margin-top:10px; width:100%; padding:12px;">تغيير وإعادة التشفير</button>
       </div>
     </div>
   </div>
 
-  <div class="modal-overlay" id="import-pw-modal" role="dialog" aria-modal="true">
+  <div class="modal-overlay" id="import-pw-modal" role="dialog" aria-modal="true" aria-labelledby="import-pw-title">
     <div class="modal">
-      <div class="modal-title"><span>فك تشفير النسخة</span><button class="icon-btn" aria-label="إغلاق" data-action="close-modal" data-target="import-pw-modal">✕</button></div>
+      <div class="modal-title"><span id="import-pw-title">فك تشفير النسخة</span><button class="icon-btn" aria-label="إغلاق" data-action="close-modal" data-target="import-pw-modal">✕</button></div>
       <div style="color:var(--text); font-size:14px;">أدخل كلمة المرور التي تم تشفير ملف الاستيراد بها:</div>
       <input type="password" id="import-pw-input" dir="auto" placeholder="كلمة مرور الملف">
       <button class="btn-primary" data-action="process-import">فتح ودمج 📥</button>
